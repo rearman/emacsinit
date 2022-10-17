@@ -153,6 +153,7 @@ Assumes common-init is defined as a variable in the separate init."
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(put 'dired-find-alternate-file 'disabled nil)
 
 ;; BINDINGS
 ;; USER SPACE
