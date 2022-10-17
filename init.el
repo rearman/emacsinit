@@ -1,7 +1,6 @@
 ;; -*- lexical-binding: t; -*-
 (defvar common-init "~/.emacs.d/common-init.el")
 (load-file common-init)
-(server-start)
 
 ;; WIN GUI SPECIFIC OPTIONS
 (tool-bar-mode -1)
