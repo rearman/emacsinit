@@ -177,6 +177,7 @@ Assumes common-init is defined as a variable in the separate init."
 (global-set-key (kbd "C-u") 'backward-kill-line)
 (global-set-key (kbd "C-w") 'kill-bword-or-region)
 (global-set-key (kbd "C-z") 'zap-up-to-char)
+(global-set-key (kbd "C-M-z") 'eval-region)
 (global-set-key (kbd "C-'") 'universal-argument)
 (global-set-key (kbd "M-%") 'replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
