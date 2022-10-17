@@ -20,7 +20,7 @@
   :straight t
   :custom
   (company-idle-delay 0.01)
-  (company-minimum-prefix-length 3)
+  (company-minimum-prefix-length 2)
   (company-selection-wrap-around t)
   :config
   (global-company-mode t))
