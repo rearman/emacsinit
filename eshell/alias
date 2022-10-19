@@ -1,0 +1,1 @@
+alias weather clear -l && curl https://wttr.in

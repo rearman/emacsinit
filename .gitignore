@@ -1,6 +1,6 @@
 auto-save-list/
-eshell/
-!eshell/alias
+eshell/*
+!/eshell/alias
 image-dired/
 server/
 straight/
