@@ -90,8 +90,8 @@ If line numbers were already on, leave them on."
 	  (goto-line (read-number "Goto Line: "))
 	(progn
 	  (display-line-numbers-mode 1)
-	  (goto-line (read-number "Goto Line: ")))
-	(display-line-numbers-mode -1))))
+	  (goto-line (read-number "Goto Line: "))
+	  (display-line-numbers-mode -1)))))
 
 (defun open-line-below ()
   "Creates a new empty line below the current line."
@@ -116,15 +116,15 @@ Can't go prev line first, edge case of beginning of buffer."
       (call-interactively 'kill-region)
     (call-interactively 'backward-kill-word)))
 
-(defun backward-kill-line (arg)
+(defun backward-kill-line ()
   "Kill back to beginning of line from point."
-  (interactive "*p")
-  (kill-line (- 1 arg)))
+  (interactive)
+  (kill-line 0))
 
-(defun backward-join-line (arg)
+(defun backward-join-line ()
   "A wrapper for join-line to make it go in the right direction."
-  (interactive "*p")
-  (join-line arg))
+  (interactive)
+  (join-line 0))
 
 (defun new-empty-buffer ()
   "Create a new empty buffer."
@@ -154,6 +154,7 @@ Assumes common-init is defined as a variable in the separate init."
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (put 'dired-find-alternate-file 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
 
 ;; BINDINGS
 ;; USER SPACE
@@ -162,15 +163,10 @@ Assumes common-init is defined as a variable in the separate init."
 (global-set-key (kbd "C-c ei") 'edit-init)
 (global-set-key (kbd "C-c ec") 'edit-common-init)
 (global-set-key (kbd "C-c h") 'global-hl-line-mode)
-(global-set-key (kbd "C-c ms") 'start-kbd-macro)
-(global-set-key (kbd "C-c me") 'end-kbd-macro)
-(global-set-key (kbd "C-c mc") 'call-last-kbd-macro)
 (global-set-key (kbd "C-c n") 'display-line-numbers-mode)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
 ;; OVERRIDES
 (global-set-key [remap goto-line] 'goto-line-with-feedback)
-(global-set-key (kbd "C-x k") 'kill-current-buffer)
-(global-set-key (kbd "C-x C-k") 'kill-buffer)
 (global-set-key (kbd "M-j") 'backward-join-line)
 (global-set-key (kbd "M-J") 'join-line)
 (global-set-key (kbd "C-o") 'open-line-below)
