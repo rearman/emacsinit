@@ -150,6 +150,8 @@ Assumes common-init is defined as a variable in the separate init."
   (interactive)
   (find-file common-init))
 
+(load-file "./work-eqs.el")
+
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
