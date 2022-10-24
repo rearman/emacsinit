@@ -1,7 +1,11 @@
 ;; WORK (NON-EDITING) RELATED DEFUNS
 (defun square (x)
   "Calculate the square of a value."
-  (* x x))
+  (expt x 2))
+
+(defun cube (x)
+  "Calculate the cube of a value."
+  (expt x 3))
 
 (defun scaleval (pmax pmin emax emin &optional ai)
   "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
@@ -33,3 +37,19 @@ Takes Ku, Tu and p-type (P, PI, or PID) as arguments, and returns appropriate kp
 	((or (equal 'pid p-type)
 	     (equal 'PID p-type))
 	 (list (* 0.6 Ku) (/ (* 1.2 Ku) Tu) (/ (* 3.0 Ku Tu) 40)))))
+
+(defun gn-water-per-lb (temp humidity)
+  "Calculate the grains of water per lb of air, given temperature (F) and humidity (%).
+Returns a list of Sat. Water Press., Hum. Ratio, and Gns Moisture/lb air."
+  (let ((sat-water-press (+ .0182795
+			    (* temp .001029904)
+			    (* (square temp) 0.00002579408)
+			    (* (cube temp) (* 2.400493 (expt 10 -7)))
+			    (* (expt temp 4) (* 8.100939 (expt 10 -10)))
+			    (* (expt temp 5) (* 3.256805 (expt 10 -11)))
+			    (* (expt temp 6) (* -1.001922 (expt 10 -13)))
+			    (* (expt temp 7) (* 2.44161 (expt 10 -16))))))
+    (let ((hum-press (* (/ humidity 100.0) sat-water-press)))
+      (let ((hum-ratio (/ (* hum-press 0.62198) (- 14.7 hum-press))))
+	(let ((gns-mstr-lb-air (* hum-ratio 7000)))
+	  (list sat-water-press hum-ratio gns-mstr-lb-air))))))
