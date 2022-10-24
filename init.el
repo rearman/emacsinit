@@ -1,10 +1,11 @@
 ;; -*- lexical-binding: t; -*-
 (defvar common-init "~/.emacs.d/common-init.el")
 (load-file common-init)
+(load-file "~/.emacs.d/work-eqs.el")
 
 ;; WIN GUI SPECIFIC OPTIONS
 (tool-bar-mode -1)
-(scroll-bar-mode -1)
+(set-scroll-bar-mode 'left)
 (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
 
 ;; HOOKS
