@@ -1,4 +1,5 @@
 ;; -*- lexical-binding: t; -*-
+
 ;; PACKAGES
 ;; NEW STRAIGHT.EL CONFIG
 (defvar bootstrap-version)
@@ -72,13 +73,13 @@
       org-startup-indented t)
 
 (setq-default indicate-empty-lines t
-	      cursor-type 'bar
-	      mode-line-format
-	      (list
-	       " " mode-line-modified
-	       " %[" mode-line-buffer-identification "%] %l,%c %6 "
-	       mode-line-misc-info
-	       mode-line-end-spaces))
+	      cursor-type 'bar)
+;;	      mode-line-format
+;;	      (list
+;;	       " " mode-line-modified
+;;	       " %[" mode-line-buffer-identification "%] %l,%c %6 "
+;;	       mode-line-misc-info
+;;	       mode-line-end-spaces))
 
 ;; DEFUNS
 (defun goto-line-with-feedback ()
@@ -149,8 +150,6 @@ Can't go prev line first, edge case of beginning of buffer."
 Assumes common-init is defined as a variable in the separate init."
   (interactive)
   (find-file common-init))
-
-(load-file "./work-eqs.el")
 
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
