@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 (defvar common-init "~/.emacs.d/common-init.el")
+(defvar work-eqns "~/.emacs.d/work-eqs.el")
 (load-file common-init)
-(load-file "~/.emacs.d/work-eqs.el")
 
 ;; WIN GUI SPECIFIC OPTIONS
 (tool-bar-mode -1)
