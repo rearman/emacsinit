@@ -151,6 +151,13 @@ Assumes common-init is defined as a variable in the separate init."
   (interactive)
   (find-file common-init))
 
+(defun last-window ()
+  "Go to last visited window."
+  (interactive)
+  (other-window -1))
+
+(load-file work-eqns)
+
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -177,6 +184,8 @@ Assumes common-init is defined as a variable in the separate init."
 (global-set-key (kbd "C-z") 'zap-up-to-char)
 (global-set-key (kbd "C-M-z") 'eval-region)
 (global-set-key (kbd "C-'") 'universal-argument)
+(global-set-key (kbd "C-.") 'other-window)
+(global-set-key (kbd "C-,") 'last-window)
 (global-set-key (kbd "M-%") 'replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
 
