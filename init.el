@@ -2,13 +2,15 @@
 ;; SETUP FOR SHARED WINDOWS/WSL INIT
 (if (< emacs-major-version 28)
     (progn (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-	   (defalias 'yes-or-no-p 'y-or-n-p)))
+	   (defalias 'yes-or-no-p 'y-or-n-p))
+  nil)
 
 (if (eq system-type 'windows-nt)
     (progn (defvar shared-system-init "~/.emacs.d/init.el")
 	   (defvar work-eqns "~/.emacs.d/work-eqs.el")
 	   (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
-	   (setq delete-by-moving-to-trash t)))
+	   (setq delete-by-moving-to-trash t))
+  nil)
 
 (load-file work-eqns)
 
@@ -52,7 +54,7 @@
   (message "Loading Magit...")
   :config
   (message "Loaded Magit!")
-  :bind (("C-x g". magit-status)))
+  :bind (("C-x g" . magit-status)))
 
 ;; OPTIONS
 (ido-mode t)
@@ -62,6 +64,7 @@
 (tool-bar-mode -1)
 (auto-fill-mode t)
 (show-paren-mode t)
+(column-number-mode t)
 (delete-selection-mode t)
 (set-scroll-bar-mode 'left)
 (global-hl-line-mode t)
@@ -194,6 +197,7 @@ Can't go prev line first, edge case of beginning of buffer."
 (global-set-key (kbd "C-c h") 'global-hl-line-mode)
 (global-set-key (kbd "C-c n") 'display-line-numbers-mode)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
+(global-set-key (kbd "C-c *") 'isearch-forward-thing-at-point) ;; vim-like helper for M-s M-.
 ;; OVERRIDES
 (global-set-key [remap goto-line] 'goto-line-with-feedback)
 (global-set-key (kbd "M-j") 'backward-join-line)
@@ -215,7 +219,7 @@ Can't go prev line first, edge case of beginning of buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(minibuffer-prompt-properties (quote (read-only t cursor-intangible t face minibuffer-prompt)))
+ '(minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt))
  )
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
