@@ -97,18 +97,6 @@
 	      cursor-type 'bar)
 
 ;; DEFUNS
-(defun goto-line-with-feedback ()
-  "Show line numbers, go to selected line, turn off line numbers.
-If line numbers were already on, leave them on."
-  (interactive)
-  (unwind-protect
-      (if (eq t display-line-numbers-mode)
-	  (goto-line (read-number "Goto Line: "))
-	(progn
-	  (display-line-numbers-mode 1)
-	  (goto-line (read-number "Goto Line: "))
-	  (display-line-numbers-mode -1)))))
-
 (defun open-line-below ()
   "Creates a new empty line below the current line."
   (interactive)
@@ -143,7 +131,7 @@ Can't go prev line first, edge case of beginning of buffer."
   (join-line 0))
 
 (defun new-empty-buffer ()
-  "Create a new empty buffer."
+  "Create a new empty buffer.  Stolen from Xah."
   (interactive)
   (let ((newbuf (generate-new-buffer "untitled")))
     (switch-to-buffer newbuf)
@@ -193,9 +181,7 @@ Can't go prev line first, edge case of beginning of buffer."
 (global-set-key (kbd "C-c h") 'global-hl-line-mode)
 (global-set-key (kbd "C-c n") 'display-line-numbers-mode)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
-
 ;; OVERRIDES
-(global-set-key [remap goto-line] 'goto-line-with-feedback)
 (global-set-key (kbd "M-j") 'backward-join-line)
 (global-set-key (kbd "M-J") 'join-line)
 (global-set-key (kbd "C-o") 'open-line-below)
@@ -217,7 +203,7 @@ Can't go prev line first, edge case of beginning of buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt))
+ '(minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)) ;; Stolen from Xah
  )
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
