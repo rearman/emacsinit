@@ -65,11 +65,14 @@
 (auto-fill-mode t)
 (show-paren-mode t)
 (column-number-mode t)
-(delete-selection-mode t)
+;;(delete-selection-mode t)
 (set-scroll-bar-mode 'left)
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
+
+(unless (display-graphic-p)
+  (xterm-mouse-mode 1))
 
 ;; HOOKS
 (add-hook 'after-init-hook 'visual-line-mode)
@@ -92,13 +95,6 @@
 
 (setq-default indicate-empty-lines t
 	      cursor-type 'bar)
-;;	      mode-line-format
-;;	      (list
-;;	       " " mode-line-modified
-;;	       " %[" mode-line-buffer-identification "%] %l,%c %6 "
-;;	       mode-line-misc-info
-;;	       mode-line-end-spaces))
-
 
 ;; DEFUNS
 (defun goto-line-with-feedback ()
@@ -197,13 +193,15 @@ Can't go prev line first, edge case of beginning of buffer."
 (global-set-key (kbd "C-c h") 'global-hl-line-mode)
 (global-set-key (kbd "C-c n") 'display-line-numbers-mode)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
-(global-set-key (kbd "C-c *") 'isearch-forward-thing-at-point) ;; vim-like helper for M-s M-.
+
 ;; OVERRIDES
 (global-set-key [remap goto-line] 'goto-line-with-feedback)
 (global-set-key (kbd "M-j") 'backward-join-line)
 (global-set-key (kbd "M-J") 'join-line)
 (global-set-key (kbd "C-o") 'open-line-below)
 (global-set-key (kbd "M-o") 'open-line-above)
+(global-set-key (kbd "M-s .") 'isearch-forward-thing-at-point)
+(global-set-key (kbd "M-s M-.") 'isearch-forward-symbol-at-point)
 (global-set-key (kbd "C-u") 'backward-kill-line)
 (global-set-key (kbd "C-w") 'kill-bword-or-region)
 (global-set-key (kbd "C-z") 'zap-up-to-char)
