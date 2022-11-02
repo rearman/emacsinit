@@ -138,20 +138,10 @@ Can't go prev line first, edge case of beginning of buffer."
     (setq buffer-offer-save t)
     newbuf))
 
-(defun kill-current-buffer ()
-  "Kill the current buffer instead of prompting."
-  (interactive)
-  (kill-buffer (current-buffer)))
-
 (defun edit-init ()
   "Bring up init.el for editing."
   (interactive)
   (find-file shared-system-init))
-
-(defun last-window ()
-  "Go to last visited window."
-  (interactive)
-  (other-window -1))
 
 (defun run-chicken ()
   "Opens a chicken-scheme repl to the right."
@@ -193,8 +183,10 @@ Can't go prev line first, edge case of beginning of buffer."
 (global-set-key (kbd "C-z") 'zap-up-to-char)
 (global-set-key (kbd "C-M-z") 'eval-region)
 (global-set-key (kbd "C-'") 'universal-argument)
-(global-set-key (kbd "C-.") 'other-window)
-(global-set-key (kbd "C-,") 'last-window)
+(global-set-key (kbd "C-.") 'next-window-any-frame)
+(global-set-key (kbd "C-,") 'previous-window-any-frame)
+(global-set-key (kbd "C-x .") 'next-buffer)
+(global-set-key (kbd "C-x ,") 'previous-buffer)
 (global-set-key (kbd "M-%") 'replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
 
