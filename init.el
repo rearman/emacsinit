@@ -9,7 +9,8 @@
     (progn (defvar shared-system-init "~/.emacs.d/init.el")
 	   (defvar work-eqns "~/.emacs.d/work-eqs.el")
 	   (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
-	   (setq delete-by-moving-to-trash t))
+	   (setq delete-by-moving-to-trash t
+		 gnuplot-program "c:/Program Files/gnuplot/bin/gnuplot.exe"))
   nil)
 
 (load-file work-eqns)
@@ -55,6 +56,9 @@
   :config
   (message "Loaded Magit!")
   :bind (("C-x g" . magit-status)))
+
+(use-package gnuplot-mode
+  :straight t)
 
 ;; OPTIONS
 (ido-mode t)
