@@ -1,10 +1,5 @@
 ;; -*- lexical-binding: t; -*-
 ;; SETUP FOR SHARED WINDOWS/WSL INIT
-(if (< emacs-major-version 28)
-    (progn (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-	   (defalias 'yes-or-no-p 'y-or-n-p))
-  nil)
-
 (if (eq system-type 'windows-nt)
     (progn (defvar shared-system-init "~/.emacs.d/init.el")
 	   (defvar work-eqns "~/.emacs.d/work-eqs.el")
@@ -147,20 +142,6 @@ Can't go prev line first, edge case of beginning of buffer."
   (interactive)
   (find-file shared-system-init))
 
-(defun run-chicken ()
-  "Opens a chicken-scheme repl to the right."
-  (interactive)
-  (setq scheme-program-name "csi -:c")
-  (split-window nil nil 'left)
-  (run-scheme scheme-program-name))
-
-(defun run-guile ()
-  "Opens a guile repl to the right."
-  (interactive)
-  (setq scheme-program-name "guile")
-  (split-window nil nil 'left)
-  (run-scheme scheme-program-name))
-
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -169,11 +150,8 @@ Can't go prev line first, edge case of beginning of buffer."
 
 ;; BINDINGS
 ;; USER SPACE
-(global-set-key (kbd "C-c ai") 'aggressive-indent-mode)
 (global-set-key (kbd "C-c b") 'new-empty-buffer)
 (global-set-key (kbd "C-c ei") 'edit-init)
-(global-set-key (kbd "C-c h") 'global-hl-line-mode)
-(global-set-key (kbd "C-c n") 'display-line-numbers-mode)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
 ;; OVERRIDES
 (global-set-key (kbd "M-j") 'backward-join-line)
