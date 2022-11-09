@@ -15,11 +15,11 @@
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
+      (bootstrap-version 6))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
 	(url-retrieve-synchronously
-	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
 	 'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
@@ -56,15 +56,14 @@
   :straight t)
 
 ;; OPTIONS
-(ido-mode t)
-(ido-everywhere t)
+;;(ido-mode t)
+;;(ido-everywhere t)
 (recentf-mode t)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (auto-fill-mode t)
 (show-paren-mode t)
 (column-number-mode t)
-;;(delete-selection-mode t)
 (set-scroll-bar-mode 'left)
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
@@ -78,13 +77,16 @@
 (add-hook 'before-save-hook 'whitespace-cleanup)
 
 ;; SETQ AND DEFAULTS
-(setq inhibit-startup-message t
+(setq default-directory "~/"
+      inhibit-startup-message t
       initial-scratch-message nil
+      require-final-newline t
       use-short-answers t
       mode-line-compact t
       make-backup-files nil
       auto-save-default nil
-      show-paren-delay 0.01
+      show-paren-delay 0.0001
+      show-paren-style 'mixed
       confirm-nonexistent-file-or-buffer nil
       ido-enable-flex-matching t
       ido-create-new-buffer 'always
@@ -93,6 +95,7 @@
       org-startup-indented t)
 
 (setq-default indicate-empty-lines t
+	      show-trailing-whitespace t
 	      cursor-type 'bar)
 
 ;; DEFUNS
