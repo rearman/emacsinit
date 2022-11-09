@@ -31,7 +31,7 @@
   :straight t
   :custom
   (company-idle-delay 0.01)
-  (company-minimum-prefix-length 2)
+  (company-minimum-prefix-length 3)
   (company-selection-wrap-around t)
   :config
   (global-company-mode t))
@@ -56,8 +56,6 @@
   :straight t)
 
 ;; OPTIONS
-;;(ido-mode t)
-;;(ido-everywhere t)
 (recentf-mode t)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -66,6 +64,7 @@
 (column-number-mode t)
 (set-scroll-bar-mode 'left)
 (global-hl-line-mode t)
+;;(global-visual-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
 
@@ -73,7 +72,6 @@
   (xterm-mouse-mode 1))
 
 ;; HOOKS
-(add-hook 'after-init-hook 'visual-line-mode)
 (add-hook 'before-save-hook 'whitespace-cleanup)
 
 ;; SETQ AND DEFAULTS
@@ -96,6 +94,8 @@
 
 (setq-default indicate-empty-lines t
 	      show-trailing-whitespace t
+	      read-file-name-completion-ignore-case t
+	      read-buffer-completion-ignore-case t
 	      cursor-type 'bar)
 
 ;; DEFUNS
