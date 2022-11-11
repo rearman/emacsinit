@@ -1,11 +1,10 @@
 ;; -*- lexical-binding: t; -*-
 ;; SETUP FOR SHARED WINDOWS/WSL INIT
 (if (eq system-type 'windows-nt)
-    (progn (defvar shared-system-init "~/.emacs.d/init.el")
-	   (defvar work-eqns "~/.emacs.d/work-eqs.el")
+    (progn (defvar shared-system-init (expand-file-name "init.el" user-emacs-directory))
+	   (defvar work-eqns (expand-file-name "work-eqs.el" user-emacs-directory))
 	   (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
-	   (setq delete-by-moving-to-trash t
-		 gnuplot-program "c:/Program Files/gnuplot/bin/gnuplot.exe"))
+	   (setq delete-by-moving-to-trash t))
   nil)
 
 (load-file work-eqns)
@@ -36,9 +35,9 @@
   :config
   (global-company-mode t))
 
-(use-package aggressive-indent
-  :straight t
-  :hook lisp-interaction-mode emacs-lisp-mode lisp-mode scheme-mode)
+;;(use-package aggressive-indent
+;;  :straight t
+;;  :hook lisp-interaction-mode emacs-lisp-mode lisp-mode scheme-mode)
 
 (use-package expand-region
   :straight t
@@ -64,7 +63,6 @@
 (column-number-mode t)
 (set-scroll-bar-mode 'left)
 (global-hl-line-mode t)
-;;(global-visual-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
 
