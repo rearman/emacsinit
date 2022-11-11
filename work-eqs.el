@@ -83,9 +83,14 @@ Applies `c-to-k' to `f-to-c'."
 (defun max-counts (resolution)
   "Calculate the max count for a PLC analog, given card's bit-resolution.
 Formula is 1 - 2^(resolution)"
-  (- (expt 2 resolution) 1.0))
+  (- (expt 2 resolution) 1))
 
 (defun volts-to-counts (vin vmax resolution)
   "Convert a voltage signal to a PLC count.
 Calculates a ratio of vin/vmax, then scales by `max-counts'."
-  (* (/ vin vmax) (max-counts resolution)))
+  (* (/ (float vin) (float vmax)) (float (max-counts resolution))))
+
+(defun counts-to-volts (cin vmax resolution)
+  "Convert a PLC count to a voltage.
+Calculates a ratio of cin/`max-counts', then multiplies by vmax."
+  (* (/ cin (float (max-counts resolution))) vmax))
