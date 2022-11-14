@@ -40,7 +40,17 @@ Can't go prev line first, edge case of beginning of buffer."
     (setq buffer-offer-save t)
     newbuf))
 
+(defun edit-defuns ()
+  "Bring up editing-defuns.el for editing."
+  (interactive)
+  (find-file editing-defuns))
+
 (defun edit-init ()
   "Bring up init.el for editing."
   (interactive)
   (find-file shared-system-init))
+
+(defun edit-work-eqs ()
+  "Bring up work-eqs.el for editing."
+  (interactive)
+  (find-file work-eqns))

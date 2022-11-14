@@ -102,8 +102,10 @@
 
 ;; BINDINGS
 ;; USER SPACE
-(global-set-key (kbd "C-c b") 'new-empty-buffer)
+(global-set-key (kbd "C-c b") 'buffer-menu-other-window)
+(global-set-key (kbd "C-c ed") 'edit-defuns)
 (global-set-key (kbd "C-c ei") 'edit-init)
+(global-set-key (kbd "C-c ew") 'edit-work-eqs)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
 ;; OVERRIDES
 (global-set-key (kbd "M-j") 'backward-join-line)
@@ -119,6 +121,7 @@
 (global-set-key (kbd "C-'") 'universal-argument)
 (global-set-key (kbd "C-.") 'next-window-any-frame)
 (global-set-key (kbd "C-,") 'previous-window-any-frame)
+(global-set-key (kbd "C-x C-b") 'buffer-menu)
 (global-set-key (kbd "C-x .") 'next-buffer)
 (global-set-key (kbd "C-x ,") 'previous-buffer)
 (global-set-key (kbd "M-%") 'replace-regexp)
