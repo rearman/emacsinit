@@ -7,15 +7,19 @@
   "Calculate the cube of a value."
   (expt x 3))
 
+(defun inv (x)
+  "Calculate the inverse of a value."
+  (/ 1 x))
+
 (defun scaleval (pmax pmin emax emin &optional ai)
   "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
 With optional argument 'ai', also calculate a final scaled value from an input."
-  (let ((div (/ (- pmax pmin) (- emax emin))))
+  (let ((div (/ (- pmax pmin) (- (float emax) (float emin)))))
     (let ((ofst (- emin (/ pmin div))))
-      (if (not (eq nil ai))
-	  (let ((final (+ ofst (/ ai div))))
-	    (list div ofst final))
-	(list div ofst)))))
+      (if (eq nil ai)
+	  (list div ofst)
+	(let ((final (+ ofst (/ ai div))))
+	  (list div ofst final))))))
 
 (defun cfm-circ (fpm radius)
   "Calculate the CFM of a circular duct given fpm and radius (in)."
@@ -94,3 +98,41 @@ Calculates a ratio of vin/vmax, then scales by `max-counts'."
   "Convert a PLC count to a voltage.
 Calculates a ratio of cin/`max-counts', then multiplies by vmax."
   (* (/ cin (float (max-counts resolution))) vmax))
+
+(defun eff-imp (r1 &optional r2)
+  "Calculate the effective input impedance, given two resistances.
+For use in `amps-to-volts' and related.  The handling of only one resistance
+given is done here, instead of doing it in every function that uses this."
+  (if (eq nil r2)
+      r1
+    (inv (+ (inv (float r1)) (inv (float r2))))))
+
+(defun amps-to-volts (amps r1 &optional r2)
+  "Calculate the voltage, given amperage and impedance.
+Multiplies the amperage by the effective impedance calculated with `eff-imp'."
+  (* amps (eff-imp r1 r2)))
+
+(defun volts-to-amps (volts r1 &optional r2)
+  "Calculate the amperage, given voltage and impedance.
+Divides the voltage by the effective impedance calculated with `eff-imp'."
+  (/ volts (eff-imp r1 r2)))
+
+(defun amps-to-counts (amps vmax resolution r1 &optional r2)
+  "Convert an amp signal to PLC Counts.
+Converts the amperage to a voltage using `amps-to-volts' (with r1 and optional r2),
+then applies `volts-to-counts' to the resulting voltage, vmax, and resolution."
+  (volts-to-counts (amps-to-volts amps r1 r2) vmax resolution))
+
+(defun count-range (type upper lower vmax resolution &optional r1 r2)
+  "Given an upper and lower signal, return the list of upper and lower PLC counts.
+Type takes either a v or an i, corresponding to a voltage or current signal.
+With a current signal, use r1 and maybe r2 to calculate `amps-to-counts'.
+Otherwise ignore r1/r2 and calculate `volts-to-counts'."
+  (cond ((or (equal 'v type)
+	     (equal 'V type))
+	 (list (volts-to-counts upper vmax resolution)
+	       (volts-to-counts lower vmax resolution)))
+	((or (equal 'i type)
+	     (equal 'I type))
+	 (list (amps-to-counts upper vmax resolution r1 r2)
+	       (amps-to-counts lower vmax resolution r1 r2)))))
