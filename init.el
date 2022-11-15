@@ -28,32 +28,36 @@
 
 (straight-use-package 'use-package)
 
+(use-package straight
+  :custom (straight-use-package-by-default t))
+
 (use-package company
-  :straight t
   :custom
-  (company-idle-delay 0.01)
+  (company-idle-delay 0)
   (company-minimum-prefix-length 3)
   (company-selection-wrap-around t)
+  (company-dabbrev-other-buffers t)
+  (company-dabbrev-code-other-buffers t)
+  (company-dabbrev-downcase nil)
+  (company-dabbrev-ignore-case t)
   :config
   (global-company-mode t))
 
 (use-package expand-region
-  :straight t
   :bind (("C-=" . er/expand-region)))
 
 (use-package magit
-  :straight t
   :init
   (message "Loading Magit...")
   :config
   (message "Loaded Magit!")
   :bind (("C-x g" . magit-status)))
 
-(use-package gnuplot-mode
-  :straight t)
+(use-package gnuplot-mode)
 
 ;; OPTIONS
 (recentf-mode t)
+(fringe-mode 1)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (auto-fill-mode t)
@@ -79,20 +83,22 @@
       mode-line-compact t
       make-backup-files nil
       auto-save-default nil
-      show-paren-delay 0.0001
+      show-paren-delay 0
       show-paren-style 'mixed
       confirm-nonexistent-file-or-buffer nil
       ido-enable-flex-matching t
       ido-create-new-buffer 'always
       org-M-RET-may-split-line nil
       org-startup-folded t
-      org-startup-indented t)
+      org-startup-indented t
+      mouse-autoselect-window t)
 
 (setq-default indicate-empty-lines t
 	      show-trailing-whitespace t
 	      read-file-name-completion-ignore-case t
 	      read-buffer-completion-ignore-case t
-	      cursor-type 'bar)
+	      cursor-type 'bar
+	      cursor-in-non-selected-windows nil)
 
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
