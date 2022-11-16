@@ -8,8 +8,8 @@
 	   (setq delete-by-moving-to-trash t))
   nil)
 
-(load-file work-eqns)
-(load-file editing-defuns)
+(load work-eqns)
+(load editing-defuns)
 
 ;; PACKAGES
 ;; NEW STRAIGHT.EL CONFIG
@@ -55,13 +55,20 @@
 
 (use-package gnuplot-mode)
 
+(use-package openwith
+  :config
+  (openwith-mode t)
+  (setq openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
+				("\\.xlsx\\'" "excel" (file))
+				("\\.doc\\'" "word" (file))
+				("\\.docx\\'" "word" (file)))))
+
 ;; OPTIONS
 (recentf-mode t)
 (fringe-mode 1)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (auto-fill-mode t)
-(show-paren-mode t)
 (column-number-mode t)
 (set-scroll-bar-mode 'left)
 (global-hl-line-mode t)
@@ -73,11 +80,13 @@
 
 ;; HOOKS
 (add-hook 'before-save-hook 'whitespace-cleanup)
+(add-hook 'dired-mode-hook 'dired-hide-details-mode t)
 
 ;; SETQ AND DEFAULTS
 (setq default-directory "~/"
       inhibit-startup-message t
       initial-scratch-message nil
+      server-client-instructions nil
       require-final-newline t
       use-short-answers t
       mode-line-compact t
@@ -85,18 +94,19 @@
       auto-save-default nil
       show-paren-delay 0
       show-paren-style 'mixed
+      global-hl-line-sticky-flag t
       confirm-nonexistent-file-or-buffer nil
-      ido-enable-flex-matching t
-      ido-create-new-buffer 'always
       org-M-RET-may-split-line nil
       org-startup-folded t
       org-startup-indented t
+      org-catch-invisible-edits 'show
       mouse-autoselect-window t)
 
 (setq-default indicate-empty-lines t
-	      show-trailing-whitespace t
+	      fill-column 80
 	      read-file-name-completion-ignore-case t
 	      read-buffer-completion-ignore-case t
+	      dired-hide-details-mode t
 	      cursor-type 'bar
 	      cursor-in-non-selected-windows nil)
 
@@ -113,6 +123,8 @@
 (global-set-key (kbd "C-c ei") 'edit-init)
 (global-set-key (kbd "C-c ew") 'edit-work-eqs)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
+(global-set-key (kbd "C-c s") 'rotate-windows)
+(global-set-key (kbd "C-c t") 'toggle-window-split)
 ;; OVERRIDES
 (global-set-key (kbd "M-j") 'backward-join-line)
 (global-set-key (kbd "M-J") 'join-line)
@@ -132,6 +144,8 @@
 (global-set-key (kbd "C-x ,") 'previous-buffer)
 (global-set-key (kbd "M-%") 'replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
+;; MODE SPECIFIC
+(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
