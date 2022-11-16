@@ -3,7 +3,6 @@
 (if (eq system-type 'windows-nt)
     (progn (defvar shared-system-init (expand-file-name "init.el" user-emacs-directory))
 	   (defvar work-eqns (expand-file-name "work-eqs.el" user-emacs-directory))
-	   (defvar editing-defuns (expand-file-name "editing-defuns.el" user-emacs-directory))
 	   (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
 	   (setq delete-by-moving-to-trash t))
   nil)
@@ -68,9 +67,9 @@
 (fringe-mode 1)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
+(scroll-bar-mode -1)
 (auto-fill-mode t)
 (column-number-mode t)
-(set-scroll-bar-mode 'left)
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
@@ -100,7 +99,10 @@
       org-startup-folded t
       org-startup-indented t
       org-catch-invisible-edits 'show
-      mouse-autoselect-window t)
+      mouse-autoselect-window t
+      apropos-do-all t
+      echo-keystrokes 0.02
+      save-interprogram-paste-before-kill t)
 
 (setq-default indicate-empty-lines t
 	      fill-column 80
@@ -109,6 +111,139 @@
 	      dired-hide-details-mode t
 	      cursor-type 'bar
 	      cursor-in-non-selected-windows nil)
+
+;; DEFUNS
+(defun open-line-below ()
+  "Creates a new empty line below the current line."
+  (interactive)
+  (end-of-line)
+  (newline)
+  (indent-for-tab-command))
+
+(defun open-line-above ()
+  "Creates a new empty line above the current line.
+Can't go prev line first, edge case of beginning of buffer."
+  (interactive)
+  (beginning-of-line)
+  (newline)
+  (previous-line)
+  (indent-for-tab-command))
+
+(defun kill-bword-or-region ()
+  "Kill region if active, otherwise kill back one word."
+  (interactive)
+  (if (region-active-p)
+      (call-interactively 'kill-region)
+    (call-interactively 'backward-kill-word)))
+
+(defun backward-kill-line ()
+  "Kill back to beginning of line from point."
+  (interactive)
+  (kill-line 0))
+
+(defun backward-join-line ()
+  "A wrapper for join-line to make it go in the right direction."
+  (interactive)
+  (join-line 0))
+
+(defun new-empty-buffer ()
+  "Create a new empty buffer.  Stolen from Xah."
+  (interactive)
+  (let ((newbuf (generate-new-buffer "untitled")))
+    (switch-to-buffer newbuf)
+    (setq buffer-offer-save t)
+    newbuf))
+
+(defun edit-defuns ()
+  "Bring up editing-defuns.el for editing."
+  (interactive)
+  (find-file editing-defuns))
+
+(defun edit-init ()
+  "Bring up init.el for editing."
+  (interactive)
+  (find-file shared-system-init))
+
+(defun edit-work-eqs ()
+  "Bring up work-eqs.el for editing."
+  (interactive)
+  (find-file work-eqns))
+
+(defun toggle-window-split ()
+  "If two windows are open, toggle their split layout between vert. and horiz.
+Stolen from http://whattheemacsd.com"
+  (interactive)
+  (if (= (count-windows) 2)
+      (let* ((this-win-buffer (window-buffer))
+	     (next-win-buffer (window-buffer (next-window)))
+	     (this-win-edges (window-edges (selected-window)))
+	     (next-win-edges (window-edges (next-window)))
+	     (this-win-2nd (not (and (<= (car this-win-edges)
+					 (car next-win-edges))
+				     (<= (cadr this-win-edges)
+					 (cadr next-win-edges)))))
+	     (splitter
+	      (if (= (car this-win-edges)
+		     (car (window-edges (next-window))))
+		  'split-window-horizontally
+		'split-window-vertically)))
+	(delete-other-windows)
+	(let ((first-win (selected-window)))
+	  (funcall splitter)
+	  (if this-win-2nd (other-window 1))
+	  (set-window-buffer (selected-window) this-win-buffer)
+	  (set-window-buffer (next-window) next-win-buffer)
+	  (select-window first-win)
+	  (if this-win-2nd (other-window 1))))))
+
+(defun rotate-windows ()
+  "Rotate your windows.
+Stolen from http://whattheemacsd.com"
+  (interactive)
+  (cond ((not (> (count-windows)1))
+	 (message "You can't rotate a single window!"))
+	(t
+	 (setq i 1)
+	 (setq numWindows (count-windows))
+	 (while  (< i numWindows)
+	   (let* (
+		  (w1 (elt (window-list) i))
+		  (w2 (elt (window-list) (+ (% i numWindows) 1)))
+
+		  (b1 (window-buffer w1))
+		  (b2 (window-buffer w2))
+
+		  (s1 (window-start w1))
+		  (s2 (window-start w2))
+		  )
+	     (set-window-buffer w1  b2)
+	     (set-window-buffer w2 b1)
+	     (set-window-start w1 s2)
+	     (set-window-start w2 s1)
+	     (setq i (1+ i)))))))
+
+(defadvice magit-status (around magit-fullscreen activate)
+  (window-configuration-to-register :magit-fullscreen)
+  ad-do-it
+  (delete-other-windows))
+
+(defun magit-quit-session ()
+  "Restores the previous window configuration and kills the magit buffer.
+Stolen from http://whattheemacsd.com"
+  (interactive)
+  (kill-buffer)
+  (jump-to-register :magit-fullscreen))
+
+(defun smart-beginning-of-line ()
+  "Move point to first non-whitespace character or beginning-of-line.
+Move point to the first non-whitespace character on this line.
+If point was already at that position, move point to beginning of line.
+Stolen from BrettWitty's dotemacs github repo."
+  (interactive "^")
+  (let ((oldpos (point)))
+    (back-to-indentation)
+    (and (= oldpos (point))
+	 (beginning-of-line))))
 
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
@@ -124,8 +259,10 @@
 (global-set-key (kbd "C-c ew") 'edit-work-eqs)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
 (global-set-key (kbd "C-c s") 'rotate-windows)
+(global-set-key (kbd "C-c C-s") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
 ;; OVERRIDES
+(global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
 (global-set-key (kbd "M-j") 'backward-join-line)
 (global-set-key (kbd "M-J") 'join-line)
 (global-set-key (kbd "C-o") 'open-line-below)
