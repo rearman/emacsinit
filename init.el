@@ -226,7 +226,7 @@ Stolen from http://whattheemacsd.com"
   "Restores the previous window configuration and kills the magit buffer.
 Stolen from http://whattheemacsd.com"
   (interactive)
-  (kill-buffer)
+  (kill-matching-buffers "magit" nil t)
   (jump-to-register :magit-fullscreen))
 
 (defun smart-beginning-of-line ()
