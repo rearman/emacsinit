@@ -8,7 +8,6 @@
   nil)
 
 (load work-eqns)
-(load editing-defuns)
 
 ;; PACKAGES
 ;; NEW STRAIGHT.EL CONFIG
@@ -154,11 +153,6 @@ Can't go prev line first, edge case of beginning of buffer."
     (setq buffer-offer-save t)
     newbuf))
 
-(defun edit-defuns ()
-  "Bring up editing-defuns.el for editing."
-  (interactive)
-  (find-file editing-defuns))
-
 (defun edit-init ()
   "Bring up init.el for editing."
   (interactive)
@@ -223,6 +217,7 @@ Stolen from http://whattheemacsd.com"
 	     (setq i (1+ i)))))))
 
 (defadvice magit-status (around magit-fullscreen activate)
+  "Stolen from http://whattheemacsd.com"
   (window-configuration-to-register :magit-fullscreen)
   ad-do-it
   (delete-other-windows))
@@ -254,7 +249,6 @@ Stolen from BrettWitty's dotemacs github repo."
 ;; BINDINGS
 ;; USER SPACE
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
-(global-set-key (kbd "C-c ed") 'edit-defuns)
 (global-set-key (kbd "C-c ei") 'edit-init)
 (global-set-key (kbd "C-c ew") 'edit-work-eqs)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
