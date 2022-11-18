@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 ;; SETUP FOR SHARED WINDOWS/WSL INIT
 (if (eq system-type 'windows-nt)
-    (progn (defvar shared-system-init (expand-file-name "init.el" user-emacs-directory))
+    (progn (defvar shared-init (expand-file-name "init.el" user-emacs-directory))
 	   (defvar work-eqns (expand-file-name "work-eqs.el" user-emacs-directory))
 	   (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
 	   (setq delete-by-moving-to-trash t))
@@ -156,7 +156,7 @@ Can't go prev line first, edge case of beginning of buffer."
 (defun edit-init ()
   "Bring up init.el for editing."
   (interactive)
-  (find-file shared-system-init))
+  (find-file shared-init))
 
 (defun edit-work-eqs ()
   "Bring up work-eqs.el for editing."
@@ -276,7 +276,7 @@ Stolen from BrettWitty's dotemacs github repo."
 (global-set-key (kbd "M-%") 'replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
 ;; MODE SPECIFIC
-(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
+(define-key magit-mode-map (kbd "q") 'magit-quit-session)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
