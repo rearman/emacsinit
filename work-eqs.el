@@ -58,6 +58,14 @@ Returns a list of Sat. Water Press., Hum. Ratio, and Gns water/lb air."
 	(let ((gns-water-lb-air (* hum-ratio 7000)))
 	  (list sat-water-press hum-ratio gns-water-lb-air))))))
 
+(defun mm-to-in (mm)
+  "Convert milimeters to inches."
+  (/ mm 25.4))
+
+(defun in-to-mm (in)
+  "Convert milimeters to inches."
+  (* in 25.4))
+
 (defun k-to-c (tempk)
   "Convert degrees Kelvin to degrees Celsius."
   (- tempk 273.15))
