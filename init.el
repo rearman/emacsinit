@@ -57,6 +57,7 @@
   :config
   (openwith-mode t)
   (setq openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
+				("\\.xls\\'" "excel" (file))
 				("\\.xlsx\\'" "excel" (file))
 				("\\.doc\\'" "word" (file))
 				("\\.docx\\'" "word" (file)))))
@@ -100,14 +101,13 @@
       org-catch-invisible-edits 'show
       mouse-autoselect-window t
       apropos-do-all t
-      echo-keystrokes 0.02
+      echo-keystrokes 0.01
       save-interprogram-paste-before-kill t)
 
 (setq-default indicate-empty-lines t
 	      fill-column 80
 	      read-file-name-completion-ignore-case t
 	      read-buffer-completion-ignore-case t
-	      dired-hide-details-mode t
 	      cursor-type 'bar
 	      cursor-in-non-selected-windows nil)
 
@@ -231,7 +231,6 @@ Stolen from http://whattheemacsd.com"
 
 (defun smart-beginning-of-line ()
   "Move point to first non-whitespace character or beginning-of-line.
-Move point to the first non-whitespace character on this line.
 If point was already at that position, move point to beginning of line.
 Stolen from BrettWitty's dotemacs github repo."
   (interactive "^")
@@ -249,11 +248,11 @@ Stolen from BrettWitty's dotemacs github repo."
 ;; BINDINGS
 ;; USER SPACE
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
-(global-set-key (kbd "C-c ei") 'edit-init)
-(global-set-key (kbd "C-c ew") 'edit-work-eqs)
+(global-set-key (kbd "C-c i") 'edit-init)
+(global-set-key (kbd "C-c w") 'edit-work-eqs)
 (global-set-key (kbd "C-c r") 'recentf-open-files)
 (global-set-key (kbd "C-c s") 'rotate-windows)
-(global-set-key (kbd "C-c C-s") 'eshell)
+(global-set-key (kbd "C-c S") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
 ;; OVERRIDES
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
