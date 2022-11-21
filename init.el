@@ -49,7 +49,9 @@
   (message "Loading Magit...")
   :config
   (message "Loaded Magit!")
-  :bind (("C-x g" . magit-status)))
+  :bind (("C-x g" . magit-status)
+	 :map magit-status-mode-map
+	 ("q" . magit-quit-session)))
 
 (use-package gnuplot-mode)
 
@@ -274,8 +276,6 @@ Stolen from BrettWitty's dotemacs github repo."
 (global-set-key (kbd "C-x ,") 'previous-buffer)
 (global-set-key (kbd "M-%") 'replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
-;; MODE SPECIFIC
-(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
