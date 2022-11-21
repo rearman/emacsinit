@@ -275,7 +275,7 @@ Stolen from BrettWitty's dotemacs github repo."
 (global-set-key (kbd "M-%") 'replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
 ;; MODE SPECIFIC
-(define-key magit-mode-map (kbd "q") 'magit-quit-session)
+(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
