@@ -1,8 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 ;; SETUP FOR SHARED WINDOWS/WSL INIT
 (if (eq system-type 'windows-nt)
-    (progn (defvar shared-init (expand-file-name "init.el" user-emacs-directory))
-	   (defvar work-eqns (expand-file-name "work-eqs.el" user-emacs-directory))
+    (progn (defvar work-eqns (expand-file-name "work-eqs.el" user-emacs-directory))
 	   (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
 	   (setq delete-by-moving-to-trash t))
   nil)
@@ -101,7 +100,6 @@
       org-startup-folded t
       org-startup-indented t
       org-catch-invisible-edits 'show
-      mouse-autoselect-window t
       apropos-do-all t
       echo-keystrokes 0.01
       save-interprogram-paste-before-kill t)
@@ -158,7 +156,7 @@ Can't go prev line first, edge case of beginning of buffer."
 (defun edit-init ()
   "Bring up init.el for editing."
   (interactive)
-  (find-file shared-init))
+  (find-file user-init-file))
 
 (defun edit-work-eqs ()
   "Bring up work-eqs.el for editing."
@@ -244,18 +242,18 @@ Stolen from BrettWitty's dotemacs github repo."
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
-(put 'dired-find-alternate-file 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
+(put 'dired-find-alternate-file 'disabled nil)
 
 ;; BINDINGS
 ;; USER SPACE
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
 (global-set-key (kbd "C-c i") 'edit-init)
-(global-set-key (kbd "C-c w") 'edit-work-eqs)
-(global-set-key (kbd "C-c r") 'recentf-open-files)
-(global-set-key (kbd "C-c s") 'rotate-windows)
+(global-set-key (kbd "C-c r") 'rotate-windows)
+(global-set-key (kbd "C-c R") 'recentf-open-files)
 (global-set-key (kbd "C-c S") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
+(global-set-key (kbd "C-c w") 'edit-work-eqs)
 ;; OVERRIDES
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
 (global-set-key (kbd "M-j") 'backward-join-line)
