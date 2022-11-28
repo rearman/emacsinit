@@ -249,9 +249,10 @@ Stolen from BrettWitty's dotemacs github repo."
 ;; USER SPACE
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
 (global-set-key (kbd "C-c i") 'edit-init)
+(global-set-key (kbd "C-c n") 'new-empty-buffer)
 (global-set-key (kbd "C-c r") 'rotate-windows)
-(global-set-key (kbd "C-c R") 'recentf-open-files)
-(global-set-key (kbd "C-c S") 'eshell)
+(global-set-key (kbd "<f8>") 'recentf-open-files)
+(global-set-key (kbd "C-c s") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
 (global-set-key (kbd "C-c w") 'edit-work-eqs)
 ;; OVERRIDES
