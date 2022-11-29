@@ -29,18 +29,17 @@ With optional argument 'ai', also calculate a final scaled value from an input."
   "Calculate the CFM of a rectangular duct given fpm, width (in) and height (in)."
   (list (* fpm (/ width 12) (/ height 12))))
 
-(defun pid-tune (Ku Tu p-type)
+(defun pid-tune (Ku Tu &optional p-type)
   "Use the Ziegler-Nichols method to tune a P, PI or PID loop.
-Takes Ku, Tu and p-type (P, PI, or PID) as arguments, and returns appropriate kp, ki, and kd."
+Takes Ku, Tu and optional p-type (P, PI, or PID [default]) as arguments,
+ and returns appropriate kp, ki, and kd."
   (cond ((or (equal 'p p-type)
 	     (equal 'P p-type))
 	 (list (* 0.5 Ku)))
 	((or (equal 'pi p-type)
 	     (equal 'PI p-type))
 	 (list (* 0.45 Ku) (/ (* 0.54 Ku) Tu)))
-	((or (equal 'pid p-type)
-	     (equal 'PID p-type))
-	 (list (* 0.6 Ku) (/ (* 1.2 Ku) Tu) (/ (* 3.0 Ku Tu) 40)))))
+	(t (list (* 0.6 Ku) (/ (* 1.2 Ku) Tu) (/ (* 3.0 Ku Tu) 40)))))
 
 (defun gn-water-per-lb (temp humidity)
   "Calculate the grains of water per lb of air, given temperature (F) and humidity (%).
