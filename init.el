@@ -273,7 +273,8 @@ Stolen from BrettWitty's dotemacs github repo."
 (global-set-key (kbd "C-x C-b") 'buffer-menu)
 (global-set-key (kbd "C-x .") 'next-buffer)
 (global-set-key (kbd "C-x ,") 'previous-buffer)
-(global-set-key (kbd "M-%") 'replace-regexp)
+(global-set-key (kbd "C-%") 'replace-regexp)
+(global-set-key (kbd "M-%") 'replace-string)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
 
 (custom-set-variables
