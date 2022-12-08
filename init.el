@@ -78,7 +78,7 @@
       make-backup-files nil
       auto-save-default nil
       show-paren-delay 0
-      show-paren-style 'mixed
+      show-paren-style 'expression
       blink-matching-paren 'jump
       global-hl-line-sticky-flag t
       confirm-nonexistent-file-or-buffer nil
@@ -109,7 +109,7 @@
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
-
+(set-face-background 'show-paren-match "gray")
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
 
