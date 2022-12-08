@@ -108,7 +108,7 @@
 	      fill-column 80
 	      read-file-name-completion-ignore-case t
 	      read-buffer-completion-ignore-case t
-	      cursor-type 'bar
+	      cursor-type 'box
 	      cursor-in-non-selected-windows nil)
 
 ;; DEFUNS
@@ -257,8 +257,10 @@ Stolen from BrettWitty's dotemacs github repo."
 (global-set-key (kbd "C-c w") 'edit-work-eqs)
 ;; OVERRIDES
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
+(global-set-key (kbd "C-h") 'backward-delete-char-untabify)
 (global-set-key (kbd "M-j") 'backward-join-line)
 (global-set-key (kbd "M-J") 'join-line)
+(global-set-key (kbd "C-S-k") 'kill-whole-line)
 (global-set-key (kbd "C-o") 'open-line-below)
 (global-set-key (kbd "M-o") 'open-line-above)
 (global-set-key (kbd "M-s .") 'isearch-forward-thing-at-point)
