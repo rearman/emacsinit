@@ -63,21 +63,6 @@
 				("\\.doc\\'" "word" (file))
 				("\\.docx\\'" "word" (file)))))
 
-;; OPTIONS
-(recentf-mode t)
-(fringe-mode 1)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(auto-fill-mode t)
-(column-number-mode t)
-(global-hl-line-mode t)
-(global-prettify-symbols-mode t)
-(global-display-line-numbers-mode t)
-
-(unless (display-graphic-p)
-  (xterm-mouse-mode 1))
-
 ;; HOOKS
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode t)
@@ -94,6 +79,7 @@
       auto-save-default nil
       show-paren-delay 0
       show-paren-style 'mixed
+      blink-matching-paren 'jump
       global-hl-line-sticky-flag t
       confirm-nonexistent-file-or-buffer nil
       org-M-RET-may-split-line nil
@@ -108,8 +94,24 @@
 	      fill-column 80
 	      read-file-name-completion-ignore-case t
 	      read-buffer-completion-ignore-case t
-	      cursor-type 'box
+	      cursor-type 'bar
 	      cursor-in-non-selected-windows nil)
+
+;; OPTIONS
+(recentf-mode t)
+(fringe-mode 1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(show-paren-mode 1)
+(auto-fill-mode t)
+(column-number-mode t)
+(global-hl-line-mode t)
+(global-prettify-symbols-mode t)
+(global-display-line-numbers-mode t)
+
+(unless (display-graphic-p)
+  (xterm-mouse-mode 1))
 
 ;; DEFUNS
 (defun open-line-below ()
