@@ -63,11 +63,14 @@
 				("\\.doc\\'" "word" (file))
 				("\\.docx\\'" "word" (file)))))
 
-;; HOOKS
-(add-hook 'before-save-hook 'whitespace-cleanup)
-(add-hook 'dired-mode-hook 'dired-hide-details-mode t)
-
 ;; SETQ AND DEFAULTS
+(setq-default indicate-empty-lines t
+	      fill-column 80
+	      read-file-name-completion-ignore-case t
+	      read-buffer-completion-ignore-case t
+	      cursor-type 'bar
+	      cursor-in-non-selected-windows nil)
+
 (setq default-directory "~/"
       inhibit-startup-message t
       initial-scratch-message nil
@@ -82,20 +85,22 @@
       blink-matching-paren 'jump
       global-hl-line-sticky-flag t
       confirm-nonexistent-file-or-buffer nil
-      org-M-RET-may-split-line nil
-      org-startup-folded t
-      org-startup-indented t
-      org-catch-invisible-edits 'show
       apropos-do-all t
       echo-keystrokes 0.01
       save-interprogram-paste-before-kill t)
 
-(setq-default indicate-empty-lines t
-	      fill-column 80
-	      read-file-name-completion-ignore-case t
-	      read-buffer-completion-ignore-case t
-	      cursor-type 'bar
-	      cursor-in-non-selected-windows nil)
+;; ORG SETTINGS
+(setq org-M-RET-may-split-line nil
+      org-startup-folded t
+      org-startup-indented t
+      org-catch-invisible-edits 'show
+      org-directory "~/org"
+      org-default-notes-file (concat org-directory "/notes.org")
+      org-service-notes-file (concat org-directory "/service.org")
+      org-capture-templates '(("t" "Default TODO" entry (file org-default-notes-file)
+			       "* TODO %?")
+			      ("s" "Service Req." entry (file org-service-notes-file)
+			       "* TODO %?")))
 
 ;; OPTIONS
 (recentf-mode t)
@@ -103,13 +108,17 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(show-paren-mode 1)
+(show-paren-mode t)
 (auto-fill-mode t)
+(midnight-mode t)
+(mouse-avoidance-mode 'animate)
 (column-number-mode t)
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
-(set-face-background 'show-paren-match "gray")
+(set-face-background 'show-paren-match nil)
+(set-face-underline 'show-paren-match t)
+
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
 
@@ -241,6 +250,32 @@ Stolen from BrettWitty's dotemacs github repo."
     (and (= oldpos (point))
 	 (beginning-of-line))))
 
+(defun set-cursor-by-mode ()
+  "Change cursor type according to some minor modes.
+bar normally, hbar in read-only, and box in overwrite.  Stolen from https://emacs-fu.blogspot.com."
+  (cond
+   (buffer-read-only
+    (setq cursor-type 'hbar))
+   (overwrite-mode
+    (setq cursor-type 'box))
+   (t
+    (setq cursor-type 'bar))))
+
+(defun go-into-hs-minor-mode ()
+  "Sets bindings and options for hs-mode, then goes into it"
+  (local-set-key (kbd "C-c <tab>") 'hs-toggle-hiding)
+  (local-set-key (kbd "C-c H") 'hs-hide-all)
+  (local-set-key (kbd "C-c S") 'hs-show-all)
+  (hs-minor-mode t))
+
+;; HOOKS
+(add-hook 'before-save-hook 'whitespace-cleanup)
+(add-hook 'dired-mode-hook 'dired-hide-details-mode t)
+(add-hook 'post-command-hook 'set-cursor-by-mode)
+(add-hook 'c-mode-common-hook 'go-into-hs-minor-mode)
+(add-hook 'lisp-mode-hook 'go-into-hs-minor-mode)
+(add-hook 'emacs-lisp-mode-hook 'go-into-hs-minor-mode)
+
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
@@ -249,19 +284,20 @@ Stolen from BrettWitty's dotemacs github repo."
 
 ;; BINDINGS
 ;; USER SPACE
+(global-set-key (kbd "C-c c") 'org-capture)
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
 (global-set-key (kbd "C-c i") 'edit-init)
 (global-set-key (kbd "C-c n") 'new-empty-buffer)
 (global-set-key (kbd "C-c r") 'rotate-windows)
-(global-set-key (kbd "<f8>") 'recentf-open-files)
 (global-set-key (kbd "C-c s") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
 (global-set-key (kbd "C-c w") 'edit-work-eqs)
+(global-set-key (kbd "<f8>") 'recentf-open-files)
 ;; OVERRIDES
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
 (global-set-key (kbd "C-h") 'backward-delete-char-untabify)
 (global-set-key (kbd "M-j") 'backward-join-line)
-(global-set-key (kbd "M-J") 'join-line)
+(global-set-key (kbd "M-S-j") 'join-line)
 (global-set-key (kbd "C-S-k") 'kill-whole-line)
 (global-set-key (kbd "C-o") 'open-line-below)
 (global-set-key (kbd "M-o") 'open-line-above)
