@@ -97,9 +97,9 @@
       org-directory "~/org"
       org-default-notes-file (concat org-directory "/notes.org")
       org-service-notes-file (concat org-directory "/service.org")
-      org-capture-templates '(("t" "Default TODO" entry (file org-default-notes-file)
+      org-capture-templates '(("t" "Default TODO" entry (file+datetree org-default-notes-file)
 			       "* TODO %?")
-			      ("s" "Service Req." entry (file org-service-notes-file)
+			      ("s" "Service Req." entry (file+datetree org-service-notes-file)
 			       "* TODO %?")))
 
 ;; OPTIONS
@@ -168,6 +168,16 @@ Can't go prev line first, edge case of beginning of buffer."
   "Bring up init.el for editing."
   (interactive)
   (find-file user-init-file))
+
+(defun find-org-service ()
+  "Bring up org-service-notes-file for editing."
+  (interactive)
+  (find-file org-service-notes-file))
+
+(defun find-org-default ()
+  "Bring up org-default-notes-file for editing."
+  (interactive)
+  (find-file org-default-notes-file))
 
 (defun edit-work-eqs ()
   "Bring up work-eqs.el for editing."
@@ -288,6 +298,8 @@ bar normally, hbar in read-only, and box in overwrite.  Stolen from https://emac
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
 (global-set-key (kbd "C-c i") 'edit-init)
 (global-set-key (kbd "C-c n") 'new-empty-buffer)
+(global-set-key (kbd "C-c o s") 'find-org-service)
+(global-set-key (kbd "C-c o n") 'find-org-default)
 (global-set-key (kbd "C-c r") 'rotate-windows)
 (global-set-key (kbd "C-c s") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
