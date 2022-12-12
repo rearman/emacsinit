@@ -61,7 +61,8 @@
 				("\\.xls\\'" "excel" (file))
 				("\\.xlsx\\'" "excel" (file))
 				("\\.doc\\'" "word" (file))
-				("\\.docx\\'" "word" (file)))))
+				("\\.docx\\'" "word" (file))
+				("\\.adpro\\'" "PoductivitySuite" (file)))))
 
 ;; SETQ AND DEFAULTS
 (setq-default indicate-empty-lines t
@@ -80,11 +81,11 @@
       mode-line-compact t
       make-backup-files nil
       auto-save-default nil
+      confirm-nonexistent-file-or-buffer nil
       show-paren-delay 0
       show-paren-style 'expression
       blink-matching-paren 'jump
       global-hl-line-sticky-flag t
-      confirm-nonexistent-file-or-buffer nil
       apropos-do-all t
       echo-keystrokes 0.01
       save-interprogram-paste-before-kill t)
@@ -100,7 +101,7 @@
       org-capture-templates '(("t" "Default TODO" entry (file+datetree org-default-notes-file)
 			       "* TODO %?")
 			      ("s" "Service Req." entry (file+datetree org-service-notes-file)
-			       "* TODO %?")))
+			       "* TODO %?\nDEADLINE: %^t\n")))
 
 ;; OPTIONS
 (recentf-mode t)
@@ -294,8 +295,8 @@ bar normally, hbar in read-only, and box in overwrite.  Stolen from https://emac
 
 ;; BINDINGS
 ;; USER SPACE
-(global-set-key (kbd "C-c c") 'org-capture)
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
+(global-set-key (kbd "C-c c") 'org-capture)
 (global-set-key (kbd "C-c i") 'edit-init)
 (global-set-key (kbd "C-c n") 'new-empty-buffer)
 (global-set-key (kbd "C-c o s") 'find-org-service)
