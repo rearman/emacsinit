@@ -96,14 +96,14 @@
       org-startup-indented t
       org-catch-invisible-edits 'show
       org-directory "~/org"
-      org-agenda-files '("~/org/")
+      org-agenda-files '("~/org/" "~/org/kasten/")
       org-refile-targets '((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9))
       org-default-notes-file (concat org-directory "/notes.org")
       org-service-notes-file (concat org-directory "/service.org")
-      org-capture-templates '(("t" "Default TODO" entry (file+datetree org-default-notes-file)
-			       "* TODO %?")
-			      ("s" "Service Req." entry (file+datetree org-service-notes-file)
-			       "* TODO %?\nDEADLINE: %^t\n")))
+      org-zettel-kasten (concat org-directory "/kasten/zettel.org")
+      org-capture-templates '(("t" "TODO" entry (file+datetree org-default-notes-file) "* TODO %?")
+			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")
+			      ("s" "Service Req." entry (file+datetree org-service-notes-file) "* TODO %?\nDEADLINE: %^t\n")))
 
 ;; OPTIONS
 (recentf-mode t)
@@ -126,6 +126,12 @@
   (xterm-mouse-mode 1))
 
 ;; DEFUNS
+(defun erfassen-zettel ()
+  "Add a new zettel to the kasten.
+Creates a new file <datestamp>.org in ~/org/kasten."
+  (interactive)
+  (expand-file-name (concat (format-time-string "%Y-%m-%d-%H%M") ".org") "~/org/kasten/"))
+
 (defun open-line-below ()
   "Creates a new empty line below the current line."
   (interactive)
