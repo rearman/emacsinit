@@ -96,6 +96,8 @@
       org-startup-indented t
       org-catch-invisible-edits 'show
       org-directory "~/org"
+      org-agenda-files '("~/org/")
+      org-refile-targets '((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9))
       org-default-notes-file (concat org-directory "/notes.org")
       org-service-notes-file (concat org-directory "/service.org")
       org-capture-templates '(("t" "Default TODO" entry (file+datetree org-default-notes-file)
@@ -295,6 +297,7 @@ bar normally, hbar in read-only, and box in overwrite.  Stolen from https://emac
 
 ;; BINDINGS
 ;; USER SPACE
+(global-set-key (kbd "C-c a") 'org-agenda)
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
 (global-set-key (kbd "C-c c") 'org-capture)
 (global-set-key (kbd "C-c i") 'edit-init)
