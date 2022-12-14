@@ -86,24 +86,26 @@
       show-paren-style 'expression
       blink-matching-paren 'jump
       global-hl-line-sticky-flag t
-      apropos-do-all t
       echo-keystrokes 0.01
       save-interprogram-paste-before-kill t)
 
 ;; ORG SETTINGS
 (setq org-M-RET-may-split-line nil
-      org-startup-folded t
-      org-startup-indented t
+      ;;org-startup-indented t
       org-catch-invisible-edits 'show
       org-directory "~/org"
       org-agenda-files '("~/org/" "~/org/kasten/")
       org-refile-targets '((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9))
       org-default-notes-file (concat org-directory "/notes.org")
       org-service-notes-file (concat org-directory "/service.org")
-      org-zettel-kasten (concat org-directory "/kasten/zettel.org")
-      org-capture-templates '(("t" "TODO" entry (file+datetree org-default-notes-file) "* TODO %?")
-			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")
-			      ("s" "Service Req." entry (file+datetree org-service-notes-file) "* TODO %?\nDEADLINE: %^t\n")))
+      org-capture-templates '(("n" "Note" entry (file+datetree org-default-notes-file)
+			       "* %?")
+			      ("s" "Service Req." entry (file+datetree org-service-notes-file)
+			       "* TODO %?\nDEADLINE: %^t\n")
+			      ("t" "TODO" entry (file+datetree org-default-notes-file)
+			       "* TODO %?")
+			      ("z" "Zettel" entry (file erfassen-zettel)
+			       "* %? ::")))
 
 ;; OPTIONS
 (recentf-mode t)
@@ -126,13 +128,6 @@
   (xterm-mouse-mode 1))
 
 ;; DEFUNS
-(defun erfassen-zettel ()
-  "Add a new zettel to the kasten.
-Creates a new file <datestamp>-name.org in ~/org/kasten."
-  (interactive)
-  (let ((name (read-string "Zettel-Name: ")))
-  (expand-file-name (format "%s-%s.org" (format-time-string "%Y-%m-%d-%H%M") name) "~/org/kasten/")))
-
 (defun open-line-below ()
   "Creates a new empty line below the current line."
   (interactive)
@@ -166,28 +161,10 @@ Can't go prev line first, edge case of beginning of buffer."
   (interactive)
   (join-line 0))
 
-(defun new-empty-buffer ()
-  "Create a new empty buffer.  Stolen from Xah."
-  (interactive)
-  (let ((newbuf (generate-new-buffer "untitled")))
-    (switch-to-buffer newbuf)
-    (setq buffer-offer-save t)
-    newbuf))
-
 (defun edit-init ()
   "Bring up init.el for editing."
   (interactive)
   (find-file user-init-file))
-
-(defun find-org-service ()
-  "Bring up org-service-notes-file for editing."
-  (interactive)
-  (find-file org-service-notes-file))
-
-(defun find-org-default ()
-  "Bring up org-default-notes-file for editing."
-  (interactive)
-  (find-file org-default-notes-file))
 
 (defun edit-work-eqs ()
   "Bring up work-eqs.el for editing."
@@ -270,23 +247,19 @@ Stolen from BrettWitty's dotemacs github repo."
     (and (= oldpos (point))
 	 (beginning-of-line))))
 
-(defun set-cursor-by-mode ()
-  "Change cursor type according to some minor modes.
-bar normally, hbar in read-only, and box in overwrite.  Stolen from https://emacs-fu.blogspot.com."
-  (cond
-   (buffer-read-only
-    (setq cursor-type 'hbar))
-   (overwrite-mode
-    (setq cursor-type 'box))
-   (t
-    (setq cursor-type 'bar))))
-
 (defun go-into-hs-minor-mode ()
   "Sets bindings and options for hs-mode, then goes into it"
   (local-set-key (kbd "C-c <tab>") 'hs-toggle-hiding)
   (local-set-key (kbd "C-c H") 'hs-hide-all)
   (local-set-key (kbd "C-c S") 'hs-show-all)
   (hs-minor-mode t))
+
+(defun erfassen-zettel ()
+  "Add a new zettel to the kasten.
+Creates a new file <datestamp>-name.org in ~/org/kasten."
+  (interactive)
+  (let ((name (read-string "Zettel-Name: ")))
+  (expand-file-name (format "%s-%s.org" (format-time-string "%Y-%m-%d-%H%M") name) "~/org/kasten/")))
 
 ;; HOOKS
 (add-hook 'before-save-hook 'whitespace-cleanup)
@@ -308,9 +281,6 @@ bar normally, hbar in read-only, and box in overwrite.  Stolen from https://emac
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
 (global-set-key (kbd "C-c c") 'org-capture)
 (global-set-key (kbd "C-c i") 'edit-init)
-(global-set-key (kbd "C-c n") 'new-empty-buffer)
-(global-set-key (kbd "C-c o s") 'find-org-service)
-(global-set-key (kbd "C-c o n") 'find-org-default)
 (global-set-key (kbd "C-c r") 'rotate-windows)
 (global-set-key (kbd "C-c s") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
