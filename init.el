@@ -89,24 +89,6 @@
       echo-keystrokes 0.01
       save-interprogram-paste-before-kill t)
 
-;; ORG SETTINGS
-(setq org-M-RET-may-split-line nil
-      ;;org-startup-indented t
-      org-catch-invisible-edits 'show
-      org-directory "~/org"
-      org-agenda-files '("~/org/" "~/org/kasten/")
-      org-refile-targets '((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9))
-      org-default-notes-file (concat org-directory "/notes.org")
-      org-service-notes-file (concat org-directory "/service.org")
-      org-capture-templates '(("n" "Note" entry (file+datetree org-default-notes-file)
-			       "* %?")
-			      ("s" "Service Req." entry (file+datetree org-service-notes-file)
-			       "* TODO %?\nDEADLINE: %^t\n")
-			      ("t" "TODO" entry (file+datetree org-default-notes-file)
-			       "* TODO %?")
-			      ("z" "Zettel" entry (file erfassen-zettel)
-			       "* %? ::")))
-
 ;; OPTIONS
 (recentf-mode t)
 (fringe-mode 1)
@@ -261,6 +243,34 @@ Creates a new file <datestamp>-name.org in ~/org/kasten."
   (let ((name (read-string "Zettel-Name: ")))
   (expand-file-name (format "%s-%s.org" (format-time-string "%Y-%m-%d-%H%M") name) "~/org/kasten/")))
 
+(defvar org-my-archive-expiry-days 2
+  "The number of days after which a completed task should be auto-archived.
+This can be 0 for immediate, or a floating point value.")
+
+
+;; ORG SETTINGS
+(setq org-M-RET-may-split-line nil
+      org-startup-indented t
+      org-catch-invisible-edits 'show
+      org-directory "~/org"
+      org-agenda-files '("~/org/"
+			 "~/org/kasten/")
+      org-refile-targets '((nil :maxlevel . 9)
+			   (org-agenda-files :maxlevel . 9))
+      org-todo-keywords '((sequence "TODO(@t)"
+				    "WAITING(@w)"
+				    "IN-PROGRESS(@i)"
+				    "DELEGATED(@l)"
+				    "APPT(@a)"
+				    "|"
+				    "DONE(d)"
+				    "CANCELLED(c)"))
+      org-default-notes-file (concat org-directory "/notes.org")
+      org-service-notes-file (concat org-directory "/service.org")
+      org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
+			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
+			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
+
 ;; HOOKS
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode t)
@@ -309,6 +319,8 @@ Creates a new file <datestamp>-name.org in ~/org/kasten."
 (global-set-key (kbd "C-%") 'replace-regexp)
 (global-set-key (kbd "M-%") 'replace-string)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
+(define-key org-mode-map (kbd "C-'") nil)
+(define-key org-mode-map (kbd "C-,") nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
