@@ -236,6 +236,7 @@ Stolen from BrettWitty's dotemacs github repo."
   (local-set-key (kbd "C-c S") 'hs-show-all)
   (hs-minor-mode t))
 
+;; ORG SETTINGS AND DEFUNS
 (defun erfassen-zettel ()
   "Add a new zettel to the kasten.
 Creates a new file <datestamp>-name.org in ~/org/kasten."
@@ -243,30 +244,37 @@ Creates a new file <datestamp>-name.org in ~/org/kasten."
   (let ((name (read-string "Zettel-Name: ")))
   (expand-file-name (format "%s-%s.org" (format-time-string "%Y-%m-%d-%H%M") name) "~/org/kasten/")))
 
-(defvar org-my-archive-expiry-days 2
-  "The number of days after which a completed task should be auto-archived.
-This can be 0 for immediate, or a floating point value.")
+(defun org-auto-archive ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   (regexp-opt '("/DONE" "/CANCELLED"))
+   'file)
+  (save-buffer))
 
-
-;; ORG SETTINGS
 (setq org-M-RET-may-split-line nil
-      org-startup-indented t
+      org-startup-folded t
+      org-reverse-note-order t
+      org-use-fast-todo-selection 'expert
+      org-agenda-start-on-weekday nil
       org-catch-invisible-edits 'show
       org-directory "~/org"
       org-agenda-files '("~/org/"
 			 "~/org/kasten/")
       org-refile-targets '((nil :maxlevel . 9)
 			   (org-agenda-files :maxlevel . 9))
-      org-todo-keywords '((sequence "TODO(@t)"
-				    "WAITING(@w)"
-				    "IN-PROGRESS(@i)"
-				    "DELEGATED(@l)"
-				    "APPT(@a)"
-				    "|"
-				    "DONE(d)"
-				    "CANCELLED(c)"))
       org-default-notes-file (concat org-directory "/notes.org")
       org-service-notes-file (concat org-directory "/service.org")
+      safe-local-variable-values '((after-save-hook org-auto-archive))
+      org-todo-keywords '((sequence "TODO(t@)"
+				    "WAITING(w@)"
+				    "IN-PROGRESS(i@)"
+				    "DELEGATED(l@)"
+				    "APPT(a@)" "|"
+				    "DONE(d@)"
+				    "CANCELLED(c@)"))
       org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
 			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
 			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
@@ -274,7 +282,6 @@ This can be 0 for immediate, or a floating point value.")
 ;; HOOKS
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode t)
-(add-hook 'post-command-hook 'set-cursor-by-mode)
 (add-hook 'c-mode-common-hook 'go-into-hs-minor-mode)
 (add-hook 'lisp-mode-hook 'go-into-hs-minor-mode)
 (add-hook 'emacs-lisp-mode-hook 'go-into-hs-minor-mode)
@@ -290,7 +297,7 @@ This can be 0 for immediate, or a floating point value.")
 (global-set-key (kbd "C-c a") 'org-agenda)
 (global-set-key (kbd "C-c b") 'buffer-menu-other-window)
 (global-set-key (kbd "C-c c") 'org-capture)
-(global-set-key (kbd "C-c i") 'edit-init)
+(global-set-key (kbd "C-c ei") 'edit-init)
 (global-set-key (kbd "C-c r") 'rotate-windows)
 (global-set-key (kbd "C-c s") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
@@ -319,8 +326,9 @@ This can be 0 for immediate, or a floating point value.")
 (global-set-key (kbd "C-%") 'replace-regexp)
 (global-set-key (kbd "M-%") 'replace-string)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
-(define-key org-mode-map (kbd "C-'") nil)
-(define-key org-mode-map (kbd "C-,") nil)
+(eval-after-load 'org-mode
+  '(progn ((define-key org-mode-map (kbd "C-'") nil)
+	   (define-key org-mode-map (kbd "C-,") nil))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
