@@ -236,6 +236,14 @@ Stolen from BrettWitty's dotemacs github repo."
   (local-set-key (kbd "C-c S") 'hs-show-all)
   (hs-minor-mode t))
 
+(defun unfuck-aveva-license ()
+  "Remove the offending xml files when aveva can't find the license."
+  (interactive)
+  (let ((xml1 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalAcquireInfo.xml")
+	(xml2 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalBackEndAcquireInfo.xml"))
+    (when (file-exists-p xml1) (delete-file xml1))
+    (when (file-exists-p xml2) (delete-file xml2))))
+
 ;; ORG SETTINGS AND DEFUNS
 (defun erfassen-zettel ()
   "Add a new zettel to the kasten.
@@ -245,6 +253,8 @@ Creates a new file <datestamp>-name.org in ~/org/kasten."
   (expand-file-name (format "%s-%s.org" (format-time-string "%Y-%m-%d-%H%M") name) "~/org/kasten/")))
 
 (defun org-auto-archive ()
+  "Automatically archive completed tasks in an org file.
+Intended for use as an after-save-hook."
   (interactive)
   (org-map-entries
    (lambda ()
@@ -277,7 +287,15 @@ Creates a new file <datestamp>-name.org in ~/org/kasten."
 				    "CANCELLED(c@)"))
       org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
 			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
-			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
+			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::"))
+      org-agenda-custom-commands '(("n" "Agenda and all TODOs"
+				    ((agenda "") (alltodo "")))
+				   ("u" "Unscheduled TODOs"
+				    alltodo "" ((org-agenda-skip-function
+						 (lambda nil
+						   (org-agenda-skip-entry-if (quote scheduled) (quote deadline)
+									     (quote regexp) "\n]+>")))
+						(org-agenda-overriding-header "Unscheduled TODO entries: ")))))
 
 ;; HOOKS
 (add-hook 'before-save-hook 'whitespace-cleanup)
