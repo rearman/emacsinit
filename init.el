@@ -244,6 +244,21 @@ Stolen from BrettWitty's dotemacs github repo."
     (when (file-exists-p xml1) (delete-file xml1))
     (when (file-exists-p xml2) (delete-file xml2))))
 
+(defun eshell-send-on-close-paren ()
+  "Makes eshell act somewhat like genera.
+Makes a closing paren execute the sexp.  Currently in test, look out for errors."
+  (interactive)
+  (insert-char ?\))
+  (let ((p (point)))
+    ;;(eshell-bol)
+    ;;(syntax-ppss-flush-cache (point))
+    ;;(goto-char p)
+    (cond ((= 0 (car (syntax-ppss)))
+	   (eshell-send-input))
+	  ((< (car (syntax-ppss)) 0)
+	   (message "Check flush-cache"))
+	  ((t nil)))))
+
 ;; ORG SETTINGS AND DEFUNS
 (defun erfassen-zettel ()
   "Add a new zettel to the kasten.
@@ -344,9 +359,11 @@ Intended for use as an after-save-hook."
 (global-set-key (kbd "C-%") 'replace-regexp)
 (global-set-key (kbd "M-%") 'replace-string)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
-(eval-after-load 'org-mode
-  '(progn ((define-key org-mode-map (kbd "C-'") nil)
-	   (define-key org-mode-map (kbd "C-,") nil))))
+(define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)
+(define-key org-mode-map (kbd "C-'") nil)
+(define-key org-mode-map (kbd "C-,") nil)
+(define-key org-agenda-mode-map (kbd "C-'") nil)
+(define-key org-agenda-mode-map (kbd "C-,") nil)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
