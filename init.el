@@ -2,7 +2,6 @@
 ;; SETUP FOR SHARED WINDOWS/WSL INIT
 (if (eq system-type 'windows-nt)
     (progn (defvar work-eqns (expand-file-name "work-eqs.el" user-emacs-directory))
-	   (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
 	   (setq delete-by-moving-to-trash t))
   nil)
 
@@ -105,6 +104,7 @@
 (global-display-line-numbers-mode t)
 (set-face-background 'show-paren-match nil)
 (set-face-underline 'show-paren-match t)
+(add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
 
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
@@ -359,11 +359,12 @@ Intended for use as an after-save-hook."
 (global-set-key (kbd "C-%") 'replace-regexp)
 (global-set-key (kbd "M-%") 'replace-string)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
-(define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)
-(define-key org-mode-map (kbd "C-'") nil)
-(define-key org-mode-map (kbd "C-,") nil)
-(define-key org-agenda-mode-map (kbd "C-'") nil)
-(define-key org-agenda-mode-map (kbd "C-,") nil)
+;; MODE-SPECIFIC
+(add-hook 'eshell-mode-hook (lambda () (define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)))
+(add-hook 'org-mode-hook (lambda () (define-key org-mode-map (kbd "C-'") nil)
+			   (define-key org-mode-map (kbd "C-,") nil)))
+(add-hook 'org-agenda-mode-hook (lambda () (define-key org-agenda-mode-map (kbd "C-'") nil)
+				  (define-key org-agenda-mode-map (kbd "C-,") nil)))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
