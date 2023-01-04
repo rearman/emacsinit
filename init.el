@@ -275,7 +275,7 @@ Intended for use as an after-save-hook."
    (lambda ()
      (org-archive-subtree)
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-   (regexp-opt '("/DONE" "/CANCELLED"))
+   "TODO=\"DONE\"|TODO=\"CANCELLED\""
    'file)
   (save-buffer))
 
