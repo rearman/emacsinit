@@ -229,13 +229,6 @@ Stolen from BrettWitty's dotemacs github repo."
     (and (= oldpos (point))
 	 (beginning-of-line))))
 
-(defun go-into-hs-minor-mode ()
-  "Sets bindings and options for hs-mode, then goes into it"
-  (local-set-key (kbd "C-c <tab>") 'hs-toggle-hiding)
-  (local-set-key (kbd "C-c H") 'hs-hide-all)
-  (local-set-key (kbd "C-c S") 'hs-show-all)
-  (hs-minor-mode t))
-
 (defun unfuck-aveva-license ()
   "Remove the offending xml files when aveva can't find the license."
   (interactive)
@@ -291,7 +284,6 @@ Intended for use as an after-save-hook."
       org-refile-targets '((nil :maxlevel . 9)
 			   (org-agenda-files :maxlevel . 9))
       org-default-notes-file (concat org-directory "/notes.org")
-      org-service-notes-file (concat org-directory "/service.org")
       safe-local-variable-values '((after-save-hook org-auto-archive))
       org-todo-keywords '((sequence "TODO(t@)"
 				    "WAITING(w@)"
@@ -302,22 +294,21 @@ Intended for use as an after-save-hook."
 				    "CANCELLED(c@)"))
       org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
 			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
+			      ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
 			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::"))
       org-agenda-custom-commands '(("n" "Agenda and all TODOs"
 				    ((agenda "") (alltodo "")))
 				   ("u" "Unscheduled TODOs"
 				    alltodo "" ((org-agenda-skip-function
 						 (lambda nil
-						   (org-agenda-skip-entry-if (quote scheduled) (quote deadline)
-									     (quote regexp) "\n]+>")))
+						   (org-agenda-skip-entry-if 'scheduled
+									     'deadline
+									     'regexp "\n]+>")))
 						(org-agenda-overriding-header "Unscheduled TODO entries: ")))))
 
 ;; HOOKS
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode t)
-(add-hook 'c-mode-common-hook 'go-into-hs-minor-mode)
-(add-hook 'lisp-mode-hook 'go-into-hs-minor-mode)
-(add-hook 'emacs-lisp-mode-hook 'go-into-hs-minor-mode)
 
 ;; PUTS AND PUSHES
 (put 'upcase-region 'disabled nil)
