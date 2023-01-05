@@ -206,18 +206,18 @@ Stolen from http://whattheemacsd.com"
 	     (set-window-start w2 s1)
 	     (setq i (1+ i)))))))
 
-(defadvice magit-status (around magit-fullscreen activate)
-  "Stolen from http://whattheemacsd.com"
-  (window-configuration-to-register :magit-fullscreen)
-  ad-do-it
-  (delete-other-windows))
-
-(defun magit-quit-session ()
-  "Restores the previous window configuration and kills the magit buffer.
-Stolen from http://whattheemacsd.com"
-  (interactive)
-  (kill-matching-buffers "magit" nil t)
-  (jump-to-register :magit-fullscreen))
+;; (defadvice magit-status (around magit-fullscreen activate)
+;;   "Stolen from http://whattheemacsd.com"
+;;   (window-configuration-to-register :magit-fullscreen)
+;;   ad-do-it
+;;   (delete-other-windows))
+;;
+;; (defun magit-quit-session ()
+;;   "Restores the previous window configuration and kills the magit buffer.
+;; Stolen from http://whattheemacsd.com"
+;;   (interactive)
+;;   (kill-matching-buffers "magit" nil t)
+;;   (jump-to-register :magit-fullscreen))
 
 (defun smart-beginning-of-line ()
   "Move point to first non-whitespace character or beginning-of-line.
@@ -329,7 +329,6 @@ Intended for use as an after-save-hook."
 (global-set-key (kbd "<f8>") 'recentf-open-files)
 ;; OVERRIDES
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
-(global-set-key (kbd "C-h") 'backward-delete-char-untabify)
 (global-set-key (kbd "M-j") 'backward-join-line)
 (global-set-key (kbd "M-S-j") 'join-line)
 (global-set-key (kbd "C-S-k") 'kill-whole-line)
@@ -351,10 +350,13 @@ Intended for use as an after-save-hook."
 (global-set-key (kbd "M-%") 'replace-string)
 (global-set-key (kbd "C-M-%") 'query-replace-regexp)
 ;; MODE-SPECIFIC
-(add-hook 'eshell-mode-hook (lambda () (define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)))
-(add-hook 'org-mode-hook (lambda () (define-key org-mode-map (kbd "C-'") nil)
+(add-hook 'eshell-mode-hook (lambda ()
+			      (define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)))
+(add-hook 'org-mode-hook (lambda ()
+			   (define-key org-mode-map (kbd "C-'") nil)
 			   (define-key org-mode-map (kbd "C-,") nil)))
-(add-hook 'org-agenda-mode-hook (lambda () (define-key org-agenda-mode-map (kbd "C-'") nil)
+(add-hook 'org-agenda-mode-hook (lambda ()
+				  (define-key org-agenda-mode-map (kbd "C-'") nil)
 				  (define-key org-agenda-mode-map (kbd "C-,") nil)))
 
 (custom-set-variables
