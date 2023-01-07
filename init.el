@@ -47,9 +47,9 @@
   (message "Loading Magit...")
   :config
   (message "Loaded Magit!")
-  :bind (("C-x g" . magit-status)
-	 :map magit-status-mode-map
-	 ("q" . magit-quit-session)))
+  :bind (("C-x g" . magit-status)))
+	 ;; :map magit-status-mode-map
+	 ;; ("q" . magit-quit-session)))
 
 (use-package gnuplot-mode)
 
@@ -62,6 +62,9 @@
 				("\\.doc\\'" "word" (file))
 				("\\.docx\\'" "word" (file))
 				("\\.adpro\\'" "PoductivitySuite" (file)))))
+(use-package s)
+
+(use-package dash)
 
 ;; SETQ AND DEFAULTS
 (setq-default indicate-empty-lines t
@@ -98,6 +101,7 @@
 (auto-fill-mode t)
 (midnight-mode t)
 (mouse-avoidance-mode 'animate)
+(pixel-scroll-mode t)
 (column-number-mode t)
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
@@ -251,6 +255,53 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 	  ((< (car (syntax-ppss)) 0)
 	   (message "Check flush-cache"))
 	  ((t nil)))))
+
+(defun slot/get-queries (&optional pairs)
+  "Get multiple `query-replace' pairs from the user.
+PAIRS is a list of replacement pairs of the form (FROM . TO)."
+  (-let* (((from to delim arg)
+	   (query-replace-read-args
+	    (s-join " "
+		    (-non-nil
+		     (list "Query replace many"
+			   (cond ((eq current-prefix-arg '-) "backward")
+				 (current-prefix-arg         "word"))
+			   (when (use-region-p) "in region"))))
+	    nil))                       ; no regexp-flag
+	  (from-to (cons (regexp-quote from)
+			 (s-replace "\\" "\\\\" to))))
+    ;; HACK: Since the default suggestion of replace.el will be
+    ;; the last one we've entered, an empty string will give us
+    ;; exactly that.  Instead of trying to fight against this,
+    ;; use it in order to signal an exit.
+    (if (-contains? pairs from-to)
+	(list pairs delim arg)
+      (slot/get-queries (push from-to pairs)))))
+
+(defun slot/query-replace-many
+    (pairs &optional delimited start end backward region-noncontiguous-p)
+  "Like `query-replace', but query for several replacements.
+Query for replacement pairs until the users enters an empty
+string (but see `slot/get-queries').
+
+Refer to `query-replace' and `perform-replace' for what the other
+arguments actually mean."
+  (interactive
+   (let ((common (slot/get-queries)))
+     (list (nth 0 common) (nth 1 common)
+	   (if (use-region-p) (region-beginning))
+	   (if (use-region-p) (region-end))
+	   (nth 2 common)
+	   (if (use-region-p) (region-noncontiguous-p)))))
+  (perform-replace
+   (concat "\\(?:" (mapconcat #'car pairs "\\|") "\\)") ; build query
+   (cons (lambda (pairs _count)
+	   (cl-loop for (from . to) in pairs
+		    when (string-match from (match-string 0))
+		    return to))
+	 pairs)
+   :query :regexp
+   delimited nil nil start end backward region-noncontiguous-p))
 
 ;; ORG SETTINGS AND DEFUNS
 (defun erfassen-zettel ()
