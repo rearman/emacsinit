@@ -1,5 +1,5 @@
 *
 !/eshell/alias
-!init.el
-!work-eqs.el
+!/config
 !early-init.el
+!init.el
