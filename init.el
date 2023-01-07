@@ -101,8 +101,8 @@
 (auto-fill-mode t)
 (midnight-mode t)
 (mouse-avoidance-mode 'animate)
-(pixel-scroll-mode t)
 (column-number-mode t)
+(delete-selection-mode t)
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
@@ -258,7 +258,8 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 
 (defun slot/get-queries (&optional pairs)
   "Get multiple `query-replace' pairs from the user.
-PAIRS is a list of replacement pairs of the form (FROM . TO)."
+PAIRS is a list of replacement pairs of the form (FROM . TO).
+Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html"
   (-let* (((from to delim arg)
 	   (query-replace-read-args
 	    (s-join " "
@@ -278,6 +279,33 @@ PAIRS is a list of replacement pairs of the form (FROM . TO)."
 	(list pairs delim arg)
       (slot/get-queries (push from-to pairs)))))
 
+(defun slot/replace-string-many
+    (pairs &optional delimited start end backward region-noncontiguous-p)
+  "Like `query-replace', but query for several replacements.
+Query for replacement pairs until the users enters an empty
+string (but see `slot/get-queries').
+
+Refer to `query-replace' and `perform-replace' for what the other
+arguments actually mean.
+Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html
+Edited and renamed to remove the Query."
+  (interactive
+   (let ((common (slot/get-queries)))
+     (list (nth 0 common) (nth 1 common)
+	   (if (use-region-p) (region-beginning))
+	   (if (use-region-p) (region-end))
+	   (nth 2 common)
+	   (if (use-region-p) (region-noncontiguous-p)))))
+  (perform-replace
+   (concat "\\(?:" (mapconcat #'car pairs "\\|") "\\)") ; build query
+   (cons (lambda (pairs _count)
+	   (cl-loop for (from . to) in pairs
+		    when (string-match from (match-string 0))
+		    return to))
+	 pairs)
+   nil :regexp
+   delimited nil nil start end backward region-noncontiguous-p))
+
 (defun slot/query-replace-many
     (pairs &optional delimited start end backward region-noncontiguous-p)
   "Like `query-replace', but query for several replacements.
@@ -285,7 +313,9 @@ Query for replacement pairs until the users enters an empty
 string (but see `slot/get-queries').
 
 Refer to `query-replace' and `perform-replace' for what the other
-arguments actually mean."
+arguments actually mean.
+Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html
+Edited and renamed to remove the Query."
   (interactive
    (let ((common (slot/get-queries)))
      (list (nth 0 common) (nth 1 common)
@@ -398,8 +428,8 @@ Intended for use as an after-save-hook."
 (global-set-key (kbd "C-x .") 'next-buffer)
 (global-set-key (kbd "C-x ,") 'previous-buffer)
 (global-set-key (kbd "C-%") 'replace-regexp)
-(global-set-key (kbd "M-%") 'replace-string)
-(global-set-key (kbd "C-M-%") 'query-replace-regexp)
+(global-set-key (kbd "M-%") 'slot/replace-string-many)
+(global-set-key (kbd "C-M-%") 'slot/query-replace-many)
 ;; MODE-SPECIFIC
 (add-hook 'eshell-mode-hook (lambda ()
 			      (define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)))
