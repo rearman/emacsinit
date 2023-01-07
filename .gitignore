@@ -1,5 +1,3 @@
 *
 !/eshell/alias
-!/config
-!early-init.el
-!init.el
+!/*.el

@@ -4,13 +4,13 @@
     (progn (setq delete-by-moving-to-trash t))
   nil)
 
-(load (expand-file-name "config/work-eqs.el" user-emacs-directory))
-(load (expand-file-name "config/package-config.el" user-emacs-directory))
-(load (expand-file-name "config/setq-defaults.el" user-emacs-directory))
-(load (expand-file-name "config/defuns.el" user-emacs-directory))
-(load (expand-file-name "config/org-setup.el" user-emacs-directory))
-(load (expand-file-name "config/hooks-puts.el" user-emacs-directory))
-(load (expand-file-name "config/bindings.el" user-emacs-directory))
+(load (expand-file-name "work-eqs.el" user-emacs-directory))
+(load (expand-file-name "package-config.el" user-emacs-directory))
+(load (expand-file-name "setq-defaults.el" user-emacs-directory))
+(load (expand-file-name "defuns.el" user-emacs-directory))
+(load (expand-file-name "org-setup.el" user-emacs-directory))
+(load (expand-file-name "hooks-puts.el" user-emacs-directory))
+(load (expand-file-name "bindings.el" user-emacs-directory))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
