@@ -38,11 +38,6 @@ Can't go prev line first, edge case of beginning of buffer."
   (interactive)
   (find-file user-init-file))
 
-(defun edit-work-eqs ()
-  "Bring up work-eqs.el for editing."
-  (interactive)
-  (find-file work-eqns))
-
 (defun toggle-window-split ()
   "If two windows are open, toggle their split layout between vert. and horiz.
 Stolen from http://whattheemacsd.com"
@@ -76,6 +71,8 @@ Stolen from http://whattheemacsd.com"
   (interactive)
   (cond ((not (> (count-windows)1))
 	 (message "You can't rotate a single window!"))
+	((> (count-windows) 2)
+	 (message "You can't rotate more than two windows!"))
 	(t
 	 (setq i 1)
 	 (setq numWindows (count-windows))
@@ -105,14 +102,6 @@ Stolen from BrettWitty's dotemacs github repo."
     (back-to-indentation)
     (and (= oldpos (point))
 	 (beginning-of-line))))
-
-(defun unfuck-aveva-license ()
-  "Remove the offending xml files when aveva can't find the license."
-  (interactive)
-  (let ((xml1 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalAcquireInfo.xml")
-	(xml2 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalBackEndAcquireInfo.xml"))
-    (when (file-exists-p xml1) (delete-file xml1))
-    (when (file-exists-p xml2) (delete-file xml2))))
 
 (defun eshell-send-on-close-paren ()
   "Makes eshell act somewhat like genera.

@@ -1,7 +1,9 @@
 ;; -*- lexical-binding: t; -*-
 ;; SETUP FOR SHARED WINDOWS/WSL INIT
 (if (eq system-type 'windows-nt)
-    (progn (setq delete-by-moving-to-trash t))
+    (progn (setq delete-by-moving-to-trash t)
+	   (load (expand-file-name "win-defuns.el" user-emacs-directory))
+	   (eshell-eval-command "alias qmk \"c:/QMK_MSYS/conemu/ConEmu64.exe\""))
   nil)
 
 (load (expand-file-name "work-eqs.el" user-emacs-directory))

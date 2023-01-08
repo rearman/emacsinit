@@ -8,7 +8,6 @@
 (global-set-key (kbd "C-c r") 'rotate-windows)
 (global-set-key (kbd "C-c s") 'eshell)
 (global-set-key (kbd "C-c t") 'toggle-window-split)
-(global-set-key (kbd "C-c w") 'edit-work-eqs)
 (global-set-key (kbd "<f8>") 'recentf-open-files)
 ;; OVERRIDES
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
