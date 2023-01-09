@@ -1,12 +1,15 @@
 ;; -*- lexical-binding: t; -*-
 
-;; PACKAGES
 (require 'package)
 (setq package-archives
       '(("elpa" . "https://elpa.gnu.org/packages/")
 	("nongnu" . "https://elpa.nongnu.org/nongnu/")
 	("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
 (use-package company
   :ensure t
@@ -42,7 +45,11 @@
   (openwith-mode t))
 
 (use-package s
-    :ensure t)
+  :ensure t)
 
 (use-package dash
-    :ensure t)
+  :ensure t)
+
+(if (not (eq system-type 'windows-nt))
+    (use-package slime
+      :ensure t))
