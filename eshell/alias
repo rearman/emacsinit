@@ -1,1 +1,2 @@
+alias qmk c:/QMK_MSYS/conemu/ConEmu64.exe
 alias weather clear -l && curl https://wttr.in

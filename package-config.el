@@ -46,13 +46,8 @@
 
 (use-package openwith
   :config
-  (openwith-mode t)
-  (setq openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
-				("\\.xls\\'" "excel" (file))
-				("\\.xlsx\\'" "excel" (file))
-				("\\.doc\\'" "word" (file))
-				("\\.docx\\'" "word" (file))
-				("\\.adpro\\'" "PoductivitySuite" (file)))))
+  (openwith-mode t))
+
 (use-package s)
 
 (use-package dash)
