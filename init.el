@@ -1,8 +1,8 @@
 ;; -*- lexical-binding: t; -*-
 
 (load (expand-file-name "package-config.el" user-emacs-directory))
-(load (expand-file-name "work-eqs.el" user-emacs-directory))
 (load (expand-file-name "setq-defaults.el" user-emacs-directory))
+(load (expand-file-name "work-eqs.el" user-emacs-directory))
 (load (expand-file-name "defuns.el" user-emacs-directory))
 (load (expand-file-name "org-setup.el" user-emacs-directory))
 (load (expand-file-name "hooks-puts.el" user-emacs-directory))
