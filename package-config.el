@@ -1,26 +1,15 @@
 ;; -*- lexical-binding: t; -*-
 
 ;; PACKAGES
-;; NEW STRAIGHT.EL CONFIG
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-	(url-retrieve-synchronously
-	 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-	 'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(straight-use-package 'use-package)
-
-(use-package straight
-  :custom (straight-use-package-by-default t))
+(require 'package)
+(setq package-archives
+      '(("elpa" . "https://elpa.gnu.org/packages/")
+	("nongnu" . "https://elpa.nongnu.org/nongnu/")
+	("melpa" . "https://melpa.org/packages/")))
+(package-initialize)
 
 (use-package company
+  :ensure t
   :custom
   (company-idle-delay 0)
   (company-minimum-prefix-length 3)
@@ -33,21 +22,27 @@
   (global-company-mode t))
 
 (use-package expand-region
+  :ensure t
   :bind (("C-=" . er/expand-region)))
 
 (use-package magit
+  :ensure t
   :init
   (message "Loading Magit...")
   :config
   (message "Loaded Magit!")
   :bind (("C-x g" . magit-status)))
 
-(use-package gnuplot-mode)
+(use-package gnuplot-mode
+  :ensure t)
 
 (use-package openwith
+  :ensure t
   :config
   (openwith-mode t))
 
-(use-package s)
+(use-package s
+    :ensure t)
 
-(use-package dash)
+(use-package dash
+    :ensure t)
