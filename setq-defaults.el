@@ -7,11 +7,8 @@
 	      cursor-type 'bar
 	      cursor-in-non-selected-windows nil)
 
-(setq default-directory "~/"
-      inhibit-startup-message t
-      initial-scratch-message nil
-      server-client-instructions nil
-      require-final-newline t
+(setq require-final-newline t
+      ring-bell-function 'ignore
       use-short-answers t
       mode-line-compact t
       make-backup-files nil
@@ -27,9 +24,6 @@
 ;; OPTIONS
 (recentf-mode t)
 (fringe-mode 1)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
 (show-paren-mode t)
 (auto-fill-mode t)
 (midnight-mode t)
