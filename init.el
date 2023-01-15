@@ -27,7 +27,7 @@
  ;; If there is more than one, they won't work right.
  '(minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt))
  '(package-selected-packages
-   '(s openwith gnuplot-mode magit expand-region company use-package)))
+   '(ledger-mode s openwith gnuplot-mode magit expand-region company use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

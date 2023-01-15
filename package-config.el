@@ -51,5 +51,6 @@
   :ensure t)
 
 (if (not (eq system-type 'windows-nt))
-    (use-package slime
-      :ensure t))
+    (progn
+      (use-package slime :ensure t)
+      (use-package ledger-mode :ensure t)))
