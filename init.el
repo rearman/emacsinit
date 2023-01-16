@@ -18,7 +18,11 @@
 					 ("\\.docx\\'" "word" (file))
 					 ("\\.adpro\\'" "PoductivitySuite" (file))))
 	   (load (expand-file-name "win-defuns.el" user-emacs-directory)))
-  nil)
+  (progn (setq openwith-associations '(("\\.pdf\\'" "zathura" (file))
+				       ("\\.xls\\'" "libreoffice" (file))
+				       ("\\.xlsx\\'" "libreoffice" (file))
+				       ("\\.doc\\'" "libreoffice" (file))
+				       ("\\.docx\\'" "libreoffice" (file))))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
