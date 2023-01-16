@@ -118,7 +118,7 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 	   (message "Check flush-cache"))
 	  ((t nil)))))
 
-(defun slot/get-queries (title &optional pairs)
+(defun slot/get-queries (&optional pairs)
   "Get multiple `query-replace' pairs from the user.
 PAIRS is a list of replacement pairs of the form (FROM . TO).
 Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html"
@@ -126,7 +126,7 @@ Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace
 	   (query-replace-read-args
 	    (s-join " "
 		    (-non-nil
-		     (list title
+		     (list "Replacements"
 			   (cond ((eq current-prefix-arg '-) "backward")
 				 (current-prefix-arg         "word"))
 			   (when (use-region-p) "in region"))))
@@ -152,7 +152,7 @@ arguments actually mean.
 Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html
 Edited and renamed to remove the Query."
   (interactive
-   (let ((common (slot/get-queries "Replace strings")))
+   (let ((common (slot/get-queries)))
      (list (nth 0 common) (nth 1 common)
 	   (if (use-region-p) (region-beginning))
 	   (if (use-region-p) (region-end))
@@ -178,7 +178,7 @@ Refer to `query-replace' and `perform-replace' for what the other
 arguments actually mean.
 Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html"
   (interactive
-   (let ((common (slot/get-queries "Query Replace Strings")))
+   (let ((common (slot/get-queries)))
      (list (nth 0 common) (nth 1 common)
 	   (if (use-region-p) (region-beginning))
 	   (if (use-region-p) (region-end))
