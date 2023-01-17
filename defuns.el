@@ -119,7 +119,7 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 	  ((t nil)))))
 
 (defun slot/get-queries (&optional pairs)
-  "Get multiple `query-replace' pairs from the user.
+  "Get multiple 'query-replace' pairs from the user.
 PAIRS is a list of replacement pairs of the form (FROM . TO).
 Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html"
   (-let* (((from to delim arg)
@@ -143,11 +143,11 @@ Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace
 
 (defun slot/replace-string-many
     (pairs &optional delimited start end backward region-noncontiguous-p)
-  "Like `replace-string', but query for several replacements.
+  "Like 'replace-string', but query for several replacements.
 Query for replacement pairs until the users enters an empty
-string (but see `slot/get-queries').
+string (but see 'slot/get-queries').
 
-Refer to `query-replace' and `perform-replace' for what the other
+Refer to 'query-replace' and 'perform-replace' for what the other
 arguments actually mean.
 Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html
 Edited and renamed to remove the Query."
@@ -170,11 +170,11 @@ Edited and renamed to remove the Query."
 
 (defun slot/query-replace-many
     (pairs &optional delimited start end backward region-noncontiguous-p)
-  "Like `query-replace', but query for several replacements.
+  "Like 'query-replace', but query for several replacements.
 Query for replacement pairs until the users enters an empty
-string (but see `slot/get-queries').
+string (but see 'slot/get-queries').
 
-Refer to `query-replace' and `perform-replace' for what the other
+Refer to 'query-replace' and 'perform-replace' for what the other
 arguments actually mean.
 Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html"
   (interactive

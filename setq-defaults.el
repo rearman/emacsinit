@@ -8,6 +8,7 @@
 	      cursor-in-non-selected-windows nil)
 
 (setq require-final-newline t
+      text-quoting-style 'straight
       ring-bell-function 'ignore
       use-short-answers t
       mode-line-compact t
