@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; WORK (NON-EDITING) RELATED DEFUNS
 (defun square (x)
   "Calculate the square of a value."
@@ -9,7 +10,7 @@
 
 (defun inv (x)
   "Calculate the inverse of a value."
-  (/ 1 x))
+  (/ 1 (float x)))
 
 (defun scaleval (pmax pmin emax emin &optional ai)
   "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
@@ -29,21 +30,22 @@ With optional argument 'ai', also calculate a final scaled value from an input."
   "Calculate the CFM of a rectangular duct given fpm, width (in) and height (in)."
   (list (* fpm (/ width 12) (/ height 12))))
 
-(defun pid-tune (Ku Tu &optional p-type)
+(defun pid-tune (Kᵤ Tᵤ &optional loop-type)
   "Use the Ziegler-Nichols method to tune a P, PI or PID loop.
-Takes Ku, Tu and optional p-type (P, PI, or PID [default]) as arguments,
+Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as arguments,
  and returns appropriate kp, ki, and kd."
-  (cond ((or (equal 'p p-type)
-	     (equal 'P p-type))
-	 (list (* 0.5 Ku)))
-	((or (equal 'pi p-type)
-	     (equal 'PI p-type))
-	 (list (* 0.45 Ku) (/ (* 0.54 Ku) Tu)))
-	(t (list (* 0.6 Ku) (/ (* 1.2 Ku) Tu) (/ (* 3.0 Ku Tu) 40)))))
+  (cond ((or (equal 'p loop-type)
+	     (equal 'P loop-type))
+	 (list (* 0.5 Kᵤ)))
+	((or (equal 'pi loop-type)
+	     (equal 'PI loop-type))
+	 (list (* 0.45 Kᵤ) (/ (* 0.54 Kᵤ) Tᵤ)))
+	(t
+	 (list (* 0.6 Kᵤ) (/ (* 1.2 Kᵤ) Tᵤ) (/ (* 3.0 Kᵤ Tᵤ) 40)))))
 
 (defun gn-water-per-lb (temp humidity)
-  "Calculate the grains of water per lb of air, given temperature (F) and humidity (%).
-Returns a list of Sat. Water Press., Hum. Ratio, and Gns water/lb air."
+  "Calculate the grains of water per lb of air, given temp (F) and humidity (%).
+Returns a list of Sat. Water Press., Hum. Ratio, and Gns water per lb air."
   (let ((sat-water-press (+ .0182795
 			    (* temp .001029904)
 			    (* (square temp) 0.00002579408)
