@@ -33,11 +33,6 @@ Can't go prev line first, edge case of beginning of buffer."
   (interactive)
   (join-line 0))
 
-(defun edit-init ()
-  "Bring up init.el for editing."
-  (interactive)
-  (find-file user-init-file))
-
 (defun toggle-window-split ()
   "If two windows are open, toggle their split layout between vert. and horiz.
 Stolen from http://whattheemacsd.com"
