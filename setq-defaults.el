@@ -25,6 +25,7 @@
 ;; OPTIONS
 (recentf-mode t)
 (fringe-mode 1)
+(winner-mode 1)
 (show-paren-mode t)
 (auto-fill-mode t)
 (midnight-mode t)
