@@ -37,7 +37,7 @@ Can't go prev line first, edge case of beginning of buffer."
   "If two windows are open, toggle their split layout between vert. and horiz.
 Stolen from http://whattheemacsd.com"
   (interactive)
-  (if (= (count-windows) 2)
+  (when (= (count-windows) 2)
       (let* ((this-win-buffer (window-buffer))
 	     (next-win-buffer (window-buffer (next-window)))
 	     (this-win-edges (window-edges (selected-window)))
@@ -54,11 +54,11 @@ Stolen from http://whattheemacsd.com"
 	(delete-other-windows)
 	(let ((first-win (selected-window)))
 	  (funcall splitter)
-	  (if this-win-2nd (other-window 1))
+	  (when this-win-2nd (other-window 1))
 	  (set-window-buffer (selected-window) this-win-buffer)
 	  (set-window-buffer (next-window) next-win-buffer)
 	  (select-window first-win)
-	  (if this-win-2nd (other-window 1))))))
+	  (when this-win-2nd (other-window 1))))))
 
 (defun rotate-windows ()
   "Rotate your windows.
@@ -175,10 +175,10 @@ Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace
   (interactive
    (let ((common (slot/get-queries)))
      (list (nth 0 common) (nth 1 common)
-	   (if (use-region-p) (region-beginning))
-	   (if (use-region-p) (region-end))
+	   (when (use-region-p) (region-beginning))
+	   (when (use-region-p) (region-end))
 	   (nth 2 common)
-	   (if (use-region-p) (region-noncontiguous-p)))))
+	   (when (use-region-p) (region-noncontiguous-p)))))
   (perform-replace
    (concat "\\(?:" (mapconcat #'car pairs "\\|") "\\)") ; build query
    (cons (lambda (pairs _count)

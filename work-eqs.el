@@ -15,12 +15,11 @@
 (defun scaleval (pmax pmin emax emin &optional ai)
   "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
 With optional argument 'ai', also calculate a final scaled value from an input."
-  (let ((div (/ (- pmax pmin) (- (float emax) (float emin)))))
-    (let ((ofst (- emin (/ pmin div))))
+  (let* ((div (/ (- pmax pmin) (- (float emax) (float emin))))
+	 (ofst (- emin (/ pmin div))))
       (if (eq nil ai)
 	  (list div ofst)
-	(let ((final (+ ofst (/ ai div))))
-	  (list div ofst final))))))
+	(list div ofst (+ ofst (/ ai div))))))
 
 (defun cfm-circ (fpm radius)
   "Calculate the CFM of a circular duct given fpm and radius (in)."
@@ -46,18 +45,18 @@ Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as arguments,
 (defun gn-water-per-lb (temp humidity)
   "Calculate the grains of water per lb of air, given temp (F) and humidity (%).
 Returns a list of Sat. Water Press., Hum. Ratio, and Gns water per lb air."
-  (let ((sat-water-press (+ .0182795
-			    (* temp .001029904)
-			    (* (square temp) 0.00002579408)
-			    (* (cube temp) (* 2.400493 (expt 10 -7)))
-			    (* (expt temp 4) (* 8.100939 (expt 10 -10)))
-			    (* (expt temp 5) (* 3.256805 (expt 10 -11)))
-			    (* (expt temp 6) (* -1.001922 (expt 10 -13)))
-			    (* (expt temp 7) (* 2.44161 (expt 10 -16))))))
-    (let ((hum-press (* (/ humidity 100.0) sat-water-press)))
-      (let ((hum-ratio (/ (* hum-press 0.62198) (- 14.7 hum-press))))
-	(let ((gns-water-lb-air (* hum-ratio 7000)))
-	  (list sat-water-press hum-ratio gns-water-lb-air))))))
+  (let* ((sat-water-press (+ .0182795
+			     (* temp .001029904)
+			     (* (square temp) 0.00002579408)
+			     (* (cube temp) (* 2.400493 (expt 10 -7)))
+			     (* (expt temp 4) (* 8.100939 (expt 10 -10)))
+			     (* (expt temp 5) (* 3.256805 (expt 10 -11)))
+			     (* (expt temp 6) (* -1.001922 (expt 10 -13)))
+			     (* (expt temp 7) (* 2.44161 (expt 10 -16)))))
+	 (hum-press (* (/ humidity 100.0) sat-water-press))
+	 (hum-ratio (/ (* hum-press 0.62198) (- 14.7 hum-press)))
+	 (gns-water-lb-air (* hum-ratio 7000)))
+    (list sat-water-press hum-ratio gns-water-lb-air)))
 
 (defun mm-to-in (mm)
   "Convert milimeters to inches."

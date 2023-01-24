@@ -50,7 +50,7 @@
 (use-package dash
   :ensure t)
 
-(if (not (eq system-type 'windows-nt))
+(unless (eq system-type 'windows-nt)
     (progn
       (use-package slime :ensure t)
       (use-package ledger-mode :ensure t)))
