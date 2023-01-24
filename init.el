@@ -11,6 +11,8 @@
 ;; SETUP FOR SHARED WINDOWS/WSL INIT
 (if (eq system-type 'windows-nt)
     (progn (setq delete-by-moving-to-trash t
+		 ediff-diff-program "c:/Program Files/Git/usr/bin/diff.exe"
+		 ediff-diff3-program "c:/Program Files/Git/usr/bin/diff3.exe"
 		 openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
 					 ("\\.xls\\'" "excel" (file))
 					 ("\\.xlsx\\'" "excel" (file))

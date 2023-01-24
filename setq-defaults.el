@@ -20,7 +20,11 @@
       blink-matching-paren 'jump
       global-hl-line-sticky-flag t
       echo-keystrokes 0.01
-      save-interprogram-paste-before-kill t)
+      save-interprogram-paste-before-kill t
+      ediff-window-setup-function 'ediff-setup-windows-plain
+      ediff-split-window-function (if (> (frame-width) 150)
+					 'split-window-horizontally
+					 'split-window-vertically))
 
 ;; OPTIONS
 (recentf-mode t)
