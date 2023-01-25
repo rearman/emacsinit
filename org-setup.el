@@ -2,10 +2,9 @@
 ;; ORG SETTINGS AND DEFUNS
 (defun erfassen-zettel ()
   "Add a new zettel to the kasten.
-Creates a new file <datestamp>-name.org in ~/org/kasten."
+Creates a new file <datestamp>.org in ~/org/kasten."
   (interactive)
-  (let ((name (read-string "Zettel-Name: ")))
-  (expand-file-name (format "%s-%s.org" (format-time-string "%Y-%m-%d-%H%M") name) "~/org/kasten/")))
+  (expand-file-name (format "%s.org" (format-time-string "%Y-%m-%d-%H%M")) "~/org/kasten/"))
 
 (defun org-auto-archive ()
   "Automatically archive completed tasks in an org file.
