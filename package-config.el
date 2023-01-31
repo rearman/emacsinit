@@ -50,6 +50,11 @@
 (use-package dash
   :ensure t)
 
+(use-package acme-theme
+  :ensure t
+  :config
+  (load-theme 'acme t))
+
 (unless (eq system-type 'windows-nt)
   (use-package slime :ensure t)
   (use-package ledger-mode :ensure t))
