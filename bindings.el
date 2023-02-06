@@ -19,7 +19,6 @@
 ;; OVERRIDES
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
 (global-set-key (kbd "M-j") 'backward-join-line)
-(global-set-key (kbd "M-S-j") 'join-line)
 (global-set-key (kbd "C-S-k") 'kill-whole-line)
 (global-set-key (kbd "C-o") 'open-line-below)
 (global-set-key (kbd "M-o") 'open-line-above)

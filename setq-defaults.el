@@ -33,7 +33,7 @@
 (show-paren-mode t)
 (auto-fill-mode t)
 (midnight-mode t)
-(mouse-avoidance-mode 'animate)
+;;(mouse-avoidance-mode 'animate)
 (column-number-mode t)
 (delete-selection-mode t)
 (global-hl-line-mode t)
