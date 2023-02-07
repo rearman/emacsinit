@@ -143,3 +143,9 @@ Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace
   "Bring up tokyo60 keymap for editing."
   (interactive)
   (find-file "~/qmk_firmware/keyboards/tokyokeyboard/tokyo60/keymaps/ehrman/keymap.c"))
+
+(defun scratch-only ()
+  "Bring up the scratch buffer as the only visible buffer."
+  (interactive)
+  (switch-to-buffer "*scratch*")
+  (delete-other-windows))

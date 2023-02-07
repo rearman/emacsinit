@@ -13,6 +13,7 @@
 (global-set-key (kbd "C-c eh") (lambda () (interactive) (find-file (expand-file-name "hooks-puts.el" user-emacs-directory))))
 (global-set-key (kbd "C-c eb") (lambda () (interactive) (find-file (expand-file-name "bindings.el" user-emacs-directory))))
 (global-set-key (kbd "C-c s") 'eshell)
+(global-set-key (kbd "<f5>") 'scratch-only)
 (global-set-key (kbd "<f8>") 'recentf-open-files)
 ;; OVERRIDES
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
