@@ -14,12 +14,11 @@ Intended for use as an after-save-hook."
    (lambda ()
      (org-archive-subtree)
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-   "TODO=\"DONE\"|TODO=\"CANCELLED\""
+   "TODO=\"DONE\"|TODO=\"CANCELLED\"|TODO=\"DELEGATED\""
    'file)
   (save-buffer))
 
 (setq org-M-RET-may-split-line nil
-      org-startup-folded t
       org-reverse-note-order t
       org-use-fast-todo-selection 'expert
       org-agenda-start-on-weekday nil
@@ -34,8 +33,8 @@ Intended for use as an after-save-hook."
       org-todo-keywords '((sequence "TODO(t@)"
 				    "WAITING(w@)"
 				    "IN-PROGRESS(i@)"
-				    "DELEGATED(l@)"
 				    "APPT(a@)" "|"
+				    "DELEGATED(l@)"
 				    "DONE(d@)"
 				    "CANCELLED(c@)"))
       org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
