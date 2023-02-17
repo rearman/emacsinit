@@ -41,7 +41,7 @@
 (global-display-line-numbers-mode t)
 (set-face-background 'show-paren-match nil)
 (set-face-underline 'show-paren-match t)
-;;(add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
+(add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
 
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
