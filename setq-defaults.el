@@ -21,19 +21,28 @@
       global-hl-line-sticky-flag t
       echo-keystrokes 0.01
       save-interprogram-paste-before-kill t
+      confirm-kill-emacs 'y-or-n-p
+      confirm-kill-processes nil
+      eshell-destroy-buffer-when-process-dies t
+      custom-file (concat user-emacs-directory "custom-set-variables.el")
       ediff-window-setup-function 'ediff-setup-windows-plain
       ediff-split-window-function (if (> (frame-width) 150)
 					 'split-window-horizontally
-					 'split-window-vertically))
+				    'split-window-vertically)
+      prettify-symbols-alist '(("lambda" . 955)
+			       ("delta" . 120517)
+			       ("epsilon" . 120518)
+			       ("->" . 8594)
+			       ("<=" . 8804)
+			       (">=" . 8805)))
 
 ;; OPTIONS
-(recentf-mode t)
+(save-place-mode 1)
 (fringe-mode 1)
 (winner-mode 1)
 (show-paren-mode t)
 (auto-fill-mode t)
 (midnight-mode t)
-;;(mouse-avoidance-mode 'animate)
 (column-number-mode t)
 (delete-selection-mode t)
 (global-hl-line-mode t)
