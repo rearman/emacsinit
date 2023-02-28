@@ -10,4 +10,4 @@
       initial-scratch-message nil
       server-client-instructions nil)
 
-(setq package-enable-at-startup t)
+(setq package-enable-at-startup nil)
