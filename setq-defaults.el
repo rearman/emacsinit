@@ -54,9 +54,8 @@
 				("\\.docx\\'" "libreoffice" (file)))))
 ;; OPTIONS
 (save-place-mode 1)
-(fringe-mode 1)
+(fringe-mode 0)
 (winner-mode 1)
-(show-paren-mode t)
 (auto-fill-mode t)
 (midnight-mode t)
 (column-number-mode t)

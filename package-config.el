@@ -1,10 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 
 (require 'package)
-(setq package-archives
-      '(("elpa" . "https://elpa.gnu.org/packages/")
-	("nongnu" . "https://elpa.nongnu.org/nongnu/")
-	("melpa" . "https://melpa.org/packages/")))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
 (unless (bound-and-true-p package--initialized)
   (setq package-enable-at-startup nil)
