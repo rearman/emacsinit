@@ -3,8 +3,8 @@
 (require 'package)
 (setq package-archives
 			'(("elpa" . "https://elpa.gnu.org/packages/")
-	("nongnu" . "https://elpa.nongnu.org/nongnu/")
-	("melpa" . "https://melpa.org/packages/")))
+				("nongnu" . "https://elpa.nongnu.org/nongnu/")
+				("melpa" . "https://melpa.org/packages/")))
 
 (unless (bound-and-true-p package--initialized)
 	(setq package-enable-at-startup nil)
@@ -19,15 +19,6 @@
 (unless (eq system-type 'windows-nt)
 	(use-package slime)
 	(use-package ledger-mode))
-
-(use-package auto-package-update
-	:if (not (daemonp))
-	:custom
-	(auto-package-update-interval 7) ;; in days
-	(auto-package-update-prompt-before-update t)
-	(auto-package-update-delete-old-versions t)
-	:config
-	(auto-package-update-maybe))
 
 (use-package company
 	:custom
@@ -70,8 +61,8 @@
 	(message "Loading Magit...")
 	:config
 	(message "Loaded Magit!")
-	:bind
-	(("C-x g" . magit-status)))
+	:bind (:map ctl-x-map
+				("g" . magit-status)))
 
 (use-package openwith
 	:config
@@ -139,12 +130,12 @@ Intended for use as an after-save-hook."
 		(save-buffer)))
 
 (use-package page-break-lines
-	:init
+	:config
 	(global-page-break-lines-mode))
 
-(use-package popup-kill-ring
-	:bind
-	("M-y" . popup-kill-ring))
+(use-package browse-kill-ring
+	:config
+	(browse-kill-ring-default-keybindings))
 
 (use-package recentf
 	:ensure nil

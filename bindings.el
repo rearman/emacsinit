@@ -30,7 +30,7 @@
 (global-set-key [?\C-\S-S] 'isearch-forward-regexp)
 (global-set-key [?\C-\S-R] 'isearch-backward-regexp)
 ;; OVERRIDES - ctl-x-map
-(define-key ctl-x-map [\C-b]'buffer-menu)
+(define-key ctl-x-map "\C-b" 'buffer-menu)
 ;; OVERRIDES - esc-map (M-*)
 (define-key esc-map "j" 'backward-join-line)
 (define-key esc-map "o" 'open-line-above)
