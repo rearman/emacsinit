@@ -26,7 +26,7 @@
 (global-set-key [end] 'end-of-buffer)
 (global-set-key [C-left] 'previous-window-any-frame)
 (global-set-key [C-right] 'next-window-any-frame)
-(global-set-key [?\C-\S-k] 'kill-whole-line)
+(global-set-key [?\C-\S-K] 'kill-whole-line)
 (global-set-key [?\C-\S-S] 'isearch-forward-regexp)
 (global-set-key [?\C-\S-R] 'isearch-backward-regexp)
 ;; OVERRIDES - ctl-x-map

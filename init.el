@@ -14,22 +14,7 @@
 (load user-hooks)
 (load user-bindings)
 
-;; SETUP FOR SHARED WINDOWS/WSL INIT
-(if (eq system-type 'windows-nt)
-    (progn (setq delete-by-moving-to-trash t
-		 ediff-diff-program "c:/Program Files/Git/usr/bin/diff.exe"
-		 ediff-diff3-program "c:/Program Files/Git/usr/bin/diff3.exe"
-		 openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
-					 ("\\.xls\\'" "excel" (file))
-					 ("\\.xlsx\\'" "excel" (file))
-					 ("\\.doc\\'" "word" (file))
-					 ("\\.docx\\'" "word" (file))
-					 ("\\.adpro\\'" "PoductivitySuite" (file))))
-	   (load (expand-file-name "win-defuns.el" user-emacs-directory)))
-  (setq openwith-associations '(("\\.pdf\\'" "zathura" (file))
-				("\\.xls\\'" "libreoffice" (file))
-				("\\.xlsx\\'" "libreoffice" (file))
-				("\\.doc\\'" "libreoffice" (file))
-				("\\.docx\\'" "libreoffice" (file)))))
+(when (eq system-type 'windows-nt)
+  (load (expand-file-name "win-defuns.el" user-emacs-directory)))
 
 (load custom-file 'noerror)

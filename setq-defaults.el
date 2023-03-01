@@ -21,7 +21,6 @@
       global-hl-line-sticky-flag t
       echo-keystrokes 0.01
       save-interprogram-paste-before-kill t
-      confirm-kill-emacs nil
       confirm-kill-processes nil
       frame-title-format "%b - EMACS"
       eshell-destroy-buffer-when-process-dies t
@@ -38,6 +37,21 @@
 			       ("<=" . 8804)
 			       (">=" . 8805)))
 
+(if (eq system-type 'windows-nt)
+    (setq delete-by-moving-to-trash t
+	  ediff-diff-program "c:/Program Files/Git/usr/bin/diff.exe"
+	  ediff-diff3-program "c:/Program Files/Git/usr/bin/diff3.exe"
+	  openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
+				  ("\\.xls\\'" "excel" (file))
+				  ("\\.xlsx\\'" "excel" (file))
+				  ("\\.doc\\'" "word" (file))
+				  ("\\.docx\\'" "word" (file))
+				  ("\\.adpro\\'" "PoductivitySuite" (file))))
+  (setq openwith-associations '(("\\.pdf\\'" "zathura" (file))
+				("\\.xls\\'" "libreoffice" (file))
+				("\\.xlsx\\'" "libreoffice" (file))
+				("\\.doc\\'" "libreoffice" (file))
+				("\\.docx\\'" "libreoffice" (file)))))
 ;; OPTIONS
 (save-place-mode 1)
 (fringe-mode 1)
@@ -51,15 +65,15 @@
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
+
 (let ((my-bg-col "#cae0a6"))
+  (set-face-background 'show-paren-match nil)
+  (set-face-underline 'show-paren-match t)
   (set-face-foreground 'mode-line "black")
   (set-face-foreground 'mode-line-inactive "darkgray")
   (set-face-background 'mode-line my-bg-col)
   (set-face-background 'mode-line-inactive my-bg-col)
   (add-to-list 'default-frame-alist '(background-color . my-bg-col)))
-(set-face-background 'show-paren-match nil)
-(set-face-underline 'show-paren-match t)
-
 
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
