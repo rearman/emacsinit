@@ -22,7 +22,7 @@
       echo-keystrokes 0.01
       save-interprogram-paste-before-kill t
       confirm-kill-processes nil
-      frame-title-format "%b - EMACS"
+      frame-title-format "Poor Man's LispM"
       eshell-destroy-buffer-when-process-dies t
       dired-listing-switches "-alv --group-directories-first"
       custom-file (concat user-emacs-directory "custom-set-variables.el")
@@ -52,27 +52,26 @@
 				("\\.xlsx\\'" "libreoffice" (file))
 				("\\.doc\\'" "libreoffice" (file))
 				("\\.docx\\'" "libreoffice" (file)))))
+
+(unless (display-graphic-p)
+  (xterm-mouse-mode 1))
+
 ;; OPTIONS
-(save-place-mode 1)
 (fringe-mode 0)
 (winner-mode 1)
-(auto-fill-mode t)
 (midnight-mode t)
+(auto-fill-mode t)
+(save-place-mode 1)
 (column-number-mode t)
 (file-name-shadow-mode t)
 (delete-selection-mode t)
+
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
 
-(let ((my-bg-col "#cae0a6"))
-  (set-face-background 'show-paren-match nil)
-  (set-face-underline 'show-paren-match t)
-  (set-face-foreground 'mode-line "black")
-  (set-face-foreground 'mode-line-inactive "darkgray")
-  (set-face-background 'mode-line my-bg-col)
-  (set-face-background 'mode-line-inactive my-bg-col)
-  (add-to-list 'default-frame-alist '(background-color . my-bg-col)))
-
-(unless (display-graphic-p)
-  (xterm-mouse-mode 1))
+;; FACES
+(set-face-attribute 'show-paren-match nil :background nil :underline t)
+(set-face-attribute 'mode-line nil :background "#cae0a6" :foreground "black" :box nil)
+(set-face-attribute 'mode-line-inactive nil :background "#cae0a6" :foreground "darkgray" :box nil)
+(add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
