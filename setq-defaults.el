@@ -39,8 +39,9 @@
 
 (if (eq system-type 'windows-nt)
     (setq delete-by-moving-to-trash t
-	  ediff-diff-program "c:/Program Files/Git/usr/bin/diff.exe"
-	  ediff-diff3-program "c:/Program Files/Git/usr/bin/diff3.exe"
+	  ediff-diff-program "\"c:/Program Files/Git/usr/bin/diff.exe\""
+	  ediff-diff3-program "\"c:/Program Files/Git/usr/bin/diff3.exe\""
+	  diff-command "\"c:/Program Files/Git/usr/bin/diff.exe\""
 	  openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
 				  ("\\.xls\\'" "excel" (file))
 				  ("\\.xlsx\\'" "excel" (file))
@@ -69,9 +70,4 @@
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (global-display-line-numbers-mode t)
-
-;; FACES
-(set-face-attribute 'show-paren-match nil :background nil :underline t)
-(set-face-attribute 'mode-line nil :background "#cae0a6" :foreground "black" :box nil)
-(set-face-attribute 'mode-line-inactive nil :background "#cae0a6" :foreground "darkgray" :box nil)
 (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
