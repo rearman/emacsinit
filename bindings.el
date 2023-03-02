@@ -31,6 +31,7 @@
 (global-set-key [?\C-\S-R] 'isearch-backward-regexp)
 ;; OVERRIDES - ctl-x-map
 (define-key ctl-x-map "\C-b" 'buffer-menu)
+(define-key ctl-x-map "r\S-B" 'bookmark-jump-other-window)
 ;; OVERRIDES - esc-map (M-*)
 (define-key esc-map "j" 'backward-join-line)
 (define-key esc-map "o" 'open-line-above)
@@ -41,6 +42,5 @@
 (define-key esc-map [?\C-%] 'slot/query-replace-many)
 (define-key esc-map [C-left] 'previous-buffer)
 (define-key esc-map [C-right] 'next-buffer)
-
 ;; MODE-SPECIFIC
 (add-hook 'eshell-mode-hook (lambda () (define-key eshell-mode-map ")" 'eshell-send-on-close-paren)))

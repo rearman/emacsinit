@@ -12,3 +12,4 @@
       server-client-instructions nil)
 
 (setq package-enable-at-startup nil)
+;;(org-babel-load-file "~/.emacs.d/init.org")
