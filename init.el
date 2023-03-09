@@ -32,7 +32,6 @@
   (company-dabbrev-other-buffers t)
   (company-dabbrev-code-other-buffers t)
   (company-dabbrev-downcase nil)
-  (company-dabbrev-ignore-case 'keep-prefix)
   :config
   (global-company-mode t))
 
@@ -158,7 +157,9 @@ Intended for use as an after-save-hook."
       mode-line-compact t
       version-control t
       delete-old-versions t
+      backup-by-copying t
       auto-save-default nil
+      create-lockfiles nil
       confirm-nonexistent-file-or-buffer nil
       show-paren-delay 0
       show-paren-style 'expression
@@ -175,7 +176,7 @@ Intended for use as an after-save-hook."
       dired-listing-switches "-alv --group-directories-first"
       ediff-window-setup-function 'ediff-setup-windows-plain)
 
-(setq backup-directory-alist '(("." . "~/emacs-backups"))
+(setq backup-directory-alist '((".*" . ,temporary-file-directory))
       ediff-split-window-function (if (> (frame-width) 150)
 				      'split-window-horizontally
 				    'split-window-vertically)
@@ -190,7 +191,6 @@ Intended for use as an after-save-hook."
   (setq w32-recognize-altgr 'nil))
 
 ;; MODES
-;;(fringe-mode 0)
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (column-number-mode t)
@@ -205,20 +205,16 @@ Intended for use as an after-save-hook."
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
 
-;; UTF8
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-language-environment 'utf-8)
-(set-selection-coding-system 'utf-8)
-
 ;; MATH DEFUNS
+(defalias '^ 'expt)
+
 (defun square (x)
   "Calculate the square of a value."
-  (expt x 2))
+  (^ x 2))
 
 (defun cube (x)
   "Calculate the cube of a value."
-  (expt x 3))
+  (^ x 3))
 
 (defun inv (x)
   "Calculate the inverse of a value."
@@ -281,7 +277,7 @@ Divides the voltage by the effective impedance calculated with 'eff-imp'."
 (defun max-counts (resolution)
   "Calculate the max count for a PLC analog, given card's bit-resolution.
 Formula is 2^(resolution) - 1"
-  (- (expt 2 resolution) 1))
+  (- (^ 2 resolution) 1))
 
 (defun volts-to-counts (vin vmax resolution)
   "Convert a voltage signal to a PLC count.
@@ -351,11 +347,11 @@ Returns a list of Saturated Water Pressure, Humidity Ratio, and Grains of water 
   (let* ((sat-water-press (+ .0182795
 			     (* temp .001029904)
 			     (* (square temp) 0.00002579408)
-			     (* (cube temp) (* 2.400493 (expt 10 -7)))
-			     (* (expt temp 4) (* 8.100939 (expt 10 -10)))
-			     (* (expt temp 5) (* 3.256805 (expt 10 -11)))
-			     (* (expt temp 6) (* -1.001922 (expt 10 -13)))
-			     (* (expt temp 7) (* 2.44161 (expt 10 -16)))))
+			     (* (cube temp) (* 2.400493 (^ 10 -7)))
+			     (* (^ temp 4) (* 8.100939 (^ 10 -10)))
+			     (* (^ temp 5) (* 3.256805 (^ 10 -11)))
+			     (* (^ temp 6) (* -1.001922 (^ 10 -13)))
+			     (* (^ temp 7) (* 2.44161 (^ 10 -16)))))
 	 (hum-press (* (/ humidity 100.0) sat-water-press))
 	 (hum-ratio (/ (* hum-press 0.62198) (- 14.7 hum-press)))
 	 (gns-water-lb-air (* hum-ratio 7000)))
@@ -502,6 +498,7 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 
 ;; MOTION BINDINGS
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
+(global-set-key (kbd "C-a") 'smart-beginning-of-line)
 (global-set-key [remap goto-line] 'my-goto-line)
 (global-set-key (kbd "<home>") 'beginning-of-buffer)
 (global-set-key (kbd "<end>") 'end-of-buffer)
@@ -513,9 +510,9 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 (global-set-key (kbd "C-u")'backward-kill-line)
 (global-set-key (kbd "C-w")'kill-bword-or-region)
 (global-set-key (kbd "C-z") 'zap-up-to-char)
-(global-set-key (kbd "C-c ;") 'comment-or-uncomment-region)
-(global-set-key [?\C-\S-K] 'kill-whole-line)
-(global-set-key [?\C-'] 'universal-argument) ; default is C-u
+(global-set-key (kbd "C-\\") 'comment-or-uncomment-region)
+(global-set-key (kbd "C-S-K") 'kill-whole-line)
+(global-set-key (kbd "C-'") 'universal-argument) ; default is C-u
 
 ;; SEARCH AND REPLACE BINDINGS
 (global-set-key (kbd "M-s .") 'isearch-forward-thing-at-point)
