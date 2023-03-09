@@ -8,6 +8,16 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
+(unless (bound-and-true-p package--initialized)
+  (setq package-enable-at-startup nil)
+  (package-initialize))
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(setq use-package-always-ensure t)
+
 (unless (eq system-type 'windows-nt)
   (use-package slime)
   (use-package ledger-mode))
@@ -29,17 +39,6 @@
   (company-dabbrev-ignore-case 'keep-prefix)
   :config
   (global-company-mode t))
-
-(setq company-tooltip-idle-delay 10
-      company-frontends '(company-pseudo-tooltip-unless-just-one-frontend-with-delay
-			   company-preview-frontend
-			   company-echo-metadata-frontend))
-(define-key company-active-map [tab] (lambda ()
-					    (interactive)
-					    (let ((company-tooltip-idle-delay 0.0))
-					      (company-complete)
-					      (and company-candidates
-						   (company-call-frontends 'post-command)))))
 
 (use-package expand-region
   :bind
@@ -167,7 +166,6 @@ Intended for use as an after-save-hook."
       ring-bell-function 'ignore
       use-short-answers t
       mode-line-compact t
-      backup-directory-alist '(("." . "~/emacs-backups"))
       version-control t
       delete-old-versions t
       auto-save-default nil
@@ -184,7 +182,9 @@ Intended for use as an after-save-hook."
       frame-title-format "Poor Man's LispM"
       eshell-destroy-buffer-when-process-dies t
       dired-listing-switches "-alv --group-directories-first"
-      ediff-window-setup-function 'ediff-setup-windows-plain
+      ediff-window-setup-function 'ediff-setup-windows-plain)
+
+(setq backup-directory-alist '(("." . "~/emacs-backups"))
       ediff-split-window-function (if (> (frame-width) 150)
 				      'split-window-horizontally
 				    'split-window-vertically)
@@ -194,6 +194,9 @@ Intended for use as an after-save-hook."
 			       ("->" . 8594)
 			       ("<=" . 8804)
 			       (">=" . 8805)))
+
+(when (equal system-type 'windows-nt)
+  (setq w32-recognize-altgr 'nil))
 
 ;; MODES
 ;;(fringe-mode 0)
@@ -207,8 +210,10 @@ Intended for use as an after-save-hook."
 
 (global-visual-line-mode t)
 (delete-selection-mode t)
+
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
+
 ;; UTF8
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
@@ -409,86 +414,15 @@ Stolen from BrettWitty's dotemacs github repo."
     (and (= oldpos (point))
 	 (beginning-of-line))))
 
-(defun slot/get-queries (&optional pairs)
-  "Get multiple 'query-replace' pairs from the user.
-PAIRS is a list of replacement pairs of the form (FROM . TO).
-Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html"
-  (-let* (((from to delim arg)
-	   (query-replace-read-args
-	    (s-join " "
-		    (-non-nil
-		     (list "Replace Strings"
-			   (cond ((eq current-prefix-arg '-) "backward")
-				 (current-prefix-arg         "word"))
-			   (when (use-region-p) "in region"))))
-	    nil))                       ; no regexp-flag
-	  (from-to (cons (regexp-quote from)
-			 (s-replace "\\" "\\\\" to))))
-	 ;; HACK: Since the default suggestion of replace.el will be
-	 ;; the last one we've entered, an empty string will give us
-	 ;; exactly that.  Instead of trying to fight against this,
-	 ;; use it in order to signal an exit.
-	 (if (-contains? pairs from-to)
-	     (list pairs delim arg)
-	   (slot/get-queries (push from-to pairs)))))
-
-(defun slot/replace-string-many
-    (pairs &optional delimited start end backward region-noncontiguous-p)
-  "Like 'replace-string', but query for several replacements.
-Query for replacement pairs until the users enters an empty
-string (but see 'slot/get-queries').
-
-Refer to 'query-replace' and 'perform-replace' for what the other
-arguments actually mean.
-Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html
-Edited and renamed to remove the Query."
-  (interactive
-   (let ((common (slot/get-queries)))
-     (list (nth 0 common) (nth 1 common)
-	   (if (use-region-p) (region-beginning))
-	   (if (use-region-p) (region-end))
-	   (nth 2 common)
-	   (if (use-region-p) (region-noncontiguous-p)))))
-  (perform-replace
-   (concat "\\(?:" (mapconcat #'car pairs "\\|") "\\)") ; build query
-   (cons (lambda (pairs _count)
-	   (cl-loop for (from . to) in pairs
-		    when (string-match from (match-string 0))
-		    return to))
-	 pairs)
-   nil :regexp
-   delimited nil nil start end backward region-noncontiguous-p))
-
-(defun slot/query-replace-many
-    (pairs &optional delimited start end backward region-noncontiguous-p)
-  "Like 'query-replace', but query for several replacements.
-Query for replacement pairs until the users enters an empty
-string (but see 'slot/get-queries').
-
-Refer to 'query-replace' and 'perform-replace' for what the other
-arguments actually mean.
-Stolen from https://tony-zorman.com/posts/query-replace/2022-08-06-query-replace-many.html"
-  (interactive
-   (let ((common (slot/get-queries)))
-     (list (nth 0 common) (nth 1 common)
-	   (when (use-region-p) (region-beginning))
-	   (when (use-region-p) (region-end))
-	   (nth 2 common)
-	   (when (use-region-p) (region-noncontiguous-p)))))
-  (perform-replace
-   (concat "\\(?:" (mapconcat #'car pairs "\\|") "\\)") ; build query
-   (cons (lambda (pairs _count)
-	   (cl-loop for (from . to) in pairs
-		    when (string-match from (match-string 0))
-		    return to))
-	 pairs)
-   :query :regexp
-   delimited nil nil start end backward region-noncontiguous-p))
+(defun go-to-scratch ()
+  "Bring up the scratch buffer."
+  (interactive)
+  (switch-to-buffer (get-buffer-create "*scratch*")))
 
 (defun scratch-only ()
   "Bring up the scratch buffer as the only visible buffer."
   (interactive)
-  (switch-to-buffer (get-buffer-create "*scratch*"))
+  (go-to-scratch)
   (delete-other-windows))
 
 (defun my-goto-line ()
@@ -561,52 +495,52 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 (put 'dired-find-alternate-file 'disabled nil)
 
 ;; FILE FINDER BINDINGS
-(define-key mode-specific-map "ee" (lambda () (interactive) (dired user-emacs-directory)))
-(define-key mode-specific-map "ei" (lambda () (interactive) (find-file user-init-file)))
-(define-key global-map [f8] 'recentf-open-files)
-(define-key ctl-x-map "r\S-B" 'bookmark-jump-other-window)
+(global-set-key (kbd "C-c ee") (lambda () (interactive) (dired user-emacs-directory)))
+(global-set-key (kbd "C-c ei") (lambda () (interactive) (find-file user-init-file)))
+(global-set-key (kbd "C-x r S-B") 'bookmark-jump-other-window)
 
 ;; BUFFER BINDINGS
-(define-key ctl-x-map "\C-b" 'buffer-menu)
-(define-key mode-specific-map "b" 'buffer-menu-other-window)
-(define-key global-map [C-left] 'previous-window-any-frame)
-(define-key global-map [C-right] 'next-window-any-frame)
-(define-key esc-map [C-left] 'previous-buffer) ; also bound to C-x <left> by default
-(define-key esc-map [C-right] 'next-buffer) ; also bound to C-x <right> by default
-(define-key global-map [f5] 'scratch-only)
+(global-set-key (kbd "C-x C-b") 'buffer-menu)
+(global-set-key (kbd "C-c b") 'buffer-menu-other-window)
+(global-set-key (kbd "C-<left>") 'previous-window-any-frame)
+(global-set-key (kbd "C-<right>") 'next-window-any-frame)
+(global-set-key (kbd "M-C-<left>") 'previous-buffer) ; also bound to C-x <left> by default
+(global-set-key (kbd "M-C-<right>") 'next-buffer) ; also bound to C-x <right> by default
+(global-set-key (kbd "<f5>") 'go-to-scratch)
+(global-set-key (kbd "S-<f5>") 'scratch-only)
 
 ;; MOTION BINDINGS
-(define-key global-map [home] 'beginning-of-buffer)
-(define-key global-map [end] 'end-of-buffer)
-(define-key global-map [remap move-beginning-of-line] 'smart-beginning-of-line)
-(define-key global-map [remap goto-line] 'my-goto-line)
+(global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
+(global-set-key [remap goto-line] 'my-goto-line)
+(global-set-key (kbd "<home>") 'beginning-of-buffer)
+(global-set-key (kbd "<end>") 'end-of-buffer)
 
 ;; EDITING BINDINGS
-(define-key global-map "\C-o" 'open-line-below)
-(define-key global-map "\M-j" 'backward-join-line)
-(define-key global-map "\M-o" 'open-line-above)
-(define-key global-map "\C-u" 'backward-kill-line)
-(define-key global-map "\C-w" 'kill-bword-or-region)
-(define-key global-map "\C-z" 'zap-up-to-char)
-(define-key mode-specific-map ";" 'comment-or-uncomment-region)
-(define-key global-map [?\C-\S-K] 'kill-whole-line)
-(define-key global-map [?\C-'] 'universal-argument) ; default is C-u
+(global-set-key (kbd "C-o")'open-line-below)
+(global-set-key (kbd "M-j")'backward-join-line)
+(global-set-key (kbd "M-o")'open-line-above)
+(global-set-key (kbd "C-u")'backward-kill-line)
+(global-set-key (kbd "C-w")'kill-bword-or-region)
+(global-set-key (kbd "C-z") 'zap-up-to-char)
+(global-set-key (kbd "C-c ;") 'comment-or-uncomment-region)
+(global-set-key [?\C-\S-K] 'kill-whole-line)
+(global-set-key [?\C-'] 'universal-argument) ; default is C-u
 
 ;; SEARCH AND REPLACE BINDINGS
-(define-key esc-map "s." 'isearch-forward-thing-at-point)
-(define-key esc-map "s\M-." 'isearch-forward-symbol-at-point)
-(define-key esc-map "%" 'slot/replace-string-many)
-(define-key esc-map [?\C-%] 'slot/query-replace-many)
-(define-key global-map [?\C-%] 'replace-regexp)
-(define-key global-map [?\C-\S-R] 'isearch-backward-regexp)
-(define-key global-map [?\C-\S-S] 'isearch-forward-regexp)
+(global-set-key (kbd "M-s .") 'isearch-forward-thing-at-point)
+(global-set-key (kbd "M-s M-.") 'isearch-forward-symbol-at-point)
+(global-set-key (kbd "M-%") 'replace-string)
+(global-set-key (kbd "C-%") 'replace-regexp)
+(global-set-key (kbd "M-C-%") 'query-replace-regexp)
+(global-set-key (kbd "C-S-R") 'isearch-backward-regexp)
+(global-set-key (kbd "C-S-S") 'isearch-forward-regexp)
 
 ;;  ESHELL BINDINGS
-(define-key mode-specific-map "s" 'eshell)
+(global-set-key (kbd "C-c s") 'eshell)
 (add-hook 'eshell-mode-hook (lambda () (define-key eshell-mode-map ")" 'eshell-send-on-close-paren)))
 
 ;; MISC BINDINGS
-(define-key esc-map "\C-z" 'eval-region)
+(global-set-key (kbd "M-C-z") 'eval-region)
 
 (setq custom-file (concat user-emacs-directory "custom-set-variables.el"))
 (load custom-file 'noerror)
