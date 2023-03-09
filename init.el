@@ -1,9 +1,5 @@
 ;;; init.el --- Quae configurare  -*- lexical-binding: t; -*-
 
-;; Haec fasciculus pars Emacs non est.
-
-;;; Code:
-
 ;; PACKAGES
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
@@ -144,12 +140,6 @@ Intended for use as an after-save-hook."
    (:map org-mode-map
 	 ("C-'" . nil))))
 
-(use-package page-break-lines
-  :custom
-  (page-break-lines-max-width (- (window-width) 1))
-  :config
-  (global-page-break-lines-mode))
-
 (use-package browse-kill-ring
   :config
   (browse-kill-ring-default-keybindings))
@@ -175,6 +165,7 @@ Intended for use as an after-save-hook."
       blink-matching-paren 'jump
       global-hl-line-sticky-flag t
       echo-keystrokes 0.01
+      help-window-select t
       history-delete-duplicates t
       save-interprogram-paste-before-kill t
       confirm-kill-processes nil
@@ -542,8 +533,30 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 ;; MISC BINDINGS
 (global-set-key (kbd "M-C-z") 'eval-region)
 
-(setq custom-file (concat user-emacs-directory "custom-set-variables.el"))
-(load custom-file 'noerror)
+;; CUSTOMIZE
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ledger-reports
+   '(("assets" "%(binary) -f %(ledger-file) bal assets")
+     ("income" "%(binary) -f %(ledger-file) bal income")
+     ("expenses" "%(binary) -f %(ledger-file) bal expenses")
+     ("liabilities" "%(binary) -f %(ledger-file) bal liabilities")
+     ("bal" "%(binary) -f %(ledger-file) bal")
+     ("reg" "%(binary) -f %(ledger-file) reg")
+     ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
+     ("account" "%(binary) -f %(ledger-file) reg %(account)")))
+ '(minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt))
+ '(package-selected-packages
+   '(magit browse-kill-ring use-package openwith expand-region company)))
 
-(provide 'init.el)
-;;; hic terminatur init.el
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(mode-line ((t (:background "grey75" :foreground "black"))))
+ '(mode-line-inactive ((t (:inherit mode-line :background "grey90" :foreground "grey20" :weight light))))
+ '(show-paren-match ((t (:underline t)))))
