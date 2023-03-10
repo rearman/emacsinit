@@ -21,17 +21,13 @@
 (use-package company
   :custom
   (company-idle-delay 0)
-  (company-minimum-prefix-length 1)
   (company-require-match nil)
   (company-show-quick-access t)
-  (company-format-margin-function 'company-text-icons-margin)
-  (company-text-face-extra-attributes '(:slant italic))
+  (company-minimum-prefix-length 1)
   (company-selection-wrap-around t)
-  (company-tooltip-flip-when-above t)
   (company-insertion-on-trigger nil)
-  (company-dabbrev-other-buffers t)
-  (company-dabbrev-code-other-buffers t)
-  (company-dabbrev-downcase nil)
+  (company-tooltip-flip-when-above t)
+  (company-format-margin-function 'company-text-icons-margin)
   :config
   (global-company-mode t))
 
@@ -47,9 +43,9 @@
 ;; Put this here mainly for speed boost (only load magit when I call for it)
 (use-package magit
   :init
-  (message "Loading Magit...")
+  (message "LOCKED")
   :config
-  (message "Loaded Magit!")
+  (message "LOADED")
   :bind
   ((:map ctl-x-map
 	 ("g" . magit-status))))
@@ -59,11 +55,7 @@
   (openwith-mode t))
 
 (if (eq system-type 'windows-nt)
-    (setq delete-by-moving-to-trash t
-	  ediff-diff-program "\"c:/Program Files/Git/usr/bin/diff.exe\""
-	  ediff-diff3-program "\"c:/Program Files/Git/usr/bin/diff3.exe\""
-	  diff-command "\"c:/Program Files/Git/usr/bin/diff.exe\""
-	  openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
+    (setq openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
 				  ("\\.xls\\'" "excel" (file))
 				  ("\\.xlsx\\'" "excel" (file))
 				  ("\\.doc\\'" "word" (file))
@@ -80,7 +72,7 @@
   :custom
   (org-M-RET-may-split-line nil)
   (org-reverse-note-order t)
-  (org-agenda-window-setup 'other-window)
+  (org-agenda-restore-windows-after-quit t)
   (org-use-fast-todo-selection 'expert)
   (org-src-window-setup 'current-window)
   (org-agenda-start-on-weekday nil)
@@ -144,43 +136,35 @@ Intended for use as an after-save-hook."
   (browse-kill-ring-default-keybindings))
 
 (setq-default indicate-empty-lines t
-	      fill-column 80
-	      read-file-name-completion-ignore-case t
 	      read-buffer-completion-ignore-case t
 	      cursor-type 'bar
 	      cursor-in-non-selected-windows 'hollow)
 
-(setq require-final-newline t
-      text-quoting-style 'straight
-      ring-bell-function 'ignore
-      use-short-answers t
-      mode-line-compact t
-      version-control t
-      delete-old-versions t
+(setq delete-old-versions t
+      kept-new-versions 5
+      kept-old-versions 5
       backup-by-copying t
       auto-save-default nil
       create-lockfiles nil
-      confirm-nonexistent-file-or-buffer nil
+      backup-directory-alist `((".*" . ,temporary-file-directory)))
+
+(setq require-final-newline t
+      text-quoting-style 'straight)
+
+(setq ring-bell-function 'ignore
+      use-short-answers t
       show-paren-delay 0
       show-paren-style 'expression
       blink-matching-paren 'jump
       global-hl-line-sticky-flag t
-      echo-keystrokes 0.01
-      help-window-select t
-      history-delete-duplicates t
+      frame-title-format "Poor Man's LispM")
+
+(setq history-delete-duplicates t
       save-interprogram-paste-before-kill t
       confirm-kill-processes nil
-      auto-window-vscroll nil
-      frame-title-format "Poor Man's LispM"
-      eshell-destroy-buffer-when-process-dies t
-      dired-listing-switches "-alv --group-directories-first"
-      ediff-window-setup-function 'ediff-setup-windows-plain)
+      dired-listing-switches "-alv --group-directories-first")
 
-(setq backup-directory-alist '((".*" . ,temporary-file-directory))
-      ediff-split-window-function (if (> (frame-width) 150)
-				      'split-window-horizontally
-				    'split-window-vertically)
-      prettify-symbols-alist '(("lambda" . 955)
+(setq prettify-symbols-alist '(("lambda" . 955)
 			       ("delta" . 120517)
 			       ("epsilon" . 120518)
 			       ("->" . 8594)
@@ -188,7 +172,11 @@ Intended for use as an after-save-hook."
 			       (">=" . 8805)))
 
 (when (equal system-type 'windows-nt)
-  (setq w32-recognize-altgr 'nil))
+  (setq delete-by-moving-to-trash t
+	ediff-diff-program "\"c:/Program Files/Git/usr/bin/diff.exe\""
+	ediff-diff3-program "\"c:/Program Files/Git/usr/bin/diff3.exe\""
+	diff-command "\"c:/Program Files/Git/usr/bin/diff.exe\""
+	w32-recognize-altgr 'nil))
 
 ;; MODES
 (global-hl-line-mode t)
@@ -197,9 +185,9 @@ Intended for use as an after-save-hook."
 (size-indication-mode t)
 
 (midnight-mode t)
-(save-place-mode 1)
 
-(global-visual-line-mode t)
+;;(global-visual-line-mode t)
+(auto-fill-mode 1)
 (delete-selection-mode t)
 
 (unless (display-graphic-p)
@@ -257,20 +245,23 @@ Applies 'c-to-k' to 'f-to-c'."
 ;; ELECTRICAL DEFUNS
 (defun eff-imp (r1 &optional r2)
   "Calculate the effective input impedance, given two resistances.
-For use in 'amps-to-volts' and related.  The handling of only one resistance
-given is done here, instead of doing it in every function that uses this."
+For use in 'amps-to-volts' and related.  The handling of only one
+resistance given is done here, instead of doing it in every
+function that uses this."
   (if (eq nil r2)
       r1
     (inv (+ (inv (float r1)) (inv (float r2))))))
 
 (defun amps-to-volts (amps r1 &optional r2)
   "Calculate the voltage, given amperage and impedance.
-Multiplies the amperage by the effective impedance calculated with 'eff-imp'."
+Multiplies the amperage by the effective impedance calculated
+with 'eff-imp'."
   (* amps (eff-imp r1 r2)))
 
 (defun volts-to-amps (volts r1 &optional r2)
   "Calculate the amperage, given voltage and impedance.
-Divides the voltage by the effective impedance calculated with 'eff-imp'."
+Divides the voltage by the effective impedance calculated with
+'eff-imp'."
   (/ volts (eff-imp r1 r2)))
 
 ;; PLC DEFUNS
@@ -291,15 +282,17 @@ Calculates a ratio of cin/'max-counts', then multiplies by vmax."
 
 (defun amps-to-counts (amps vmax resolution r1 &optional r2)
   "Convert a current signal to PLC Counts.
-Converts the amperage to a voltage using 'amps-to-volts' (with r1 and optional r2),
-then applies 'volts-to-counts' to the resulting voltage, vmax, and resolution."
+Converts the amperage to a voltage using 'amps-to-volts' (with r1
+and optional r2), then applies 'volts-to-counts' to the resulting
+voltage, vmax, and resolution."
   (volts-to-counts (amps-to-volts amps r1 r2) vmax resolution))
 
 (defun count-range (type upper lower vmax resolution &optional r1 r2)
   "Given an upper and lower signal, return the list of upper and lower PLC counts.
-Type takes either a v or an i, corresponding to a voltage or current signal.
-With a current signal, use r1 and maybe r2 to calculate 'amps-to-counts'.
-Otherwise ignore r1/r2 and calculate 'volts-to-counts'."
+Type takes either a v or an i, corresponding to a voltage or
+current signal.  With a current signal, use r1 and maybe r2 to
+calculate 'amps-to-counts'.  Otherwise ignore r1/r2 and calculate
+'volts-to-counts'."
   (cond ((or (equal 'v type)
 	     (equal 'V type))
 	 (list (volts-to-counts upper vmax resolution)
@@ -311,7 +304,8 @@ Otherwise ignore r1/r2 and calculate 'volts-to-counts'."
 
 (defun scaleval (pmax pmin emax emin &optional ai)
   "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
-With optional argument 'ai', also calculate a final scaled value from an input."
+With optional argument 'ai', also calculate a final scaled value
+from an input."
   (let* ((div (/ (- pmax pmin) (- (float emax) (float emin))))
 	 (ofst (- emin (/ pmin div))))
     (if (eq nil ai)
@@ -320,8 +314,8 @@ With optional argument 'ai', also calculate a final scaled value from an input."
 
 (defun pid-tune (Kᵤ Tᵤ &optional loop-type)
   "Use the Ziegler-Nichols method to tune a P, PI or PID loop.
-Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as arguments,
- and returns appropriate kp, ki, and kd."
+Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as
+ arguments, and returns appropriate kp, ki, and kd."
   (cond ((or (equal 'p loop-type)
 	     (equal 'P loop-type))
 	 (list (* 0.5 Kᵤ)))
@@ -333,17 +327,20 @@ Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as arguments,
 
 ;; REFRIGERATION DEFUNS
 (defun cfm-circ (fpm radius)
-  "Calculate the CFM of a circular duct given feet/minute and radius (in)."
+  "Calculate the CFM of a circular duct.
+Inputs are feet/minute and radius (in)."
   (list (* pi fpm (square (/ radius 12)))))
 
 (defun cfm-rect (fpm width height)
-  "Calculate the CFM of a rectangular duct given feet/minute, width (in) and height (in)."
+  "Calculate the CFM of a rectangular duct.
+Inputs are feet/minute, width (in) and height (in)."
   (list (* fpm (/ width 12) (/ height 12))))
 
 (defun gn-water-per-lb (temp humidity)
-  "Calculate the grains of water per lb of air, given temp (F) and
-humidity (%).
-Returns a list of Saturated Water Pressure, Humidity Ratio, and Grains of water per lb of air."
+  "Calculate the grains of water per lb of air.
+Inputs are temp (F) and humidity (%).  Returns a list of
+Saturated Water Pressure, Humidity Ratio, and Grains of water per
+lb of air."
   (let* ((sat-water-press (+ .0182795
 			     (* temp .001029904)
 			     (* (square temp) 0.00002579408)
@@ -358,21 +355,36 @@ Returns a list of Saturated Water Pressure, Humidity Ratio, and Grains of water 
     (list sat-water-press hum-ratio gns-water-lb-air)))
 
 ;; EDITING DEFUNS
-(defun open-line-below ()
-  "Creates a new empty line below the current line."
-  (interactive)
+(defun open-line-below (n)
+  "Creates a new empty line below the current line and moves to it."
+  (interactive "*p")
   (end-of-line)
-  (newline)
+  (open-line n)
+  (next-line)
   (indent-for-tab-command))
 
-(defun open-line-above ()
-  "Creates a new empty line above the current line.
-Can't go prev line first, edge case of beginning of buffer."
-  (interactive)
+(defun open-line-below-no-move (n)
+  "Creates a new empty line below the current line, without moving point."
+  (interactive "*p")
+  (let ((pos (point-marker)))
+    (end-of-line)
+    (open-line n)
+    (goto-char pos)))
+
+(defun open-line-above (n)
+  "Creates a new empty line above the current line."
+  (interactive "*p")
   (beginning-of-line)
-  (newline)
-  (previous-line)
+  (open-line n)
   (indent-for-tab-command))
+
+(defun open-line-above-no-move (n)
+  "Creates a new empty line above the current line, without moving point."
+  (interactive "*p")
+  (let ((pos (point-marker)))
+    (beginning-of-line)
+    (open-line n)
+    (goto-char pos)))
 
 (defun kill-bword-or-region ()
   "Kill region if active, otherwise kill back one word."
@@ -393,8 +405,8 @@ Can't go prev line first, edge case of beginning of buffer."
 
 (defun smart-beginning-of-line ()
   "Move point to first non-whitespace character or beginning-of-line.
-If point was already at that position, move point to beginning of line.
-Stolen from BrettWitty's dotemacs github repo."
+If point was already at that position, move point to beginning of
+line. Stolen from BrettWitty's dotemacs github repo."
   (interactive "^")
   (let ((oldpos (point)))
     (back-to-indentation)
@@ -422,7 +434,8 @@ Stolen from BrettWitty's dotemacs github repo."
 ;; ESHELL DEFUNS
 (defun eshell-send-on-close-paren ()
   "Makes eshell act somewhat like genera.
-Makes a closing paren execute the sexp.  Currently in test, look out for errors."
+Makes a closing paren execute the sexp.  Currently in test, look
+out for errors."
   (interactive)
   (insert-char ?\))
   (let ((p (point)))
@@ -456,7 +469,8 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 ;; WINDOWS DEFUNS
 (when (equal system-type 'windows-nt)
   (defun unfuck-aveva-license ()
-    "Remove the offending xml files when aveva can't find ass with both hands."
+    "Remove the offending xml files.
+Use this when aveva can't find ass with both hands."
     (interactive)
     (let ((xml1 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalAcquireInfo.xml")
 	  (xml2 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalBackEndAcquireInfo.xml"))
@@ -498,20 +512,21 @@ Makes a closing paren execute the sexp.  Currently in test, look out for errors.
 
 ;; MOTION BINDINGS
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
-(global-set-key (kbd "C-a") 'smart-beginning-of-line)
 (global-set-key [remap goto-line] 'my-goto-line)
 (global-set-key (kbd "<home>") 'beginning-of-buffer)
 (global-set-key (kbd "<end>") 'end-of-buffer)
 
 ;; EDITING BINDINGS
-(global-set-key (kbd "C-o")'open-line-below)
 (global-set-key (kbd "M-j")'backward-join-line)
+(global-set-key (kbd "C-S-K") 'kill-whole-line)
+(global-set-key (kbd "C-o")'open-line-below)
 (global-set-key (kbd "M-o")'open-line-above)
+(global-set-key (kbd "C-S-O")'open-line-below-no-move)
+(global-set-key (kbd "M-S-O")'open-line-above-no-move)
 (global-set-key (kbd "C-u")'backward-kill-line)
 (global-set-key (kbd "C-w")'kill-bword-or-region)
 (global-set-key (kbd "C-z") 'zap-up-to-char)
 (global-set-key (kbd "C-\\") 'comment-or-uncomment-region)
-(global-set-key (kbd "C-S-K") 'kill-whole-line)
 (global-set-key (kbd "C-'") 'universal-argument) ; default is C-u
 
 ;; SEARCH AND REPLACE BINDINGS

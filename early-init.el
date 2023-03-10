@@ -1,8 +1,10 @@
 ;;; early-init.el --- Emacs 27+ pre-initialization config -*- lexical-binding: t; -*-
-;; 100MB garbage collection threshold during startup(default 800KB)
-(setq gc-cons-threshold 100000000)
-;; Drop to 50MB after init
-(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 50000000)
+;; GC threshold to max during startup(default 800KB)
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.6)
+;; Drop to 25MB after init
+(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 1024 1024 25)
+					 gc-cons-percentage 0.1)))
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -13,7 +15,7 @@
       inhibit-startup-screen t
       inhibit-startup-message t
       inhibit-startup-buffer-menu t
-      initial-scratch-message nil
+      initial-scratch-message (message ";;; Emacs loaded in %s.\n\n" (emacs-init-time))
       server-client-instructions nil)
 
 (add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
