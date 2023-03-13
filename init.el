@@ -4,41 +4,59 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
-(unless (bound-and-true-p package--initialized)
-  (setq package-enable-at-startup nil)
-  (package-initialize))
-
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
 (setq use-package-always-ensure t)
 
-(unless (eq system-type 'windows-nt)
+(unless (equal system-type 'windows-nt)
   (use-package slime)
   (use-package ledger-mode))
 
-(use-package company
-  :custom
-  (company-idle-delay 0)
-  (company-require-match nil)
-  (company-show-quick-access t)
-  (company-minimum-prefix-length 1)
-  (company-selection-wrap-around t)
-  (company-insertion-on-trigger nil)
-  (company-tooltip-flip-when-above t)
-  (company-format-margin-function 'company-text-icons-margin)
+(use-package visual-fill-column
   :config
-  (global-company-mode t))
+  (global-visual-fill-column-mode))
+
+(use-package corfu
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0)
+  (corfu-auto-prefix 1)
+  :config
+  (global-corfu-mode)
+  :bind
+  ((:map corfu-map
+	 ("C-h" . corfu-popupinfo-toggle))))
+
+(add-hook 'eshell-mode-hook (lambda ()
+			      (setq-local corfu-auto nil)
+			      (corfu-mode)))
+
+(use-package corfu-popupinfo
+  :ensure nil ; Part of corfu
+  :after corfu
+  :hook (corfu-mode . corfu-popupinfo-mode)
+  :custom
+  (corfu-popupinfo-delay '(nil . 0.01))
+  (corfu-popupinfo-hide nil)
+  :config
+  (corfu-popupinfo-mode))
+
+(use-package corfu-terminal
+  :after corfu
+  :unless (display-graphic-p)
+  :config
+  (corfu-terminal-mode))
+
+(use-package orderless
+  :custom ; Basic as fallback, overrides needed for tramp
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
 
 (use-package expand-region
   :bind
   (("C-=" . er/expand-region)))
-
-(use-package git-commit
-  :custom
-  (git-commit-fill-column 72)
-  (git-commit-style-convention-checks '(non-empty-second-line overlong-summary-line)))
 
 ;; Put this here mainly for speed boost (only load magit when I call for it)
 (use-package magit
@@ -54,24 +72,21 @@
   :config
   (openwith-mode t))
 
-(if (eq system-type 'windows-nt)
-    (setq openwith-associations '(("\\.pdf\\'" "sumatrapdf" (file))
-				  ("\\.xls\\'" "excel" (file))
-				  ("\\.xlsx\\'" "excel" (file))
-				  ("\\.doc\\'" "word" (file))
-				  ("\\.docx\\'" "word" (file))
-				  ("\\.adpro\\'" "PoductivitySuite" (file))))
-  (setq openwith-associations '(("\\.pdf\\'" "zathura" (file))
-				("\\.xls\\'" "libreoffice" (file))
-				("\\.xlsx\\'" "libreoffice" (file))
-				("\\.doc\\'" "libreoffice" (file))
-				("\\.docx\\'" "libreoffice" (file)))))
+(setq openwith-associations (list
+			     (list (openwith-make-extension-regexp
+				    '("xls" "xlsx" "doc" "docx"
+				      "ppt" "odt" "ods" "odg" "odp"))
+				   "LibreOffice"
+				   '(file))
+			     (list (openwith-make-extension-regexp
+				    '("adpro"))
+				   "ProductivitySuite"
+				   '(file))))
 
 (use-package org
   :ensure nil ; in emacs by default
   :custom
   (org-M-RET-may-split-line nil)
-  (org-reverse-note-order t)
   (org-agenda-restore-windows-after-quit t)
   (org-use-fast-todo-selection 'expert)
   (org-src-window-setup 'current-window)
@@ -84,14 +99,8 @@
 			(org-agenda-files :maxlevel . 9)))
   (org-default-notes-file (concat org-directory "/notes.org"))
   (safe-local-variable-values '((after-save-hook org-auto-archive)))
-  (org-todo-keywords '((sequence "TODO(t@)"
-				 "WAITING(w@)"
-				 "IN-PROGRESS(i@)"
-				 "APPT(a@)"
-				 "|"
-				 "DELEGATED(l@)"
-				 "DONE(d@)"
-				 "CANCELLED(c@)")))
+  (org-todo-keywords '((sequence "TODO(t@)" "WAITING(w@)" "IN-PROGRESS(i@)" "APPT(a@)" "|"
+				 "DELEGATED(l@)" "DONE(d@)" "CANCELLED(c@)")))
   (org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
 			   ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
 			   ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
@@ -131,12 +140,8 @@ Intended for use as an after-save-hook."
    (:map org-mode-map
 	 ("C-'" . nil))))
 
-(use-package browse-kill-ring
-  :config
-  (browse-kill-ring-default-keybindings))
-
 (setq-default indicate-empty-lines t
-	      read-buffer-completion-ignore-case t
+	      fill-column 79
 	      cursor-type 'bar
 	      cursor-in-non-selected-windows 'hollow)
 
@@ -148,14 +153,15 @@ Intended for use as an after-save-hook."
       create-lockfiles nil
       backup-directory-alist `((".*" . ,temporary-file-directory)))
 
-(setq require-final-newline t
-      text-quoting-style 'straight)
+(setq require-final-newline t)
 
 (setq ring-bell-function 'ignore
       use-short-answers t
+      use-file-dialog nil
+      read-buffer-completion-ignore-case t
       show-paren-delay 0
       show-paren-style 'expression
-      blink-matching-paren 'jump
+      display-time-default-load-average nil
       global-hl-line-sticky-flag t
       frame-title-format "Poor Man's LispM")
 
@@ -179,17 +185,18 @@ Intended for use as an after-save-hook."
 	w32-recognize-altgr 'nil))
 
 ;; MODES
+;; Looks
 (global-hl-line-mode t)
 (global-prettify-symbols-mode t)
 (column-number-mode t)
 (size-indication-mode t)
-
+;; Close unused buffers
 (midnight-mode t)
-
-;;(global-visual-line-mode t)
-(auto-fill-mode 1)
+;; Make selection do what everyone expects
 (delete-selection-mode t)
-
+;; UI
+(windmove-default-keybindings 'control) ; deprecate my C-L/R bindings
+(context-menu-mode t) ; Right click bring up menu
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
 
@@ -208,6 +215,7 @@ Intended for use as an after-save-hook."
   "Calculate the inverse of a value."
   (/ 1 (float x)))
 
+;; UNIT CONVERSION DEFUNS
 (defun mm-to-in (mm)
   "Convert milimeters to inches."
   (/ mm 25.4))
@@ -234,34 +242,29 @@ Intended for use as an after-save-hook."
 
 (defun k-to-f (tempk)
   "Convert degrees Kelvin to degrees Fahrenheit.
-Applies 'c-to-f' to 'k-to-c'."
+Applies `c-to-f' to `k-to-c'."
   (c-to-f (k-to-c tempk)))
 
 (defun f-to-k (tempf)
   "Convert degrees Fahrenheit to degrees Kelvin.
-Applies 'c-to-k' to 'f-to-c'."
+Applies `c-to-k' to `f-to-c'."
   (c-to-k (f-to-c tempf)))
 
 ;; ELECTRICAL DEFUNS
 (defun eff-imp (r1 &optional r2)
-  "Calculate the effective input impedance, given two resistances.
-For use in 'amps-to-volts' and related.  The handling of only one
-resistance given is done here, instead of doing it in every
-function that uses this."
+  "Calculate the effective input impedance, given two resistances. For use in `amps-to-volts' and related.  The handling of only one resistance given is done here, instead of doing it in every function that uses this."
   (if (eq nil r2)
       r1
     (inv (+ (inv (float r1)) (inv (float r2))))))
 
 (defun amps-to-volts (amps r1 &optional r2)
   "Calculate the voltage, given amperage and impedance.
-Multiplies the amperage by the effective impedance calculated
-with 'eff-imp'."
+Multiplies the amperage by the effective impedance calculated with `eff-imp'."
   (* amps (eff-imp r1 r2)))
 
 (defun volts-to-amps (volts r1 &optional r2)
   "Calculate the amperage, given voltage and impedance.
-Divides the voltage by the effective impedance calculated with
-'eff-imp'."
+Divides the voltage by the effective impedance calculated with `eff-imp'."
   (/ volts (eff-imp r1 r2)))
 
 ;; PLC DEFUNS
@@ -272,27 +275,22 @@ Formula is 2^(resolution) - 1"
 
 (defun volts-to-counts (vin vmax resolution)
   "Convert a voltage signal to a PLC count.
-Calculates a ratio of vin/vmax, then scales by 'max-counts'."
+Calculates a ratio of vin/vmax, then scales by `max-counts'."
   (* (/ (float vin) (float vmax)) (float (max-counts resolution))))
 
 (defun counts-to-volts (cin vmax resolution)
   "Convert a PLC count to a voltage.
-Calculates a ratio of cin/'max-counts', then multiplies by vmax."
+Calculates a ratio of cin/`max-counts', then multiplies by vmax."
   (* (/ cin (float (max-counts resolution))) vmax))
 
 (defun amps-to-counts (amps vmax resolution r1 &optional r2)
   "Convert a current signal to PLC Counts.
-Converts the amperage to a voltage using 'amps-to-volts' (with r1
-and optional r2), then applies 'volts-to-counts' to the resulting
-voltage, vmax, and resolution."
+Converts the amperage to a voltage using `amps-to-volts' (with r1 and optional r2), then applies `volts-to-counts' to the resulting voltage, vmax, and resolution."
   (volts-to-counts (amps-to-volts amps r1 r2) vmax resolution))
 
 (defun count-range (type upper lower vmax resolution &optional r1 r2)
   "Given an upper and lower signal, return the list of upper and lower PLC counts.
-Type takes either a v or an i, corresponding to a voltage or
-current signal.  With a current signal, use r1 and maybe r2 to
-calculate 'amps-to-counts'.  Otherwise ignore r1/r2 and calculate
-'volts-to-counts'."
+Type takes either a v or an i, corresponding to a voltage or current signal.  With a current signal, use r1 and maybe r2 to calculate `amps-to-counts'.  Otherwise ignore r1/r2 and calculate `volts-to-counts'."
   (cond ((or (equal 'v type)
 	     (equal 'V type))
 	 (list (volts-to-counts upper vmax resolution)
@@ -304,8 +302,7 @@ calculate 'amps-to-counts'.  Otherwise ignore r1/r2 and calculate
 
 (defun scaleval (pmax pmin emax emin &optional ai)
   "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
-With optional argument 'ai', also calculate a final scaled value
-from an input."
+With optional argument `ai', also calculate a final scaled value from an input."
   (let* ((div (/ (- pmax pmin) (- (float emax) (float emin))))
 	 (ofst (- emin (/ pmin div))))
     (if (eq nil ai)
@@ -314,8 +311,7 @@ from an input."
 
 (defun pid-tune (Kᵤ Tᵤ &optional loop-type)
   "Use the Ziegler-Nichols method to tune a P, PI or PID loop.
-Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as
- arguments, and returns appropriate kp, ki, and kd."
+Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as arguments, and returns appropriate kp, ki, and kd."
   (cond ((or (equal 'p loop-type)
 	     (equal 'P loop-type))
 	 (list (* 0.5 Kᵤ)))
@@ -338,9 +334,7 @@ Inputs are feet/minute, width (in) and height (in)."
 
 (defun gn-water-per-lb (temp humidity)
   "Calculate the grains of water per lb of air.
-Inputs are temp (F) and humidity (%).  Returns a list of
-Saturated Water Pressure, Humidity Ratio, and Grains of water per
-lb of air."
+Inputs are temp (F) and humidity (%).  Returns a list of Saturated Water Pressure, Humidity Ratio, and Grains of water per lb of air."
   (let* ((sat-water-press (+ .0182795
 			     (* temp .001029904)
 			     (* (square temp) 0.00002579408)
@@ -405,8 +399,7 @@ lb of air."
 
 (defun smart-beginning-of-line ()
   "Move point to first non-whitespace character or beginning-of-line.
-If point was already at that position, move point to beginning of
-line. Stolen from BrettWitty's dotemacs github repo."
+If point was already at that position, move point to beginning of line. Stolen from BrettWitty's dotemacs github repo."
   (interactive "^")
   (let ((oldpos (point)))
     (back-to-indentation)
@@ -496,17 +489,12 @@ Use this when aveva can't find ass with both hands."
 (put 'dired-find-alternate-file 'disabled nil)
 
 ;; FILE FINDER BINDINGS
-(global-set-key (kbd "C-c ee") (lambda () (interactive) (dired user-emacs-directory)))
-(global-set-key (kbd "C-c ei") (lambda () (interactive) (find-file user-init-file)))
-(global-set-key (kbd "C-x r S-B") 'bookmark-jump-other-window)
+(global-set-key (kbd "C-x M-f") 'find-file-at-point)
+(global-set-key (kbd "C-x rB") 'bookmark-jump-other-window)
 
 ;; BUFFER BINDINGS
 (global-set-key (kbd "C-x C-b") 'buffer-menu)
-(global-set-key (kbd "C-c b") 'buffer-menu-other-window)
-(global-set-key (kbd "C-<left>") 'previous-window-any-frame)
-(global-set-key (kbd "C-<right>") 'next-window-any-frame)
-(global-set-key (kbd "M-C-<left>") 'previous-buffer) ; also bound to C-x <left> by default
-(global-set-key (kbd "M-C-<right>") 'next-buffer) ; also bound to C-x <right> by default
+(global-set-key (kbd "C-x M-b") 'buffer-menu-other-window)
 (global-set-key (kbd "<f5>") 'go-to-scratch)
 (global-set-key (kbd "S-<f5>") 'scratch-only)
 
@@ -527,14 +515,13 @@ Use this when aveva can't find ass with both hands."
 (global-set-key (kbd "C-w")'kill-bword-or-region)
 (global-set-key (kbd "C-z") 'zap-up-to-char)
 (global-set-key (kbd "C-\\") 'comment-or-uncomment-region)
-(global-set-key (kbd "C-'") 'universal-argument) ; default is C-u
+(global-set-key (kbd "C-'") 'universal-argument) ; default C-u is overridden
 
 ;; SEARCH AND REPLACE BINDINGS
 (global-set-key (kbd "M-s .") 'isearch-forward-thing-at-point)
 (global-set-key (kbd "M-s M-.") 'isearch-forward-symbol-at-point)
-(global-set-key (kbd "M-%") 'replace-string)
-(global-set-key (kbd "C-%") 'replace-regexp)
-(global-set-key (kbd "M-C-%") 'query-replace-regexp)
+(global-set-key (kbd "M-%") 'replace-regexp)
+(global-set-key (kbd "C-%") 'replace-string)
 (global-set-key (kbd "C-S-R") 'isearch-backward-regexp)
 (global-set-key (kbd "C-S-S") 'isearch-forward-regexp)
 
@@ -562,7 +549,7 @@ Use this when aveva can't find ass with both hands."
      ("account" "%(binary) -f %(ledger-file) reg %(account)")))
  '(minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt))
  '(package-selected-packages
-   '(magit browse-kill-ring use-package openwith expand-region company)))
+   '(visual-fill-column corfu-popupinfo corfu-terminal orderless corfu magit browse-kill-ring use-package openwith expand-region)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

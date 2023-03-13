@@ -2,7 +2,7 @@
 ;; GC threshold to max during startup(default 800KB)
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6)
-;; Drop to 25MB after init
+;; Drop to 25MiB after init
 (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 1024 1024 25)
 					 gc-cons-percentage 0.1)))
 
@@ -11,15 +11,16 @@
 (scroll-bar-mode -1)
 
 (setq default-directory "~/"
-      inhibit-splash-screen t
       inhibit-startup-screen t
-      inhibit-startup-message t
       inhibit-startup-buffer-menu t
       initial-scratch-message (message ";;; Emacs loaded in %s.\n\n" (emacs-init-time))
-      server-client-instructions nil)
+      server-client-instructions nil
+      frame-resize-pixelwise t)
 
-(add-to-list 'default-frame-alist '(background-color . "#cae0a6"))
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(setq default-frame-alist '((background-color . "#cae0a6")
+			    (fullscreen . maximized)
+			    (vertical-scroll-bar . nil)
+			    (horizontal-scroll-bar . nil)))
 
 (provide 'early-init)
 ;;; hic terminatur early-init.el
