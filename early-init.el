@@ -9,6 +9,7 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
+(blink-cursor-mode -1)
 
 (setq default-directory "~/"
       inhibit-startup-screen t
@@ -19,8 +20,6 @@
 
 (setq default-frame-alist '((background-color . "#cae0a6")
 			    (fullscreen . maximized)
-			    (vertical-scroll-bar . nil)
-			    (horizontal-scroll-bar . nil)))
+			    (vertical-scroll-bars . nil)))
 
-(provide 'early-init)
 ;;; hic terminatur early-init.el

@@ -1,5 +1,11 @@
 ;;; init.el --- Quae configurare  -*- lexical-binding: t; -*-
 
+;; CUSTOMIZE
+;; Call this FIRST to avoid conflicts with other customizations
+
+(setq custom-file (expand-file-name "etc/custom.el" user-emacs-directory))
+(load custom-file)
+
 ;; PACKAGES
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
@@ -15,6 +21,8 @@
   (use-package ledger-mode))
 
 (use-package visual-fill-column
+  :custom
+  (word-wrap t)
   :config
   (global-visual-fill-column-mode))
 
@@ -49,11 +57,6 @@
   :config
   (corfu-terminal-mode))
 
-(use-package orderless
-  :custom ; Basic as fallback, overrides needed for tramp
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
-
 (use-package expand-region
   :bind
   (("C-=" . er/expand-region)))
@@ -87,11 +90,15 @@
   :ensure nil ; in emacs by default
   :custom
   (org-M-RET-may-split-line nil)
+  (org-return-follows-link t)
   (org-agenda-restore-windows-after-quit t)
   (org-use-fast-todo-selection 'expert)
   (org-src-window-setup 'current-window)
+  (org-src-preserve-indentation t)
+  (org-enforce-todo-dependencies t)
+  (org-enforce-todo-checkbox-dependencies t)
   (org-agenda-start-on-weekday nil)
-  (org-catch-invisible-edits 'show)
+  (org-catch-invisible-edits 'error)
   (org-directory "~/org")
   (org-agenda-files '("~/org/"
 		      "~/org/kasten/"))
@@ -140,6 +147,7 @@ Intended for use as an after-save-hook."
    (:map org-mode-map
 	 ("C-'" . nil))))
 
+;; SETQS
 (setq-default indicate-empty-lines t
 	      fill-column 79
 	      cursor-type 'bar
@@ -149,25 +157,28 @@ Intended for use as an after-save-hook."
       kept-new-versions 5
       kept-old-versions 5
       backup-by-copying t
-      auto-save-default nil
-      create-lockfiles nil
       backup-directory-alist `((".*" . ,temporary-file-directory)))
 
-(setq require-final-newline t)
+(setq require-final-newline t
+      attempt-stack-overflow-recovery nil
+      attempt-orderly-shutdown-on-fatal-signal nil)
 
 (setq ring-bell-function 'ignore
       use-short-answers t
       use-file-dialog nil
+      echo-keystrokes 0.1
       read-buffer-completion-ignore-case t
       show-paren-delay 0
       show-paren-style 'expression
-      display-time-default-load-average nil
+      scroll-conservatively 101
+      scroll-preserve-screen-position t
       global-hl-line-sticky-flag t
       frame-title-format "Poor Man's LispM")
 
 (setq history-delete-duplicates t
       save-interprogram-paste-before-kill t
       confirm-kill-processes nil
+      disabled-command-function nil
       dired-listing-switches "-alv --group-directories-first")
 
 (setq prettify-symbols-alist '(("lambda" . 955)
@@ -194,11 +205,28 @@ Intended for use as an after-save-hook."
 (midnight-mode t)
 ;; Make selection do what everyone expects
 (delete-selection-mode t)
+
 ;; UI
 (windmove-default-keybindings 'control) ; deprecate my C-L/R bindings
+(setq windmove-wrap-around t)
+
 (context-menu-mode t) ; Right click bring up menu
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
+;; Faces
+(set-face-attribute 'mode-line nil
+		    :background "grey75"
+		    :foreground "black"
+		    :box nil)
+
+(set-face-attribute 'mode-line-inactive nil
+		    :background "grey90"
+		    :foreground "dim grey"
+		    :box nil)
+
+(set-face-attribute 'show-paren-match nil
+		    :background "#cae0a6" ; set to frame bg color
+		    :underline t)
 
 ;; MATH DEFUNS
 (defalias '^ 'expt)
@@ -383,7 +411,7 @@ Inputs are temp (F) and humidity (%).  Returns a list of Saturated Water Pressur
 (defun kill-bword-or-region ()
   "Kill region if active, otherwise kill back one word."
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (call-interactively 'kill-region)
     (call-interactively 'backward-kill-word)))
 
@@ -424,6 +452,15 @@ If point was already at that position, move point to beginning of line. Stolen f
   (call-interactively 'goto-line)
   (display-line-numbers-mode -1))
 
+(defun my-comment-dwim ()
+  "Comment region if active, otherwise comment line.
+Stolen from https://depp.brause.cc/dotemacs"
+  (interactive)
+  (if (use-region-p)
+      (comment-or-uncomment-region (region-beginning) (region-end))
+    (comment-or-uncomment-region (line-beginning-position)
+				 (line-end-position))))
+
 ;; ESHELL DEFUNS
 (defun eshell-send-on-close-paren ()
   "Makes eshell act somewhat like genera.
@@ -440,6 +477,14 @@ out for errors."
 	  ((< (car (syntax-ppss)) 0)
 	   (message "Check flush-cache"))
 	  ((t nil)))))
+
+(defun eshell-quit-or-delete-char (arg)
+  "Delete char if at one, quit eshell if on empty prompt.
+Stolen from https://depp.brause.cc/dotemacs"
+  (interactive "p")
+  (if (and (eolp) (looking-back eshell-prompt-regexp))
+      (eshell-life-is-too-much) ; https://emacshorrors.com/post/life-is-too-much
+    (delete-forward-char arg)))
 
 ;; *NIX DEFUNS
 (unless (equal system-type 'windows-nt)
@@ -473,20 +518,39 @@ Use this when aveva can't find ass with both hands."
 ;; HOOKS
 (add-hook 'before-save-hook 'whitespace-cleanup)
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-(add-hook 'dired-mode-hook 'dired-hide-details-mode t)
+(add-hook 'dired-mode-hook
+	  (lambda ()
+	    (dired-hide-details-mode t)
+	    (define-key dired-mode-map
+	      (kbd "RET") 'dired-find-alternate-file)))
 
-(add-hook 'c-mode-common-hook (lambda ()
-				(c-set-style "k&r")
-				(setq tab-width 5
-				      c-basic-offset 5
-				      indent-tabs-mode t
-				      comment-column 48)))
+;; C-STYLE
+(defun c-lineup-arglist-tabs-only (ignored)
+  "Line up argument lists by tabs, not spaces.
+Stolen from https://kernel.org/doc/html/v4.10/process/coding-style.html"
+  (let* ((anchor (c-langelem-pos c-syntactic-element))
+	 (column (c-langelem-2nd-pos c-syntactic-element))
+	 (offset (- (1+ column) anchor))
+	 (steps (floor offset c-basic-offset)))
+    (* (max steps 1)
+       c-basic-offset)))
 
-;; PUTS
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
-(put 'dired-find-alternate-file 'disabled nil)
+(add-hook 'c-mode-common-hook
+	  (lambda ()
+	    ;; Add kernel style
+	    (c-add-style
+	     "linux-tabs-only"
+	     '("linux"
+	       (c-offsets-alist
+		(arglist-cont-nonempty
+		 c-lineup-gcc-asm-reg
+		 c-lineup-arglist-tabs-only))))))
+
+(add-hook 'c-mode-hook
+	  (lambda ()
+	    (setq indent-tabs-mode t)
+	    (setq show-trailing-whitespace t)
+	    (c-set-style "linux-tabs-only")))
 
 ;; FILE FINDER BINDINGS
 (global-set-key (kbd "C-x M-f") 'find-file-at-point)
@@ -514,7 +578,7 @@ Use this when aveva can't find ass with both hands."
 (global-set-key (kbd "C-u")'backward-kill-line)
 (global-set-key (kbd "C-w")'kill-bword-or-region)
 (global-set-key (kbd "C-z") 'zap-up-to-char)
-(global-set-key (kbd "C-\\") 'comment-or-uncomment-region)
+(global-set-key (kbd "M-;") 'my-comment-dwim)
 (global-set-key (kbd "C-'") 'universal-argument) ; default C-u is overridden
 
 ;; SEARCH AND REPLACE BINDINGS
@@ -527,35 +591,10 @@ Use this when aveva can't find ass with both hands."
 
 ;;  ESHELL BINDINGS
 (global-set-key (kbd "C-c s") 'eshell)
-(add-hook 'eshell-mode-hook (lambda () (define-key eshell-mode-map ")" 'eshell-send-on-close-paren)))
+(add-hook 'eshell-mode-hook
+	  (lambda ()
+	    (define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)
+	    (define-key eshell-mode-map (kbd "C-d") 'eshell-quit-or-delete-char)))
 
 ;; MISC BINDINGS
 (global-set-key (kbd "M-C-z") 'eval-region)
-
-;; CUSTOMIZE
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ledger-reports
-   '(("assets" "%(binary) -f %(ledger-file) bal assets")
-     ("income" "%(binary) -f %(ledger-file) bal income")
-     ("expenses" "%(binary) -f %(ledger-file) bal expenses")
-     ("liabilities" "%(binary) -f %(ledger-file) bal liabilities")
-     ("bal" "%(binary) -f %(ledger-file) bal")
-     ("reg" "%(binary) -f %(ledger-file) reg")
-     ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
-     ("account" "%(binary) -f %(ledger-file) reg %(account)")))
- '(minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt))
- '(package-selected-packages
-   '(visual-fill-column corfu-popupinfo corfu-terminal orderless corfu magit browse-kill-ring use-package openwith expand-region)))
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(mode-line ((t (:background "grey75" :foreground "black"))))
- '(mode-line-inactive ((t (:inherit mode-line :background "grey90" :foreground "grey20" :weight light))))
- '(show-paren-match ((t (:underline t)))))
