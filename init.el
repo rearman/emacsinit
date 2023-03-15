@@ -7,5 +7,3 @@
 (org-babel-tangle)
 ;; Load it...
 (load-file (concat user-emacs-directory "init.el"))
-;; And compile it
-(byte-compile-file (concat user-emacs-directory "init.el"))

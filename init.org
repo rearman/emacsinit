@@ -1,13 +1,14 @@
 #+TITLE: Emacs Configuratione
+#+OPTIONS: toc:4
 #+PROPERTY: header-args:emacs-lisp :tangle yes :results silent :export code
 
 * Introduction
 This is my emacs configuration.  It is meant to be used across linux, windows, and BSD.  I use windows only at work (Industrial Controls).  I use emacs often as an advanced programmable calculator.
 
 Lots of inspiration taken from:
-[[https://depp.brause.cc/dotemacs/][depp.brause.cc/dotemacs/]]
-[[https://github.com/larstvei/dot-emacs][github.com/larstvei/dot-emacs]]
-[[https://github.com/sachac/.emacs.d][github.com/sachac/.emacs.d]]
+- [[https://depp.brause.cc/dotemacs/][depp.brause.cc/dotemacs/]]
+- [[https://github.com/larstvei/dot-emacs][github.com/larstvei/dot-emacs]]
+- [[https://github.com/sachac/.emacs.d][github.com/sachac/.emacs.d]]
 
 ** A note on version checking
 I keep my emacs installs at the latest release, so I don't worry about checking for versions in my init unless I update on linux/BSD before the windows binaries are released.  That being said, I am currently on version 28.1.  Niceties from version 29 are being waited for with baited breath.
@@ -27,8 +28,6 @@ This is the repo's =init.el= file, which bootstraps the real =init.el=.
 (org-babel-tangle)
 ;; Load it...
 (load-file (concat user-emacs-directory "init.el"))
-;; And compile it
-(byte-compile-file (concat user-emacs-directory "init.el"))
 #+END_SRC
 
 There is no reason to track the =init.el= that is generated.  Run the following command to make git ignore the generated file, but keep the dummy init.
@@ -199,24 +198,18 @@ This comes with base corfu, but is configured separately
 Seldom used, but nothing else does it.
 
 #+BEGIN_SRC emacs-lisp
-(use-package expand-region
-  :bind
-  (("C-=" . er/expand-region)))
+(use-package expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
 
 *** magit
 I use magit occasionally.  I put this sparse configuration here mostly for a speed boost, by making magit only load when I explicitly call for it.
 
 #+BEGIN_SRC emacs-lisp
-;; Put this here mainly for speed boost (only load magit when I call for it)
-(use-package magit
-  :init
-  (message "LOCKED")
-  :config
-  (message "LOADED")
-  :bind
-  ((:map ctl-x-map
-	 ("g" . magit-status))))
+  (use-package magit
+    :defer t
+    :config
+    (message "Magit Loaded"))
 #+END_SRC
 
 *** openwith
@@ -454,75 +447,70 @@ Use =recycle bin=, DON'T use AltGr, and tell emacs where diff is.
 I had this in a use-package declaration, but I find this a little nicer.
 **** TODO Move this out of the use-package declaration
 #+BEGIN_SRC emacs-lisp
-(use-package org
-  :ensure nil ; in emacs by default
-  :custom
-  (org-M-RET-may-split-line nil)
-  (org-return-follows-link t)
-  (org-agenda-restore-windows-after-quit t)
-  (org-use-fast-todo-selection 'expert)
-  (org-src-window-setup 'current-window)
-  (org-src-preserve-indentation t)
-  (org-enforce-todo-dependencies t)
-  (org-enforce-todo-checkbox-dependencies t)
-  (org-agenda-start-on-weekday nil)
-  (org-catch-invisible-edits 'error)
-  (org-directory "~/org")
-  (org-agenda-files '("~/org/"
-		      "~/org/kasten/"))
-  (org-refile-targets '((nil :maxlevel . 9)
-			(org-agenda-files :maxlevel . 9)))
-  (org-default-notes-file (concat org-directory "/notes.org"))
-  (safe-local-variable-values '((after-save-hook org-auto-archive)))
-  (org-todo-keywords '((sequence "TODO(t@)" "WAITING(w@)" "IN-PROGRESS(i@)" "APPT(a@)" "|"
-				 "DELEGATED(l@)" "DONE(d@)" "CANCELLED(c@)")))
-  (org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
-			   ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
-			   ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
-			   ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
-  (org-agenda-custom-commands '(("n" "Agenda and all TODOs"
-				 ((agenda "") (alltodo "")))
-				("u" "Unscheduled TODOs"
-				 alltodo "" ((org-agenda-skip-function
-					      (lambda nil
-						(org-agenda-skip-entry-if 'scheduled
-									  'deadline
-									  'regexp "\n]+>")))
-					     (org-agenda-overriding-header "Unscheduled TODO entries: ")))))
-  :config
-  (defun erfassen-zettel ()
-    "Add a new zettel to the kasten.
+(setq org-M-RET-may-split-line nil
+      org-return-follows-link t
+      org-agenda-restore-windows-after-quit t
+      org-use-fast-todo-selection 'expert
+      org-src-window-setup 'current-window
+      org-src-preserve-indentation t
+      org-enforce-todo-dependencies t
+      org-enforce-todo-checkbox-dependencies t
+      org-agenda-start-on-weekday nil
+      org-catch-invisible-edits 'error
+      org-directory "~/org"
+      org-agenda-files '("~/org/"
+			 "~/org/kasten/")
+      org-refile-targets '((nil :maxlevel . 9)
+			   org-agenda-files :maxlevel . 9)
+      org-default-notes-file (concat org-directory "/notes.org")
+      safe-local-variable-values '((after-save-hook org-auto-archive))
+      org-todo-keywords '((sequence "TODO(t@)" "WAITING(w@)" "IN-PROGRESS(i@)" "APPT(a@)" "|"
+				    "DELEGATED(l@)" "DONE(d@)" "CANCELLED(c@)"))
+      org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
+			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
+			      ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
+			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::"))
+      org-agenda-custom-commands '(("n" "Agenda and all TODOs"
+				    ((agenda "") (alltodo "")))
+				   ("u" "Unscheduled TODOs"
+				    alltodo "" ((org-agenda-skip-function
+						 (lambda nil
+						   (org-agenda-skip-entry-if 'scheduled
+									     'deadline
+									     'regexp "\n]+>")))
+						(org-agenda-overriding-header "Unscheduled TODO entries: ")))))
+
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c c") 'org-capture)
+(add-hook 'org-mode-hook (lambda ()
+			   (define-key org-mode-map (kbd "C-'") nil)))
+
+(defun erfassen-zettel ()
+  "Add a new zettel to the kasten.
 Creates a new file <datestamp>.org in ~/org/kasten."
-    (interactive)
-    (expand-file-name (format "%s.org" (format-time-string "%Y-%m-%d-%H%M")) "~/org/kasten/"))
+  (interactive)
+  (expand-file-name (format "%s.org" (format-time-string "%Y-%m-%d-%H%M")) "~/org/kasten/"))
 
-  (defun org-auto-archive ()
-    "Automatically archive completed tasks in an org file.
+(defun org-auto-archive ()
+  "Automatically archive completed tasks in an org file.
 Intended for use as an after-save-hook."
-    (interactive)
-    (org-map-entries
-     (lambda ()
-       (org-archive-subtree)
-       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-     "TODO=\"DONE\"|TODO=\"CANCELLED\"|TODO=\"DELEGATED\""
-     'file)
-    (save-buffer))
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "TODO=\"DONE\"|TODO=\"CANCELLED\"|TODO=\"DELEGATED\""
+   'file)
+  (save-buffer))
 
-  (defun tangle-init ()
-    "Tangle and compile init.org.
+(defun tangle-init ()
+  "Tangle and compile init.org.
 Stolen from https://github.com/larstvei/dot-emacs."
-    (when (equal (buffer-file-name)
-		 (expand-file-name (concat user-emacs-directory "init.org")))
-      (let ((prog-mode-hook nil))
-	(org-babel-tangle)
-	(byte-compile-file (concat user-emacs-directory "init.el")))))
-  :bind
-  ((:map mode-specific-map
-	 ("l" . org-store-link)
-	 ("a" . org-agenda)
-	 ("c" . org-capture))
-   (:map org-mode-map
-	 ("C-'" . nil))))
+  (when (equal (buffer-file-name)
+	       (expand-file-name (concat user-emacs-directory "init.org")))
+    (let ((prog-mode-hook nil))
+      (org-babel-tangle))))
 
 (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC
@@ -561,19 +549,13 @@ I wanted something like the Genera environment, where putting in a final close-p
 #+BEGIN_SRC emacs-lisp
 (defun eshell-send-on-close-paren ()
   "Makes eshell act somewhat like genera.
-Makes a closing paren execute the sexp.  Currently in test, look
-out for errors."
+Makes a closing paren execute the sexp."
   (interactive)
   (insert-char ?\))
-  (let ((p (point)))
-    ;;(eshell-bol)
-    ;;(syntax-ppss-flush-cache (point))
-    ;;(goto-char p)
-    (cond ((= 0 (car (syntax-ppss)))
-	   (eshell-send-input))
-	  ((< (car (syntax-ppss)) 0)
-	   (message "Check flush-cache"))
-	  ((t nil)))))
+  (cond ((= 0 (car (syntax-ppss)))
+	 (eshell-send-input))
+	((< (car (syntax-ppss)) 0)
+	 (message "Check flush-cache"))))
 #+END_SRC
 
 *** Quit or delete-char
@@ -584,9 +566,9 @@ I want =C-d= to end the shell if it is on an empty line, otherwise act normally.
   "Delete char if at one, quit eshell if on empty prompt.
 Stolen from https://depp.brause.cc/dotemacs"
   (interactive "p")
-  (if (and (eolp) (looking-back eshell-prompt-regexp))
+  (if (and (eolp) (looking-back eshell-prompt-regexp 0 t))
       (eshell-life-is-too-much) ; https://emacshorrors.com/post/life-is-too-much
-    (delete-forward-char arg)))
+    (delete-char arg)))
 #+END_SRC
 
 *** Bind the defuns
@@ -656,7 +638,7 @@ The default behavior of =open-line= is ridiculous.  It acheives the same functio
   (interactive "*p")
   (end-of-line)
   (open-line n)
-  (next-line)
+  (call-interactively (next-line))
   (indent-for-tab-command))
 
 (defun open-line-below-no-move (n)
@@ -763,7 +745,8 @@ I have the infamous =smart-beginning-of-line= command here.
 #+BEGIN_SRC emacs-lisp
 (defun smart-beginning-of-line ()
   "Move point to first non-whitespace character or beginning-of-line.
-If point was already at that position, move point to beginning of line. Stolen from BrettWitty's dotemacs github repo."
+If point was already at that position, move point to beginning of
+line.  Stolen from BrettWitty's dotemacs github repo."
   (interactive "^")
   (let ((oldpos (point)))
     (back-to-indentation)
@@ -775,7 +758,10 @@ I had issues with =smart-beginning-of-line= in =visual-line-mode=, so =smart-beg
 #+BEGIN_SRC emacs-lisp
 (defun smart-beginning-of-visual-line ()
   "Move point to first non-whitespace character or beginning-of-line.
-If point was already at that position, move point to beginning of line. Stolen from BrettWitty's dotemacs github repo.  Modified to work in visual-line-mode.  Re-implementing `back-to-indentation' as a visual-line respecter."
+If point was already at that position, move point to beginning of
+line. Stolen from BrettWitty's dotemacs github repo.  Modified to
+work in visual-line-mode.  Re-implementing `back-to-indentation'
+as a visual-line respecter."
   (interactive "^")
   (let ((oldpos (point)))
     (beginning-of-visual-line 1)
@@ -920,19 +906,24 @@ Applies `c-to-k' to `f-to-c'."
 These defuns are all about electronics.  Effective impedance, amps to volts and back again.
 #+BEGIN_SRC emacs-lisp
 (defun eff-imp (r1 &optional r2)
-  "Calculate the effective input impedance, given two resistances. For use in `amps-to-volts' and related.  The handling of only one resistance given is done here, instead of doing it in every function that uses this."
+  "Calculate the effective input impedance, given two resistances.
+For use in `amps-to-volts' and related.  The handling of only one
+resistance given is done here, instead of doing it in every
+function that uses this."
   (if (eq nil r2)
       r1
     (inv (+ (inv (float r1)) (inv (float r2))))))
 
 (defun amps-to-volts (amps r1 &optional r2)
   "Calculate the voltage, given amperage and impedance.
-Multiplies the amperage by the effective impedance calculated with `eff-imp'."
+Multiplies the amperage by the effective impedance calculated
+with `eff-imp'."
   (* amps (eff-imp r1 r2)))
 
 (defun volts-to-amps (volts r1 &optional r2)
   "Calculate the amperage, given voltage and impedance.
-Divides the voltage by the effective impedance calculated with `eff-imp'."
+Divides the voltage by the effective impedance calculated with
+`eff-imp'."
   (/ volts (eff-imp r1 r2)))
 #+END_SRC
 
@@ -955,12 +946,17 @@ Calculates a ratio of cin/`max-counts', then multiplies by vmax."
 
 (defun amps-to-counts (amps vmax resolution r1 &optional r2)
   "Convert a current signal to PLC Counts.
-Converts the amperage to a voltage using `amps-to-volts' (with r1 and optional r2), then applies `volts-to-counts' to the resulting voltage, vmax, and resolution."
+Converts the amperage to a voltage using `amps-to-volts' (with r1
+and optional r2), then applies `volts-to-counts' to the resulting
+voltage, vmax, and resolution."
   (volts-to-counts (amps-to-volts amps r1 r2) vmax resolution))
 
 (defun count-range (type upper lower vmax resolution &optional r1 r2)
   "Given an upper and lower signal, return the list of upper and lower PLC counts.
-Type takes either a v or an i, corresponding to a voltage or current signal.  With a current signal, use r1 and maybe r2 to calculate `amps-to-counts'.  Otherwise ignore r1/r2 and calculate `volts-to-counts'."
+Type takes either a v or an i, corresponding to a voltage or
+current signal.  With a current signal, use r1 and maybe r2 to
+calculate `amps-to-counts'.  Otherwise ignore r1/r2 and calculate
+`volts-to-counts'."
   (cond ((or (equal 'v type)
 	     (equal 'V type))
 	 (list (volts-to-counts upper vmax resolution)
@@ -979,17 +975,18 @@ With optional argument `ai', also calculate a final scaled value from an input."
 	(list div ofst)
       (list div ofst (+ ofst (/ ai div))))))
 
-(defun pid-tune (Kᵤ Tᵤ &optional loop-type)
+(defun pid-tune (Ku Tu &optional loop-type)
   "Use the Ziegler-Nichols method to tune a P, PI or PID loop.
-Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as arguments, and returns appropriate kp, ki, and kd."
+Takes Ku, Tu and optional loop-type (P, PI, or PID [default])
+as arguments, and returns appropriate kp, ki, and kd."
   (cond ((or (equal 'p loop-type)
 	     (equal 'P loop-type))
-	 (list (* 0.5 Kᵤ)))
+	 (list (* 0.5 Ku)))
 	((or (equal 'pi loop-type)
 	     (equal 'PI loop-type))
-	 (list (* 0.45 Kᵤ) (/ (* 0.54 Kᵤ) Tᵤ)))
+	 (list (* 0.45 Ku) (/ (* 0.54 Ku) Tu)))
 	(t
-	 (list (* 0.6 Kᵤ) (/ (* 1.2 Kᵤ) Tᵤ) (/ (* 3.0 Kᵤ Tᵤ) 40)))))
+	 (list (* 0.6 Ku) (/ (* 1.2 Ku) Tu) (/ (* 3.0 Ku Tu) 40)))))
 #+END_SRC
 
 *** Refrigeration
@@ -998,7 +995,7 @@ More nitty-gritty.  These are for calculating specific refrigeration-related thi
 (defun cfm-circ (fpm radius)
   "Calculate the CFM of a circular duct.
 Inputs are feet/minute and radius (in)."
-  (list (* pi fpm (square (/ radius 12)))))
+  (list (* float-pi fpm (square (/ radius 12)))))
 
 (defun cfm-rect (fpm width height)
   "Calculate the CFM of a rectangular duct.
@@ -1007,7 +1004,9 @@ Inputs are feet/minute, width (in) and height (in)."
 
 (defun gn-water-per-lb (temp humidity)
   "Calculate the grains of water per lb of air.
-Inputs are temp (F) and humidity (%).  Returns a list of Saturated Water Pressure, Humidity Ratio, and Grains of water per lb of air."
+Inputs are temp (F) and humidity (%).  Returns a list of
+Saturated Water Pressure, Humidity Ratio, and Grains of water per
+lb of air."
   (let* ((sat-water-press (+ .0182795
 			     (* temp .001029904)
 			     (* (square temp) 0.00002579408)
