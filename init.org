@@ -13,7 +13,7 @@ Lots of inspiration taken from:
 ** A note on version checking
 I keep my emacs installs at the latest release, so I don't worry about checking for versions in my init unless I update on linux/BSD before the windows binaries are released.  That being said, I am currently on version 28.1.  Niceties from version 29 are being waited for with baited breath.
 ** Latinization
-I believe that all scientific, and by extension, computational, knowledge should be shared in Latin.  That is to say I intend to help bring about Latin's return as the default language for global knowledge sharing.  To fall in line with this, I will soon be translating as much of this file as possible into Latin.  Monitus es.
+I believe that all scientific knowledge, and by extension computational knowledge, should be shared in Latin.  That is to say I intend to facilitate Latin's return as the default language for global knowledge sharing.  To be consistent, I will soon be translating as much of this file as possible into Latin.  Monitus es.
 * Meta Configuration
 I have taken this mostly whole-hog from [[https://github.com/larstvei/dot-emacs][github.com/larstvei/dot-emacs]].  The idea is that this bare-bones init.el is available when the repo is pulled in, but gets overwritten on emacs' first run.  Emacs will need to be re-started after that initial run, since =early-init.el= will be created, and some packages will be installed.
 
@@ -43,10 +43,10 @@ git update-index --no-assume-unchanged init.el
 #+END_SRC
 
 * Early init
-This file was introduced in Emacs 27.  I use it for speeding up init, removing all the UI stuff I don't want, etc.  Maybe superfluous, but I do get startup times on the order of /0.01/ seconds.
+This file was introduced in Emacs 27.  I use it for speeding up init, removing all the UI stuff I don't want, etc.  Maybe superfluous, but I do get startup times on the order of /0.015/ seconds.
 
 ** The normal header
-There are no GNU Police (yet), but I feel nicer by putting this in.
+There are no GNU Police (yet), but I feel nicer by adding this in.
 #+BEGIN_SRC emacs-lisp :tangle ./early-init.el
 ;;; early-init.el -*- lexical-binding: t; -*-
 
@@ -116,7 +116,7 @@ Avoid a weird issue on windows where opening emacs via an [[https://www.autohotk
 #+END_SRC
 
 ** Packages
-Load packages first, so there is no question of dependencies later in the file
+Load packages first, so there is no question about dependencies later in the file.
 *** Package Repositories
 Non-gnu is in the defaults now, so I only need to add melpa.
 
@@ -180,7 +180,7 @@ The basics for corfu.  Auto popup after one letter, enable globally.
 #+END_SRC
 
 **** corfu-popupinfo
-This comes with base corfu, but is configured separately
+This comes with base corfu, but is configured separately.
 
 #+BEGIN_SRC emacs-lisp
 (use-package corfu-popupinfo
@@ -207,9 +207,10 @@ I use magit occasionally.  I put this sparse configuration here mostly for a spe
 
 #+BEGIN_SRC emacs-lisp
   (use-package magit
-    :defer t
     :config
-    (message "Magit Loaded"))
+    (message "Magit Loaded")
+    :bind
+    ((:map ctl-x-map ("g" . magit-status))))
 #+END_SRC
 
 *** openwith
@@ -251,7 +252,7 @@ I want these things every time, or at least setting them this way worked when a 
 I originally had some autosave items in here, but the defaults appeared to be doing basically what I wanted anyway.
 
 **** Backups
-Don't clobber symlinks, and put everything into the temp directory (determined by os)
+Don't clobber symlinks, and put everything into the temp directory (determined by os).
 
 #+BEGIN_SRC emacs-lisp
 (setq backup-by-copying t
@@ -259,7 +260,7 @@ Don't clobber symlinks, and put everything into the temp directory (determined b
 #+END_SRC
 
 **** Old versions
-Keep 10 versions, 5 'old' and 5 'new'.  Delete anything older.
+Keep 10 versions, 5 `old' and 5 `new'.  Delete anything older.
 
 #+BEGIN_SRC emacs-lisp
 (setq delete-old-versions t
