@@ -1,0 +1,2 @@
+* README
+This is my emacs init.  See init.org for more.

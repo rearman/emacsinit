@@ -1,4 +1,4 @@
-;;; early-init.el --- Emacs 27+ pre-initialization config -*- lexical-binding: t; -*-
+;;; early-init.el -*- lexical-binding: t; -*-
 ;; GC threshold to max during startup(default 800KB)
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6)

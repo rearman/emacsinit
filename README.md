@@ -1,1 +1,0 @@
-My emacs init, for use as a Windows 10/WSL combined init.

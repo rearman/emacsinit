@@ -1,0 +1,1032 @@
+#+TITLE: Emacs Configuratione
+#+PROPERTY: header-args:emacs-lisp :tangle yes :results silent :export code
+
+* Introduction
+This is my emacs configuration.  It is meant to be used across linux, windows, and BSD.  I use windows only at work (Industrial Controls).  I use emacs often as an advanced programmable calculator.
+
+Lots of inspiration taken from:
+[[https://depp.brause.cc/dotemacs/][depp.brause.cc/dotemacs/]]
+[[https://github.com/larstvei/dot-emacs][github.com/larstvei/dot-emacs]]
+[[https://github.com/sachac/.emacs.d][github.com/sachac/.emacs.d]]
+
+** A note on version checking
+I keep my emacs installs at the latest release, so I don't worry about checking for versions in my init unless I update on linux/BSD before the windows binaries are released.  That being said, I am currently on version 28.1.  Niceties from version 29 are being waited for with baited breath.
+** Latinization
+I believe that all scientific, and by extension, computational, knowledge should be shared in Latin.  That is to say I intend to help bring about Latin's return as the default language for global knowledge sharing.  To fall in line with this, I will soon be translating as much of this file as possible into Latin.  Monitus es.
+* Meta Configuration
+I have taken this mostly whole-hog from [[https://github.com/larstvei/dot-emacs][github.com/larstvei/dot-emacs]].  The idea is that this bare-bones init.el is available when the repo is pulled in, but gets overwritten on emacs' first run.  Emacs will need to be re-started after that initial run, since =early-init.el= will be created, and some packages will be installed.
+
+This is the repo's =init.el= file, which bootstraps the real =init.el=.
+#+BEGIN_SRC emacs-lisp :tangle no
+;; Create the real config...
+(org-babel-tangle (concat user-emacs-directory "init.org"))
+;; Load it...
+(load-file (concat user-emacs-directory "init.el"))
+;; And compile it
+(byte-compile (concat user-emacs-directory "init.el"))
+#+END_SRC
+
+There is no reason to track the =init.el= that is generated.  Run the following command to make git ignore the generated file, but keep the dummy init.
+
+#+BEGIN_SRC sh :tangle no
+git update-index --assume-unchanged init.el
+#+END_SRC
+
+If changes to the dummy-init are needed, track those by running
+
+#+BEGIN_SRC sh :tangle no
+git update-index --no-assume-unchanged init.el
+#+END_SRC
+
+* Early init
+This file was introduced in Emacs 27.  I use it for speeding up init, removing all the UI stuff I don't want, etc.  Maybe superfluous, but I do get startup times on the order of /0.01/ seconds.
+
+** The normal header
+There are no GNU Police (yet), but I feel nicer by putting this in.
+#+BEGIN_SRC emacs-lisp :tangle ./early-init.el
+;;; early-init.el -*- lexical-binding: t; -*-
+
+;; Haec pars Emacs non est.
+
+;; Code:
+#+END_SRC
+
+** GC thrashing
+Set the GC threshold to max during startup, then set it back to a value that is somewhat more sane than the default /800kb/.
+
+#+BEGIN_SRC emacs-lisp :tangle ./early-init.el
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.6)
+
+(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 1024 1024 25)
+					 gc-cons-percentage 0.1)))
+#+END_SRC
+
+** Basic UI preferences
+I want no menus, no tool-bars, no scroll-bars, no blinking cursor, and no messages when starting up.  I just want the scratch buffer with a report on =emacs-init-time=.  Make resizing work properly as well.
+
+#+BEGIN_SRC emacs-lisp :tangle ./early-init.el
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(blink-cursor-mode -1)
+
+(setq inhibit-startup-screen t
+      inhibit-startup-buffer-menu t
+      initial-scratch-message (message ";;; Emacs loaded in %s.\n\n" (emacs-init-time))
+      server-client-instructions nil
+      frame-resize-pixelwise t)
+#+END_SRC
+
+I am fine with the default theme, as long as the background color is similar to engineering paper.  Also make every frame open full-screen, and re-emphasize the desire for no scroll-bars.
+
+#+BEGIN_SRC emacs-lisp :tangle ./early-init.el
+(setq default-frame-alist '((background-color . "#cae0a6")
+			    (fullscreen . maximized)
+			    (vertical-scroll-bars . nil)))
+#+END_SRC
+
+** Misc/odd issues
+Avoid a weird issue on windows where opening emacs via an [[https://www.autohotkey.com/][AutoHotKey]] binding causes emacs to load in the AutoHotKey directory.
+
+#+BEGIN_SRC emacs-lisp :tangle ./early-init.el
+(setq default-directory "~/")
+#+END_SRC
+
+** The normal footer
+
+#+BEGIN_SRC emacs-lisp :tangle ./early-init.el
+(provide 'early-init)
+;;; hic terminatur early-init.el
+#+END_SRC
+
+* Main init
+** Header
+
+#+BEGIN_SRC emacs-lisp
+;;; init.el --- Quae configurare  -*- lexical-binding: t; -*-
+
+;; Haec pars Emacs non est.
+
+;; Code:
+#+END_SRC
+
+** Packages
+Load packages first, so there is no question of dependencies later in the file
+*** Package Repositories
+Non-gnu is in the defaults now, so I only need to add melpa.
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+#+END_SRC
+
+*** use-package
+**** Install it
+This section is soon to be deprecated by the release of Emacs version 29.
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+#+END_SRC
+
+**** Default to ensure
+A large majority of the configuration with use-package is on 3rd-party packages.  It makes more sense to do =:ensure nil= on base packages than to do =:ensure t= on all the 3rd-party ones.
+
+#+BEGIN_SRC emacs-lisp
+(setq use-package-always-ensure t)
+#+END_SRC
+
+*** Packages I don't want on my work computers
+I don't need these on a windows PC.
+#+BEGIN_SRC emacs-lisp
+(unless (equal system-type 'windows-nt)
+  (use-package slime)
+  (use-package ledger-mode))
+#+END_SRC
+
+*** visual-fill-column
+A godsend.  Finally, I can have visual-line-mode without having to read lines that are 1980 pixels wide!  Also set word wrap, and make the split for help do what I want on big screens.
+
+#+BEGIN_SRC emacs-lisp
+(use-package visual-fill-column
+  :custom
+  (word-wrap t)
+  (visual-fill-column-enable-sensible-window-split t)
+  :config
+  (global-visual-fill-column-mode)
+  (global-visual-line-mode t))
+#+END_SRC
+
+*** corfu
+I used =company-mode= for a long time.  I tried corfu and haven't looked back.  It is smaller, and does everything I was doing with company.
+
+**** Main Corfu
+The basics for corfu.  Auto popup after one letter, enable globally.
+
+#+BEGIN_SRC emacs-lisp
+(use-package corfu
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0)
+  (corfu-auto-prefix 1)
+  :config
+  (global-corfu-mode))
+#+END_SRC
+
+**** corfu-popupinfo
+This comes with base corfu, but is configured separately
+
+#+BEGIN_SRC emacs-lisp
+(use-package corfu-popupinfo
+  :ensure nil ; Part of corfu
+  :after corfu
+  :hook (corfu-mode . corfu-popupinfo-mode)
+  :custom
+  (corfu-popupinfo-delay '(2 . 0.01))
+  (corfu-popupinfo-hide nil)
+  :config
+  (corfu-popupinfo-mode))
+#+END_SRC
+
+*** expand-region
+Seldom used, but nothing else does it.
+
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :bind
+  (("C-=" . er/expand-region)))
+#+END_SRC
+
+*** magit
+I use magit occasionally.  I put this sparse configuration here mostly for a speed boost, by making magit only load when I explicitly call for it.
+
+#+BEGIN_SRC emacs-lisp
+;; Put this here mainly for speed boost (only load magit when I call for it)
+(use-package magit
+  :init
+  (message "LOCKED")
+  :config
+  (message "LOADED")
+  :bind
+  ((:map ctl-x-map
+	 ("g" . magit-status))))
+#+END_SRC
+
+*** openwith
+I need to open binary files with their own editor.  Disgusting.
+
+#+BEGIN_SRC emacs-lisp
+(use-package openwith
+  :config
+  (openwith-mode t))
+
+(setq openwith-associations (list
+			     (list (openwith-make-extension-regexp
+				    '("xls" "xlsx" "doc" "docx"
+				      "ppt" "odt" "ods" "odg" "odp"))
+				   "LibreOffice"
+				   '(file))
+			     (list (openwith-make-extension-regexp
+				    '("adpro"))
+				   "ProductivitySuite"
+				   '(file))))
+#+END_SRC
+
+** Non-Package customization
+This section has '/base/' emacs customization.  All the general stuff.
+
+I so far have kept most of my setq declarations in one place, only recently splitting them into multiple declarations from one large one.
+
+*** Defaults
+I want these things every time, or at least setting them this way worked when a regular =setq= didn't.
+
+#+BEGIN_SRC emacs-lisp
+(setq-default indicate-empty-lines t
+	      fill-column 80
+	      cursor-type 'bar
+	      cursor-in-non-selected-windows 'hollow)
+#+END_SRC
+
+*** Backup/Autosave
+I originally had some autosave items in here, but the defaults appeared to be doing basically what I wanted anyway.
+
+**** Backups
+Don't clobber symlinks, and put everything into the temp directory (determined by os)
+
+#+BEGIN_SRC emacs-lisp
+(setq backup-by-copying t
+      backup-directory-alist `((".*" . ,temporary-file-directory)))
+#+END_SRC
+
+**** Old versions
+Keep 10 versions, 5 'old' and 5 'new'.  Delete anything older.
+
+#+BEGIN_SRC emacs-lisp
+(setq delete-old-versions t
+      kept-new-versions 5
+      kept-old-versions 5)
+#+END_SRC
+
+*** File handling
+I want to avoid ever seeing an error about missing newlines at the end of a file.
+
+#+BEGIN_SRC emacs-lisp
+(setq require-final-newline t)
+#+END_SRC
+
+These are directly from [[https://depp.brause.cc/dotemacs/][depp.brause.cc/dotemacs/]]. They are intended to make Emacs drop changes and die when a segfault happens, rather than attempt to save potentially corrupted data.
+
+#+BEGIN_SRC emacs-lisp
+(setq attempt-stack-overflow-recovery nil
+      attempt-orderly-shutdown-on-fatal-signal nil)
+#+END_SRC
+
+I want to strip all trailing whitespace on save, and I want to make all shell scripts executable at the same time.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'before-save-hook 'whitespace-cleanup)
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+#+END_SRC
+
+*** Minibuffer interaction
+I don't want emacs to beep or blink at me, I want y/n instead of the default yes/no, I don't care for clicking on things in the minibuffer, I like seeing my commands echoed almost immediately, I want history to only show me unique commands, and I want case-insensitive buffer switching.
+
+#+BEGIN_SRC emacs-lisp
+(setq ring-bell-function 'ignore
+      use-short-answers t
+      use-file-dialog nil
+      echo-keystrokes 0.1
+      read-buffer-completion-ignore-case t
+      history-delete-duplicates t)
+#+END_SRC
+
+*** Buffer interaction
+**** General
+Close unused buffers after 3 days.
+#+BEGIN_SRC emacs-lisp
+(midnight-mode t)
+#+END_SRC
+
+Overwrite selection when active, like every other editor since Sam.
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode t)
+#+END_SRC
+
+Don't disable any functions
+#+BEGIN_SRC emacs-lisp
+(setq  disabled-command-function nil)
+#+END_SRC
+
+Save pastes from elsewhere into the kill-ring, and don't ask me about killing processes when I kill a buffer.
+#+BEGIN_SRC emacs-lisp
+(setq save-interprogram-paste-before-kill t
+      confirm-kill-processes nil)
+#+END_SRC
+
+**** Scrolling
+#+BEGIN_SRC emacs-lisp
+(setq scroll-conservatively 101
+      scroll-preserve-screen-position t)
+#+END_SRC
+
+**** Windmove
+I originally had custom defuns and bindings to do this, but then I found out it was built in...
+
+#+BEGIN_SRC emacs-lisp
+(windmove-default-keybindings 'control) ; deprecate my C-L/R bindings
+(setq windmove-wrap-around t)
+#+END_SRC
+
+**** Maus
+Bring up a menu with right-click in a buffer
+#+BEGIN_SRC emacs-lisp
+(context-menu-mode t)
+#+END_SRC
+
+*** Buffer looks
+Highlight current line in all buffers, even if inactive.
+#+BEGIN_SRC emacs-lisp
+(setq global-hl-line-sticky-flag t)
+(global-hl-line-mode t)
+#+END_SRC
+
+I want nice symbols to look at
+#+BEGIN_SRC emacs-lisp
+(setq prettify-symbols-alist '(("lambda" . 955)
+			       ("delta" . 120517)
+			       ("epsilon" . 120518)
+			       ("->" . 8594)
+			       ("<=" . 8804)
+			       (">=" . 8805)))
+(global-prettify-symbols-mode t)
+#+END_SRC
+
+*** Parens
+When I'm on a beginning/ending paren, I find the default of only highlighting the parens too hard to see, and highlighting the whole thing too garish.  Therefore, this setup tries to underline the expression, with minimal highlighting.
+
+Show matching parens immediately, and "highlight" the whole expression.
+
+#+BEGIN_SRC emacs-lisp
+(setq show-paren-delay 0
+      show-paren-style 'expression)
+#+END_SRC
+
+Make the paren "highlight" the same color as the background, and add underline.  This adds some amount of "highlighting", since the background color overrides the color set by =hl-line-mode=.
+
+#+BEGIN_SRC emacs-lisp
+(set-face-attribute 'show-paren-match nil
+		    :background "#cae0a6" ; set to frame bg color
+		    :underline t)
+#+END_SRC
+
+*** Modeline
+Funny name for the frame
+#+BEGIN_SRC emacs-lisp
+(setq frame-title-format "Poor Man's LispM")
+#+END_SRC
+
+Show me column number and filesize
+#+BEGIN_SRC emacs-lisp
+(column-number-mode t)
+(size-indication-mode t)
+#+END_SRC
+
+I don't like the box around the modeline.  In Emacs 29, the face attribute for mode-line will change to mode-line-active
+#+BEGIN_SRC emacs-lisp
+(set-face-attribute 'mode-line nil
+		    :background "grey75"
+		    :foreground "black"
+		    :box nil)
+
+(set-face-attribute 'mode-line-inactive nil
+		    :background "grey90"
+		    :foreground "dim grey"
+		    :box nil)
+#+END_SRC
+
+*** C-Style
+Please use Tabs in C files, I'm BEGGING.  Absolutely ridiculous that there's no simple variable to select Tabs ONLY for indentation.
+#+BEGIN_SRC emacs-lisp
+(defun c-lineup-arglist-tabs-only (ignored)
+  "Line up argument lists by tabs, not spaces. Stolen from https://kernel.org/doc/html/v4.10/process/coding-style.html"
+  (let* ((anchor (c-langelem-pos c-syntactic-element))
+	 (column (c-langelem-2nd-pos c-syntactic-element))
+	 (offset (- (1+ column) anchor))
+	 (steps (floor offset c-basic-offset)))
+    (* (max steps 1)
+       c-basic-offset)))
+
+(add-hook 'c-mode-common-hook
+	  (lambda ()
+	    ;; Add kernel style
+	    (c-add-style
+	     "linux-tabs-only"
+	     '("linux"
+	       (c-offsets-alist
+		(arglist-cont-nonempty
+		 c-lineup-gcc-asm-reg
+		 c-lineup-arglist-tabs-only))))))
+
+(add-hook 'c-mode-hook
+	  (lambda ()
+	    (setq indent-tabs-mode t)
+	    (setq show-trailing-whitespace t)
+	    (c-set-style "linux-tabs-only")))
+#+END_SRC
+
+*** Windows-Specific
+Use =recycle bin=, DON'T use AltGr, and tell emacs where diff is.
+#+BEGIN_SRC emacs-lisp
+(when (equal system-type 'windows-nt)
+  (setq delete-by-moving-to-trash t
+	ediff-diff-program "\"c:/Program Files/Git/usr/bin/diff.exe\""
+	ediff-diff3-program "\"c:/Program Files/Git/usr/bin/diff3.exe\""
+	diff-command "\"c:/Program Files/Git/usr/bin/diff.exe\""
+	w32-recognize-altgr 'nil))
+#+END_SRC
+** org configuration
+I had this in a use-package declaration, but I find this a little nicer.
+**** TODO Move this out of the use-package declaration
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :ensure nil ; in emacs by default
+  :custom
+  (org-M-RET-may-split-line nil)
+  (org-return-follows-link t)
+  (org-agenda-restore-windows-after-quit t)
+  (org-use-fast-todo-selection 'expert)
+  (org-src-window-setup 'current-window)
+  (org-src-preserve-indentation t)
+  (org-enforce-todo-dependencies t)
+  (org-enforce-todo-checkbox-dependencies t)
+  (org-agenda-start-on-weekday nil)
+  (org-catch-invisible-edits 'error)
+  (org-directory "~/org")
+  (org-agenda-files '("~/org/"
+		      "~/org/kasten/"))
+  (org-refile-targets '((nil :maxlevel . 9)
+			(org-agenda-files :maxlevel . 9)))
+  (org-default-notes-file (concat org-directory "/notes.org"))
+  (safe-local-variable-values '((after-save-hook org-auto-archive)))
+  (org-todo-keywords '((sequence "TODO(t@)" "WAITING(w@)" "IN-PROGRESS(i@)" "APPT(a@)" "|"
+				 "DELEGATED(l@)" "DONE(d@)" "CANCELLED(c@)")))
+  (org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
+			   ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
+			   ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
+			   ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
+  (org-agenda-custom-commands '(("n" "Agenda and all TODOs"
+				 ((agenda "") (alltodo "")))
+				("u" "Unscheduled TODOs"
+				 alltodo "" ((org-agenda-skip-function
+					      (lambda nil
+						(org-agenda-skip-entry-if 'scheduled
+									  'deadline
+									  'regexp "\n]+>")))
+					     (org-agenda-overriding-header "Unscheduled TODO entries: ")))))
+  :config
+  (defun erfassen-zettel ()
+    "Add a new zettel to the kasten.
+Creates a new file <datestamp>.org in ~/org/kasten."
+    (interactive)
+    (expand-file-name (format "%s.org" (format-time-string "%Y-%m-%d-%H%M")) "~/org/kasten/"))
+
+  (defun org-auto-archive ()
+    "Automatically archive completed tasks in an org file.
+Intended for use as an after-save-hook."
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     "TODO=\"DONE\"|TODO=\"CANCELLED\"|TODO=\"DELEGATED\""
+     'file)
+    (save-buffer))
+
+  (defun tangle-init ()
+    "Tangle and compile init.org.
+Stolen from https://github.com/larstvei/dot-emacs."
+    (when (equal (buffer-file-name)
+		 (expand-file-name (concat user-emacs-directory "init.org")))
+      (let ((prog-mode-hook nil))
+	(org-babel-tangle)
+	(byte-compile-file (concat user-emacs-directory "init.el")))))
+  :bind
+  ((:map mode-specific-map
+	 ("l" . org-store-link)
+	 ("a" . org-agenda)
+	 ("c" . org-capture))
+   (:map org-mode-map
+	 ("C-'" . nil))))
+
+(add-hook 'after-save-hook 'tangle-init)
+#+END_SRC
+
+** Dired configuration
+Make dired use the same switches I prefer for =ls=, give me a simpler listing, and default to using its current buffer for visiting a file rather than creating a new buffer.
+#+BEGIN_SRC emacs-lisp
+(setq dired-listing-switches "-alv --group-directories-first")
+
+(add-hook 'dired-mode-hook
+	  (lambda ()
+	    (dired-hide-details-mode t)
+	    (define-key dired-mode-map
+	      (kbd "RET") 'dired-find-alternate-file)))
+#+END_SRC
+
+** Eshell configuration
+Here are the various customizations I have for eshell.
+
+*** Binding to start eshell
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c s") 'eshell)
+#+END_SRC
+
+*** Make it play nice with corfu
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'eshell-mode-hook (lambda ()
+			      (setq-local corfu-auto nil)
+			      (corfu-mode)))
+#+END_SRC
+
+*** Send on Close-Paren
+I wanted something like the Genera environment, where putting in a final close-paren will send the command, without having to hit enter.
+
+#+BEGIN_SRC emacs-lisp
+(defun eshell-send-on-close-paren ()
+  "Makes eshell act somewhat like genera.
+Makes a closing paren execute the sexp.  Currently in test, look
+out for errors."
+  (interactive)
+  (insert-char ?\))
+  (let ((p (point)))
+    ;;(eshell-bol)
+    ;;(syntax-ppss-flush-cache (point))
+    ;;(goto-char p)
+    (cond ((= 0 (car (syntax-ppss)))
+	   (eshell-send-input))
+	  ((< (car (syntax-ppss)) 0)
+	   (message "Check flush-cache"))
+	  ((t nil)))))
+#+END_SRC
+
+*** Quit or delete-char
+I want =C-d= to end the shell if it is on an empty line, otherwise act normally.
+
+#+BEGIN_SRC emacs-lisp
+(defun eshell-quit-or-delete-char (arg)
+  "Delete char if at one, quit eshell if on empty prompt.
+Stolen from https://depp.brause.cc/dotemacs"
+  (interactive "p")
+  (if (and (eolp) (looking-back eshell-prompt-regexp))
+      (eshell-life-is-too-much) ; https://emacshorrors.com/post/life-is-too-much
+    (delete-forward-char arg)))
+#+END_SRC
+
+*** Bind the defuns
+I have only been able to get these to work when they are within an add-hook lambda.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'eshell-mode-hook
+	  (lambda ()
+	    (define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)
+	    (define-key eshell-mode-map (kbd "C-d") 'eshell-quit-or-delete-char)))
+#+END_SRC
+
+** Defuns and Bindings
+I have quite a few math and work-related defuns, and fewer editing ones.  Inversely, I have more editing related bindings than work-related ones.  This makes sense, considering my usage patterns.
+
+*** Editing
+Most of these are to re-create something from vim/readline/sam/acme.  Some are just helper functions or wrappers.
+
+**** Visiting Files
+Bind =find-file-at-point=, and =bookmark-jump-other-window=
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x M-f") 'find-file-at-point)
+(global-set-key (kbd "C-x rB") 'bookmark-jump-other-window)
+#+END_SRC
+
+**** Buffer Handling
+Usually I want the buffer menu in the same window I am already on.  Occasionally I want it in a different window.  Bind accordingly.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x C-b") 'buffer-menu)
+(global-set-key (kbd "C-x M-b") 'buffer-menu-other-window)
+#+END_SRC
+
+I often want to bring up the scratch buffer in my current window, and sometimes I want only one window that is the scratch buffer.
+#+BEGIN_SRC emacs-lisp
+(defun go-to-scratch ()
+  "Bring up the scratch buffer."
+  (interactive)
+  (switch-to-buffer (get-buffer-create "*scratch*")))
+
+(defun scratch-only ()
+  "Bring up the scratch buffer as the only visible buffer."
+  (interactive)
+  (go-to-scratch)
+  (delete-other-windows))
+
+(global-set-key (kbd "<f5>") 'go-to-scratch)
+(global-set-key (kbd "S-<f5>") 'scratch-only)
+#+END_SRC
+
+**** Line joining
+The =M-^= binding is handy, but usually I want the ed/sam/vi join function, which pulls the next line up into the current line.  I bind this to =M-j=.
+#+BEGIN_SRC emacs-lisp
+(defun backward-join-line ()
+  "A wrapper for join-line to make it go in the right direction."
+  (interactive)
+  (join-line 0))
+
+(global-set-key (kbd "M-j")'backward-join-line)
+#+END_SRC
+
+**** Line opening
+The default behavior of =open-line= is ridiculous.  It acheives the same function as hitting =RET= then =C-b=.  I don't want to split the current line, I want to OPEN a new one, and usually go to it.  These wrappers remedy that, and allow me to choose whether I want to go to the line or just add it.
+
+#+BEGIN_SRC emacs-lisp
+(defun open-line-below (n)
+  "Creates a new empty line below the current line and moves to it."
+  (interactive "*p")
+  (end-of-line)
+  (open-line n)
+  (next-line)
+  (indent-for-tab-command))
+
+(defun open-line-below-no-move (n)
+  "Creates a new empty line below the current line, without moving point."
+  (interactive "*p")
+  (let ((pos (point-marker)))
+    (end-of-line)
+    (open-line n)
+    (goto-char pos)))
+
+(defun open-line-above (n)
+  "Creates a new empty line above the current line."
+  (interactive "*p")
+  (beginning-of-line)
+  (open-line n)
+  (indent-for-tab-command))
+
+(defun open-line-above-no-move (n)
+  "Creates a new empty line above the current line, without moving point."
+  (interactive "*p")
+  (let ((pos (point-marker)))
+    (beginning-of-line)
+    (open-line n)
+    (goto-char pos)))
+#+END_SRC
+
+I Bind the previous functions to =M/C-o= for creating and going to the new line, and =M/C-S-O= for staying at point.
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-o")'open-line-below)
+(global-set-key (kbd "M-o")'open-line-above)
+(global-set-key (kbd "C-S-O")'open-line-below-no-move)
+(global-set-key (kbd "M-S-O")'open-line-above-no-move)
+#+END_SRC
+
+**** Commenting
+I Stole this directly from [[https://depp.brause.cc/dotemacs][depp.brause.cc/dotemacs]].  Very good, simple solution.
+#+BEGIN_SRC emacs-lisp
+(defun my-comment-dwim ()
+  "Comment region if active, otherwise comment line.
+Stolen from https://depp.brause.cc/dotemacs"
+  (interactive)
+  (if (use-region-p)
+      (comment-or-uncomment-region (region-beginning) (region-end))
+    (comment-or-uncomment-region (line-beginning-position)
+				 (line-end-position))))
+
+(global-set-key (kbd "M-;") 'my-comment-dwim)
+#+END_SRC
+
+**** Killing
+Bind =kill-whole-line= to =C-S-K= for something somewhat pnemonic.
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-S-K") 'kill-whole-line)
+#+END_SRC
+
+Bind =C-z= to zap-up-to-char, sice zap-to-char is on =M-z=.
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-z") 'zap-up-to-char)
+#+END_SRC
+
+=C-w= is very much engrained for killing back one word, as is =C-u= for killing back to the beginning of the line.  These have been standard bindings since TENEX...([[http://unix-kb.cat-v.org/][ref]])
+
+I didn't want to re-bind =C-w= away from =kill-region=, so I made it do both.
+
+#+BEGIN_SRC emacs-lisp
+(defun kill-bword-or-region ()
+  "Kill region if active, otherwise kill back one word."
+  (interactive)
+  (if (use-region-p)
+      (call-interactively 'kill-region)
+    (call-interactively 'backward-kill-word)))
+
+(global-set-key (kbd "C-w")'kill-bword-or-region)
+#+END_SRC
+
+There is no pre-made function to kill backward to the beginning of line from point, so I made one that passes the correct argument to =kill-line=, and bound it to =C-u=.
+
+#+BEGIN_SRC emacs-lisp
+(defun backward-kill-line ()
+  "Kill back to beginning of line from point."
+  (interactive)
+  (kill-line 0))
+
+(global-set-key (kbd "C-u")'backward-kill-line)
+#+END_SRC
+
+Since =C-u= is =universal-argument=, I put that functionality on =C-'=.
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-'") 'universal-argument)
+#+END_SRC
+
+**** Moving
+I want =Home= and =End= to take me to the top and bottom of the file.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<home>") 'beginning-of-buffer)
+(global-set-key (kbd "<end>") 'end-of-buffer)
+#+END_SRC
+
+I have the infamous =smart-beginning-of-line= command here.
+#+BEGIN_SRC emacs-lisp
+(defun smart-beginning-of-line ()
+  "Move point to first non-whitespace character or beginning-of-line.
+If point was already at that position, move point to beginning of line. Stolen from BrettWitty's dotemacs github repo."
+  (interactive "^")
+  (let ((oldpos (point)))
+    (back-to-indentation)
+    (and (= oldpos (point))
+	 (beginning-of-line))))
+#+END_SRC
+
+I had issues with =smart-beginning-of-line= in =visual-line-mode=, so =smart-beginning-of-visual-line= was created.  It implements part of =back-to-indentation=, but with changes to use =beginning-of-visual-line= instead of =beginning-of-line=.
+#+BEGIN_SRC emacs-lisp
+(defun smart-beginning-of-visual-line ()
+  "Move point to first non-whitespace character or beginning-of-line.
+If point was already at that position, move point to beginning of line. Stolen from BrettWitty's dotemacs github repo.  Modified to work in visual-line-mode.  Re-implementing `back-to-indentation' as a visual-line respecter."
+  (interactive "^")
+  (let ((oldpos (point)))
+    (beginning-of-visual-line 1)
+    (skip-syntax-forward " " (line-end-position))
+    (backward-prefix-chars)
+    (and (= oldpos (point))
+	 (beginning-of-visual-line))))
+#+END_SRC
+
+I used to have just a straight bind to =C-a=, and a remap when not in =visual-line-mode=, but it APPEARS to work with just these remaps.
+#+BEGIN_SRC emacs-lisp
+(global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
+(global-set-key [remap beginning-of-visual-line] 'smart-beginning-of-visual-line)
+#+END_SRC
+
+I don't want line numbers in the margin unless I am actively trying to go to a line.  I override =goto-line= with this function, which shows line numbers, asks me where I want to go, and then hides line numbers.
+#+BEGIN_SRC emacs-lisp
+(defun my-goto-line ()
+  "Show line numbers before going to line, then hide them again."
+  (interactive)
+  (display-line-numbers-mode 1)
+  (call-interactively 'goto-line)
+  (display-line-numbers-mode -1))
+
+(global-set-key [remap goto-line] 'my-goto-line)
+#+END_SRC
+
+**** Search and Replace
+I made these bindings to put my more-used commands on better keys, and swap them with the less-used ones.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-s .") 'isearch-forward-thing-at-point)
+(global-set-key (kbd "M-s M-.") 'isearch-forward-symbol-at-point)
+(global-set-key (kbd "M-%") 'replace-regexp)
+(global-set-key (kbd "C-%") 'replace-string)
+(global-set-key (kbd "C-S-R") 'isearch-backward-regexp)
+(global-set-key (kbd "C-S-S") 'isearch-forward-regexp)
+#+END_SRC
+
+**** Elisp/Eval bindings
+Some old Emacs-like editor (Edwin?) used this binding, so I put it in here.  Less used than the =M-C-x= =eval-defun= binding, but occasionally nice to have.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-C-z") 'eval-region)
+#+END_SRC
+
+*** *NIX
+These defuns are here so that I can use doas/sudo over tramp to edit /local/ files requiring root permissions.  Doas for BSD, Sudo for Linux, nothing for Windows.
+#+BEGIN_SRC emacs-lisp
+(unless (equal system-type 'windows-nt)
+  (if(equal system-type 'berkeley-unix)
+      (defun doas ()
+	"Use TRAMP to reopen the current buffer as root using doas."
+	(interactive)
+	(when buffer-file-name
+	  (find-alternate-file
+	   (concat "/doas:root@localhost:"
+		   buffer-file-name))))
+    (defun sudo ()
+      "Use TRAMP to reopen the current buffer as root using sudo."
+      (interactive)
+      (when buffer-file-name
+	(find-alternate-file
+	 (concat "/doas:root@localhost:"
+		 buffer-file-name))))))
+#+END_SRC
+
+*** Windows
+If you've ever had the /pleasure/ of using Aveva (*Formerly WonderWare*) version 2020, you'll understand.
+#+BEGIN_SRC emacs-lisp
+(when (equal system-type 'windows-nt)
+  (defun unfuck-aveva-license ()
+    "Remove the offending xml files.
+Use this when aveva can't find ass with both hands."
+    (interactive)
+    (let ((xml1 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalAcquireInfo.xml")
+	  (xml2 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalBackEndAcquireInfo.xml"))
+      (when (file-exists-p xml1) (delete-file xml1))
+      (when (file-exists-p xml2) (delete-file xml2)))))
+#+END_SRC
+
+*** Math
+General Math defuns, often used in later defuns.
+
+I'm tired of writing out ='expt=, and I want to use the same notation every other programming language does.
+#+BEGIN_SRC emacs-lisp
+(defalias '^ 'expt)
+#+END_SRC
+
+Define square, cube, and inv for brevity of common usages.
+#+BEGIN_SRC emacs-lisp
+(defun square (x)
+  "Calculate the square of a value."
+  (^ x 2))
+
+(defun cube (x)
+  "Calculate the cube of a value."
+  (^ x 3))
+
+(defun inv (x)
+  "Calculate the inverse of a value."
+  (/ 1 (float x)))
+#+END_SRC
+
+*** Unit Conversions
+The rest of the world decided to self-castrate because some French guys told them things Definitely Made More Sense if everything was divisible by 10.  I'm convinced the average Frenchman simply couldn't grasp fractions, and that's why he came up with this crap.  What's 1/3 of a meter?  What's 1/3 of a yard?  And 1/3 of a foot?  How likely are you to need to divide a measurement by 3 when you're building something?  Maybe the [[https://dozenal.org/][Dozenal]] people were right all along.  Anyway, I'm now forced to convert into proper units daily because of this grave error.
+#+BEGIN_SRC emacs-lisp
+(defun mm-to-in (mm)
+  "Convert milimeters to inches."
+  (/ mm 25.4))
+
+(defun in-to-mm (in)
+  "Convert inches to milimeters."
+  (* in 25.4))
+
+(defun k-to-c (tempk)
+  "Convert degrees Kelvin to degrees Celsius."
+  (- tempk 273.15))
+
+(defun c-to-k (tempc)
+  "Convert degrees Celsius to degrees Kelvin."
+  (+ tempc 273.15))
+
+(defun c-to-f (tempc)
+  "Convert degrees Celsius to degrees Fahrenheit."
+  (+ (* tempc 1.8) 32.0))
+
+(defun f-to-c (tempf)
+  "Convert degrees Fahrenheit to degrees Celsius."
+  (/ (- tempf 32.0) 1.8))
+
+(defun k-to-f (tempk)
+  "Convert degrees Kelvin to degrees Fahrenheit.
+Applies `c-to-f' to `k-to-c'."
+  (c-to-f (k-to-c tempk)))
+
+(defun f-to-k (tempf)
+  "Convert degrees Fahrenheit to degrees Kelvin.
+Applies `c-to-k' to `f-to-c'."
+  (c-to-k (f-to-c tempf)))
+#+END_SRC
+
+*** Electrical
+These defuns are all about electronics.  Effective impedance, amps to volts and back again.
+#+BEGIN_SRC emacs-lisp
+(defun eff-imp (r1 &optional r2)
+  "Calculate the effective input impedance, given two resistances. For use in `amps-to-volts' and related.  The handling of only one resistance given is done here, instead of doing it in every function that uses this."
+  (if (eq nil r2)
+      r1
+    (inv (+ (inv (float r1)) (inv (float r2))))))
+
+(defun amps-to-volts (amps r1 &optional r2)
+  "Calculate the voltage, given amperage and impedance.
+Multiplies the amperage by the effective impedance calculated with `eff-imp'."
+  (* amps (eff-imp r1 r2)))
+
+(defun volts-to-amps (volts r1 &optional r2)
+  "Calculate the amperage, given voltage and impedance.
+Divides the voltage by the effective impedance calculated with `eff-imp'."
+  (/ volts (eff-imp r1 r2)))
+#+END_SRC
+
+*** PLC
+The nitty-gritty.  These defuns build on the previous ones to help me do various calculations related to analog signals and how they interact with [[https://en.wikipedia.org/wiki/Programmable_logic_controller][PLCs]], also called PACs.  Counts, volts, amps, bit-resolutions, and relating them to each other.
+#+BEGIN_SRC emacs-lisp
+(defun max-counts (resolution)
+  "Calculate the max count for a PLC analog, given card's bit-resolution."
+  (- (^ 2 resolution) 1))
+
+(defun volts-to-counts (vin vmax resolution)
+  "Convert a voltage signal to a PLC count.
+Calculates a ratio of vin/vmax, then scales by `max-counts'."
+  (* (/ (float vin) (float vmax)) (float (max-counts resolution))))
+
+(defun counts-to-volts (cin vmax resolution)
+  "Convert a PLC count to a voltage.
+Calculates a ratio of cin/`max-counts', then multiplies by vmax."
+  (* (/ cin (float (max-counts resolution))) vmax))
+
+(defun amps-to-counts (amps vmax resolution r1 &optional r2)
+  "Convert a current signal to PLC Counts.
+Converts the amperage to a voltage using `amps-to-volts' (with r1 and optional r2), then applies `volts-to-counts' to the resulting voltage, vmax, and resolution."
+  (volts-to-counts (amps-to-volts amps r1 r2) vmax resolution))
+
+(defun count-range (type upper lower vmax resolution &optional r1 r2)
+  "Given an upper and lower signal, return the list of upper and lower PLC counts.
+Type takes either a v or an i, corresponding to a voltage or current signal.  With a current signal, use r1 and maybe r2 to calculate `amps-to-counts'.  Otherwise ignore r1/r2 and calculate `volts-to-counts'."
+  (cond ((or (equal 'v type)
+	     (equal 'V type))
+	 (list (volts-to-counts upper vmax resolution)
+	       (volts-to-counts lower vmax resolution)))
+	((or (equal 'i type)
+	     (equal 'I type))
+	 (list (amps-to-counts upper vmax resolution r1 r2)
+	       (amps-to-counts lower vmax resolution r1 r2)))))
+
+(defun scaleval (pmax pmin emax emin &optional ai)
+  "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
+With optional argument `ai', also calculate a final scaled value from an input."
+  (let* ((div (/ (- pmax pmin) (- (float emax) (float emin))))
+	 (ofst (- emin (/ pmin div))))
+    (if (eq nil ai)
+	(list div ofst)
+      (list div ofst (+ ofst (/ ai div))))))
+
+(defun pid-tune (Kᵤ Tᵤ &optional loop-type)
+  "Use the Ziegler-Nichols method to tune a P, PI or PID loop.
+Takes Kᵤ, Tᵤ and optional loop-type (P, PI, or PID [default]) as arguments, and returns appropriate kp, ki, and kd."
+  (cond ((or (equal 'p loop-type)
+	     (equal 'P loop-type))
+	 (list (* 0.5 Kᵤ)))
+	((or (equal 'pi loop-type)
+	     (equal 'PI loop-type))
+	 (list (* 0.45 Kᵤ) (/ (* 0.54 Kᵤ) Tᵤ)))
+	(t
+	 (list (* 0.6 Kᵤ) (/ (* 1.2 Kᵤ) Tᵤ) (/ (* 3.0 Kᵤ Tᵤ) 40)))))
+#+END_SRC
+
+*** Refrigeration
+More nitty-gritty.  These are for calculating specific refrigeration-related things.  Somewhat specialized.
+#+BEGIN_SRC emacs-lisp
+(defun cfm-circ (fpm radius)
+  "Calculate the CFM of a circular duct.
+Inputs are feet/minute and radius (in)."
+  (list (* pi fpm (square (/ radius 12)))))
+
+(defun cfm-rect (fpm width height)
+  "Calculate the CFM of a rectangular duct.
+Inputs are feet/minute, width (in) and height (in)."
+  (list (* fpm (/ width 12) (/ height 12))))
+
+(defun gn-water-per-lb (temp humidity)
+  "Calculate the grains of water per lb of air.
+Inputs are temp (F) and humidity (%).  Returns a list of Saturated Water Pressure, Humidity Ratio, and Grains of water per lb of air."
+  (let* ((sat-water-press (+ .0182795
+			     (* temp .001029904)
+			     (* (square temp) 0.00002579408)
+			     (* (cube temp) (* 2.400493 (^ 10 -7)))
+			     (* (^ temp 4) (* 8.100939 (^ 10 -10)))
+			     (* (^ temp 5) (* 3.256805 (^ 10 -11)))
+			     (* (^ temp 6) (* -1.001922 (^ 10 -13)))
+			     (* (^ temp 7) (* 2.44161 (^ 10 -16)))))
+	 (hum-press (* (/ humidity 100.0) sat-water-press))
+	 (hum-ratio (/ (* hum-press 0.62198) (- 14.7 hum-press)))
+	 (gns-water-lb-air (* hum-ratio 7000)))
+    (list sat-water-press hum-ratio gns-water-lb-air)))
+#+END_SRC
+
+** Customize system
+I do not use the customize system.  I don't want to see it if I don't have to.
+
+#+BEGIN_SRC emacs-lisp
+(setq custom-file (expand-file-name "etc/custom.el" user-emacs-directory))
+(load custom-file)
+#+END_SRC
+
+** Footer
+
+#+BEGIN_SRC emacs-lisp
+;;; hic terminatur init.el
+#+END_SRC
