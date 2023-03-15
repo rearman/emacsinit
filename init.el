@@ -5,4 +5,4 @@
 ;; Load it...
 (load-file (concat user-emacs-directory "init.el"))
 ;; And compile it
-(byte-compile (concat user-emacs-directory "init.el"))
+(byte-compile-file (concat user-emacs-directory "init.el"))
