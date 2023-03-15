@@ -18,6 +18,8 @@ I have taken this mostly whole-hog from [[https://github.com/larstvei/dot-emacs]
 
 This is the repo's =init.el= file, which bootstraps the real =init.el=.
 #+BEGIN_SRC emacs-lisp :tangle no
+;; We Can't tangle without org!
+(require 'org)
 ;; Create the real config...
 (org-babel-tangle (concat user-emacs-directory "init.org"))
 ;; Load it...
