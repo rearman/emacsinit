@@ -18,14 +18,17 @@ I have taken this mostly whole-hog from [[https://github.com/larstvei/dot-emacs]
 
 This is the repo's =init.el= file, which bootstraps the real =init.el=.
 #+BEGIN_SRC emacs-lisp :tangle no
+;;; This file replaces itself with the real config at first run
 ;; We Can't tangle without org!
 (require 'org)
-;; Create the real config...
-(org-babel-tangle (concat user-emacs-directory "init.org"))
+;; Open the config...
+(find-file (concat user-emacs-directory "init.el"))
+;; Tangle it...
+(org-babel-tangle)
 ;; Load it...
 (load-file (concat user-emacs-directory "init.el"))
 ;; And compile it
-(byte-compile (concat user-emacs-directory "init.el"))
+(byte-compile-file (concat user-emacs-directory "init.el"))
 #+END_SRC
 
 There is no reason to track the =init.el= that is generated.  Run the following command to make git ignore the generated file, but keep the dummy init.
