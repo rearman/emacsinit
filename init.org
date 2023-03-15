@@ -1026,7 +1026,7 @@ Inputs are temp (F) and humidity (%).  Returns a list of Saturated Water Pressur
 I do not use the customize system.  I don't want to see it if I don't have to.
 
 #+BEGIN_SRC emacs-lisp
-(setq custom-file (expand-file-name "etc/custom.el" user-emacs-directory))
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 #+END_SRC
 
