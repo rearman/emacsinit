@@ -260,7 +260,7 @@ Don't clobber symlinks, and put everything into the temp directory (determined b
 #+END_SRC
 
 **** Old versions
-Keep 10 versions, 5 `old' and 5 `new'.  Delete anything older.
+Keep 10 versions, 5 'old' and 5 'new'.  Delete anything older.
 
 #+BEGIN_SRC emacs-lisp
 (setq delete-old-versions t
@@ -371,11 +371,11 @@ Show matching parens immediately, and "highlight" the whole expression.
       show-paren-style 'expression)
 #+END_SRC
 
-Make the paren "highlight" the same color as the background, and add underline.  This adds some amount of "highlighting", since the background color overrides the color set by =hl-line-mode=.
+Make the paren "highlight" the same color as the background, and add underline.  This adds some amount of "highlighting", since the background color overrides the color set by =hl-line-mode=.  Setting the background to nil required me to evaluate the expression again after loading.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'show-paren-match nil
-		    :background "#cae0a6" ; set to frame bg color
+		    :background "#cae0a6"
 		    :underline t)
 #+END_SRC
 
@@ -446,31 +446,47 @@ Use =recycle bin=, DON'T use AltGr, and tell emacs where diff is.
 #+END_SRC
 ** org configuration
 I had this in a use-package declaration, but I find this a little nicer.
-**** TODO Move this out of the use-package declaration
+*** Basics
+Just some basic stuff.  I don't think I've seen too many configs that don't have at least most of these.
 #+BEGIN_SRC emacs-lisp
 (setq org-M-RET-may-split-line nil
       org-return-follows-link t
       org-agenda-restore-windows-after-quit t
       org-use-fast-todo-selection 'expert
-      org-src-window-setup 'current-window
-      org-src-preserve-indentation t
       org-enforce-todo-dependencies t
       org-enforce-todo-checkbox-dependencies t
       org-agenda-start-on-weekday nil
-      org-catch-invisible-edits 'error
-      org-directory "~/org"
+      org-catch-invisible-edits 'error)
+#+END_SRC
+
+*** Bindings
+
+The usual bindings, aside from my special case of using =C-'= in place of =C-u=.  I have unbound =C-'= in org-mode.
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c c") 'org-capture)
+(add-hook 'org-mode-hook (lambda ()
+			   (define-key org-mode-map (kbd "C-'") nil)))
+#+END_SRC
+
+*** Directories
+Tell org where everything is, also let me refile anywhere.
+#+BEGIN_SRC emacs-lisp
+(setq org-directory "~/org"
       org-agenda-files '("~/org/"
 			 "~/org/kasten/")
       org-refile-targets '((nil :maxlevel . 9)
 			   org-agenda-files :maxlevel . 9)
-      org-default-notes-file (concat org-directory "/notes.org")
-      safe-local-variable-values '((after-save-hook org-auto-archive))
-      org-todo-keywords '((sequence "TODO(t@)" "WAITING(w@)" "IN-PROGRESS(i@)" "APPT(a@)" "|"
+      org-default-notes-file (concat org-directory "/notes.org"))
+#+END_SRC
+
+*** Keywords and Filtering
+Set up some more keywords, and add a filter for unscheduled todo items.
+#+BEGIN_SRC emacs-lisp
+(setq org-todo-keywords '((sequence "TODO(t@)" "WAITING(w@)" "IN-PROGRESS(i@)" "APPT(a@)" "|"
 				    "DELEGATED(l@)" "DONE(d@)" "CANCELLED(c@)"))
-      org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
-			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
-			      ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
-			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::"))
       org-agenda-custom-commands '(("n" "Agenda and all TODOs"
 				    ((agenda "") (alltodo "")))
 				   ("u" "Unscheduled TODOs"
@@ -480,19 +496,34 @@ I had this in a use-package declaration, but I find this a little nicer.
 									     'deadline
 									     'regexp "\n]+>")))
 						(org-agenda-overriding-header "Unscheduled TODO entries: ")))))
+#+END_SRC
 
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
-(global-set-key (kbd "C-c c") 'org-capture)
-(add-hook 'org-mode-hook (lambda ()
-			   (define-key org-mode-map (kbd "C-'") nil)))
-
+*** Zettelkasten
+I did some playing around with the idea of zettelkasten, but I don't know how much I really care about that.  It may be gone soon.
+#+BEGIN_SRC emacs-lisp
 (defun erfassen-zettel ()
   "Add a new zettel to the kasten.
 Creates a new file <datestamp>.org in ~/org/kasten."
   (interactive)
   (expand-file-name (format "%s.org" (format-time-string "%Y-%m-%d-%H%M")) "~/org/kasten/"))
+#+END_SRC
 
+*** Templates
+Capture Templates per my proclivities.
+#+BEGIN_SRC emacs-lisp
+(setq org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
+			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
+			      ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
+			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
+#+END_SRC
+
+*** Auto-archive
+
+A function to automatically archive *DONE* items in an org file.  I use this as an after-save-hook header declaration as such: =\-\*\- after-save-hook: (org-auto-archive) \-\*\-=
+
+Also add that defun to =safe-local-variables= so that emacs will run it.
+
+#+BEGIN_SRC emacs-lisp
 (defun org-auto-archive ()
   "Automatically archive completed tasks in an org file.
 Intended for use as an after-save-hook."
@@ -505,6 +536,19 @@ Intended for use as an after-save-hook."
    'file)
   (save-buffer))
 
+(setq safe-local-variable-values '((after-save-hook org-auto-archive))
+#+END_SRC
+
+*** Tangling
+
+Some basic settings for dealing with source code in an org file.  Don't make a new window for source-code edits, and keep indentation consistent.
+#+BEGIN_SRC emacs-lisp
+(setq org-src-window-setup 'current-window
+      org-src-preserve-indentation t)
+#+END_SRC
+
+Make a function to tangle this file, and run it on save.
+#+BEGIN_SRC emacs-lisp
 (defun tangle-init ()
   "Tangle and compile init.org.
 Stolen from https://github.com/larstvei/dot-emacs."
@@ -517,7 +561,7 @@ Stolen from https://github.com/larstvei/dot-emacs."
 #+END_SRC
 
 ** Dired configuration
-Make dired use the same switches I prefer for =ls=, give me a simpler listing, and default to using its current buffer for visiting a file rather than creating a new buffer.
+Make dired use the same switches I prefer for =ls=, give me a simpler listing, and default to using its current buffer for visiting a file rather than creating a new one.
 #+BEGIN_SRC emacs-lisp
 (setq dired-listing-switches "-alv --group-directories-first")
 
@@ -545,7 +589,7 @@ Here are the various customizations I have for eshell.
 #+END_SRC
 
 *** Send on Close-Paren
-I wanted something like the Genera environment, where putting in a final close-paren will send the command, without having to hit enter.
+I wanted something like what the Genera environment has, where putting in a final close-paren will send the command, without having to hit enter.
 
 #+BEGIN_SRC emacs-lisp
 (defun eshell-send-on-close-paren ()
@@ -589,7 +633,7 @@ I have quite a few math and work-related defuns, and fewer editing ones.  Invers
 Most of these are to re-create something from vim/readline/sam/acme.  Some are just helper functions or wrappers.
 
 **** Visiting Files
-Bind =find-file-at-point=, and =bookmark-jump-other-window=
+Bind =find-file-at-point=, and =bookmark-jump-other-window=.
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x M-f") 'find-file-at-point)
 (global-set-key (kbd "C-x rB") 'bookmark-jump-other-window)
@@ -627,7 +671,7 @@ The =M-^= binding is handy, but usually I want the ed/sam/vi join function, whic
   (interactive)
   (join-line 0))
 
-(global-set-key (kbd "M-j")'backward-join-line)
+(global-set-key (kbd "M-j") 'backward-join-line)
 #+END_SRC
 
 **** Line opening
@@ -669,14 +713,14 @@ The default behavior of =open-line= is ridiculous.  It acheives the same functio
 I Bind the previous functions to =M/C-o= for creating and going to the new line, and =M/C-S-O= for staying at point.
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-o")'open-line-below)
-(global-set-key (kbd "M-o")'open-line-above)
-(global-set-key (kbd "C-S-O")'open-line-below-no-move)
-(global-set-key (kbd "M-S-O")'open-line-above-no-move)
+(global-set-key (kbd "C-o") 'open-line-below)
+(global-set-key (kbd "M-o") 'open-line-above)
+(global-set-key (kbd "C-S-O") 'open-line-below-no-move)
+(global-set-key (kbd "M-S-O") 'open-line-above-no-move)
 #+END_SRC
 
 **** Commenting
-I Stole this directly from [[https://depp.brause.cc/dotemacs][depp.brause.cc/dotemacs]].  Very good, simple solution.
+I stole this directly from [[https://depp.brause.cc/dotemacs][depp.brause.cc/dotemacs]].  Very good, simple solution.
 #+BEGIN_SRC emacs-lisp
 (defun my-comment-dwim ()
   "Comment region if active, otherwise comment line.
@@ -729,7 +773,7 @@ There is no pre-made function to kill backward to the beginning of line from poi
 (global-set-key (kbd "C-u")'backward-kill-line)
 #+END_SRC
 
-Since =C-u= is =universal-argument=, I put that functionality on =C-'=.
+Since =C-u= is =universal-argument=, I put that functionality on =C-\'=.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-'") 'universal-argument)
@@ -772,10 +816,11 @@ as a visual-line respecter."
 	 (beginning-of-visual-line))))
 #+END_SRC
 
-I used to have just a straight bind to =C-a=, and a remap when not in =visual-line-mode=, but it APPEARS to work with just these remaps.
+Remap =move-beginning-of-line=, then remap =beginning-of-visual-line= when going into =visual-line-mode=
 #+BEGIN_SRC emacs-lisp
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
-(global-set-key [remap beginning-of-visual-line] 'smart-beginning-of-visual-line)
+(add-hook 'visual-line-mode-hook (lambda ()
+				   (global-set-key [remap beginning-of-visual-line] 'smart-beginning-of-visual-line)))
 #+END_SRC
 
 I don't want line numbers in the margin unless I am actively trying to go to a line.  I override =goto-line= with this function, which shows line numbers, asks me where I want to go, and then hides line numbers.
@@ -845,7 +890,7 @@ Use this when aveva can't find ass with both hands."
 *** Math
 General Math defuns, often used in later defuns.
 
-I'm tired of writing out ='expt=, and I want to use the same notation every other programming language does.
+I'm tired of writing out =\'expt=, and I want to use the same notation every other programming language does.
 #+BEGIN_SRC emacs-lisp
 (defalias '^ 'expt)
 #+END_SRC
