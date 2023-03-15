@@ -461,7 +461,7 @@ Just some basic stuff.  I don't think I've seen too many configs that don't have
 
 *** Bindings
 
-The usual bindings, aside from my special case of using =C-'\= in place of =C-u=.  I have unbound =C-'= in org-mode.
+The usual bindings, aside from my special case of using =C-"'"= in place of =C-u=.  I have unbound =C-"'"= in org-mode.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -776,7 +776,7 @@ There is no pre-made function to kill backward to the beginning of line from poi
 (global-set-key (kbd "C-u")'backward-kill-line)
 #+END_SRC
 
-Since =C-u= is =universal-argument=, I put that functionality on =C-'\=.
+Since =C-u= is =universal-argument=, I put that functionality on =C-"'"=.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-'") 'universal-argument)
