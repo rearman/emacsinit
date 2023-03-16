@@ -5,5 +5,6 @@
 (find-file (concat user-emacs-directory "init.org"))
 ;; Tangle it...
 (org-babel-tangle)
-;; Load it...
+;; Load it.
+(load-file (concat user-emacs-directory "early-init.el"))
 (load-file (concat user-emacs-directory "init.el"))

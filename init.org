@@ -26,7 +26,8 @@ This is the repo's =init.el= file, which bootstraps the real =init.el=.
 (find-file (concat user-emacs-directory "init.org"))
 ;; Tangle it...
 (org-babel-tangle)
-;; Load it...
+;; Load it.
+(load-file (concat user-emacs-directory "early-init.el"))
 (load-file (concat user-emacs-directory "init.el"))
 #+END_SRC
 
@@ -188,10 +189,12 @@ This comes with base corfu, but is configured separately.
   :after corfu
   :hook (corfu-mode . corfu-popupinfo-mode)
   :custom
-  (corfu-popupinfo-delay '(2 . 0.01))
+  (corfu-popupinfo-delay '(nil . 0.01))
   (corfu-popupinfo-hide nil)
   :config
-  (corfu-popupinfo-mode))
+  (corfu-popupinfo-mode)
+  :bind
+  ((:map corfu-map ("C-h" . corfu-popupinfo-toggle))))
 #+END_SRC
 
 *** expand-region
@@ -461,7 +464,8 @@ Just some basic stuff.  I don't think I've seen too many configs that don't have
 
 *** Bindings
 
-The usual bindings, aside from my special case of using =C-‘= in place of =C-u=.  I have unbound =C-‘= in org-mode.
+The usual bindings, aside from my special case of using C-' in place of =
+C-u.  I have unbound C-' in org-mode.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -539,7 +543,7 @@ Intended for use as an after-save-hook."
    'file)
   (save-buffer))
 
-(setq safe-local-variable-values '((after-save-hook org-auto-archive))
+(setq safe-local-variable-values '((after-save-hook org-auto-archive)))
 #+END_SRC
 
 *** Tangling
