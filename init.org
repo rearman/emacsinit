@@ -998,12 +998,12 @@ The nitty-gritty.  These defuns build on the previous ones to help me do various
 (defun volts-to-counts (vin vmax resolution)
   "Convert a voltage signal to a PLC count.
 Calculates a ratio of vin/vmax, then scales by `max-counts'."
-  (* (/ (float vin) (float vmax)) (float (max-counts resolution))))
+  (* (/ (float vin) vmax) (max-counts resolution)))
 
 (defun counts-to-volts (cin vmax resolution)
   "Convert a PLC count to a voltage.
 Calculates a ratio of cin/`max-counts', then multiplies by vmax."
-  (* (/ cin (float (max-counts resolution))) vmax))
+  (* (/ (float cin) (max-counts resolution)) vmax))
 
 (defun amps-to-counts (amps vmax resolution r1 &optional r2)
   "Convert a current signal to PLC Counts.
@@ -1056,12 +1056,12 @@ More nitty-gritty.  These are for calculating specific refrigeration-related thi
 (defun cfm-circ (fpm radius)
   "Calculate the CFM of a circular duct.
 Inputs are feet/minute and radius (in)."
-  (list (* float-pi fpm (square (/ radius 12)))))
+  (list (* float-pi fpm (square (/ radius 12.0)))))
 
 (defun cfm-rect (fpm width height)
   "Calculate the CFM of a rectangular duct.
 Inputs are feet/minute, width (in) and height (in)."
-  (list (* fpm (/ width 12) (/ height 12))))
+  (list (* fpm (/ width 12.0) (/ height 12.0))))
 
 (defun gn-water-per-lb (temp humidity)
   "Calculate the grains of water per lb of air.
