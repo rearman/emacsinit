@@ -567,12 +567,12 @@ Stolen from https://github.com/larstvei/dot-emacs."
 #+END_SRC
 
 *** Emphasis Regexp
-For some reason, the org people decided that =verbatim= doesn't actually mean =verbatim=!  This fixes that.  I found this solution at [[https://emacs.stackexchange.com/questions/13820/inline-verbatim-and-code-with-quotes-in-org-mode][stackexchange]].
+For some reason, the org people decided that =verbatim= doesn't actually mean =verbatim=!  This attempts to fix that.  I found this solution at [[https://emacs.stackexchange.com/questions/13820/inline-verbatim-and-code-with-quotes-in-org-mode][stackexchange]].
 #+BEGIN_SRC emacs-lisp
-  (require 'org)
-  (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,")
-  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
-  (org-element--set-regexps)
+(require 'org)
+(setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,")
+(org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+(org-element--set-regexps)
 #+END_SRC
 
 ** Dired configuration
@@ -648,7 +648,7 @@ I have quite a few math and work-related defuns, and fewer editing ones.  Invers
 Most of these are to re-create something from vim/readline/sam/acme.  Some are just helper functions or wrappers.
 
 **** Visiting Files
-Bind =find-file-at-point=, and =bookmark-jump-other-window=.
+Bind =find-file-at-point= and =bookmark-jump-other-window=.
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x M-f") 'find-file-at-point)
 (global-set-key (kbd "C-x rB") 'bookmark-jump-other-window)
@@ -690,7 +690,7 @@ The =M-^= binding is handy, but usually I want the ed/sam/vi join function, whic
 #+END_SRC
 
 **** Line opening
-The default behavior of =open-line= is ridiculous.  It acheives the same function as hitting =RET= then =C-b=.  I don't want to split the current line, I want to OPEN a new one, and usually go to it.  These wrappers remedy that, and allow me to choose whether I want to go to the line or just add it.
+The default behavior of =open-line= is ridiculous.  It acheives the same function as hitting =RET=.  I don't want to split the current line, I want to OPEN a new one, and usually go to it.  These wrappers remedy that, and allow me to choose whether I want to go to the line or just add it.
 
 #+BEGIN_SRC emacs-lisp
 (defun open-line-below (n)
@@ -762,7 +762,7 @@ Bind =C-z= to zap-up-to-char, sice zap-to-char is on =M-z=.
 (global-set-key (kbd "C-z") 'zap-up-to-char)
 #+END_SRC
 
-=C-w= is very much engrained for killing back one word, as is =C-u= for killing back to the beginning of the line.  These have been standard bindings since TENEX...([[http://unix-kb.cat-v.org/][ref]])
+=C-w= is very much engrained for killing back one word, as is =C-u= for killing back to the beginning of the line.  [[http://unix-kb.cat-v.org/][These have been standard bindings since TENEX...]]
 
 I didn't want to re-bind =C-w= away from =kill-region=, so I made it do both.
 
@@ -774,7 +774,7 @@ I didn't want to re-bind =C-w= away from =kill-region=, so I made it do both.
       (call-interactively 'kill-region)
     (call-interactively 'backward-kill-word)))
 
-(global-set-key (kbd "C-w")'kill-bword-or-region)
+(global-set-key (kbd "C-w") 'kill-bword-or-region)
 #+END_SRC
 
 There is no pre-made function to kill backward to the beginning of line from point, so I made one that passes the correct argument to =kill-line=, and bound it to =C-u=.
@@ -785,7 +785,7 @@ There is no pre-made function to kill backward to the beginning of line from poi
   (interactive)
   (kill-line 0))
 
-(global-set-key (kbd "C-u")'backward-kill-line)
+(global-set-key (kbd "C-u") 'backward-kill-line)
 #+END_SRC
 
 Since =C-u= is =universal-argument=, I put that functionality on =C-'=.
@@ -905,7 +905,7 @@ Use this when aveva can't find ass with both hands."
 *** Math
 General Math defuns, often used in later defuns.
 
-I'm tired of writing out =expt=, and I want to use the same notation every other programming language does.
+I'm tired of writing out ='expt=, and I want to use the same notation every other programming language does.
 #+BEGIN_SRC emacs-lisp
 (defalias '^ 'expt)
 #+END_SRC
