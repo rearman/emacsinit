@@ -315,7 +315,7 @@ Overwrite selection when active, like every other editor since Sam.
 (delete-selection-mode t)
 #+END_SRC
 
-Don't disable any functions
+Don't disable any functions.
 #+BEGIN_SRC emacs-lisp
 (setq  disabled-command-function nil)
 #+END_SRC
@@ -328,8 +328,7 @@ Save pastes from elsewhere into the kill-ring, and don't ask me about killing pr
 
 **** Scrolling
 #+BEGIN_SRC emacs-lisp
-(setq scroll-conservatively 101
-      scroll-preserve-screen-position t)
+(setq scroll-preserve-screen-position t)
 #+END_SRC
 
 **** Windmove
@@ -449,6 +448,7 @@ Use =recycle bin=, DON'T use AltGr, and tell emacs where diff is.
 #+END_SRC
 ** org configuration
 I had this in a use-package declaration, but I find this a little nicer.
+
 *** Basics
 Just some basic stuff.  I don't think I've seen too many configs that don't have at least most of these.
 #+BEGIN_SRC emacs-lisp
@@ -464,8 +464,7 @@ Just some basic stuff.  I don't think I've seen too many configs that don't have
 
 *** Bindings
 
-The usual bindings, aside from my special case of using C-' in place of =
-C-u.  I have unbound C-' in org-mode.
+The usual bindings, aside from my special case of using =C-'= in place of =C-u=.  I have unbound =C-'= in org-mode.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -565,6 +564,15 @@ Stolen from https://github.com/larstvei/dot-emacs."
       (org-babel-tangle))))
 
 (add-hook 'after-save-hook 'tangle-init)
+#+END_SRC
+
+*** Emphasis Regexp
+For some reason, the org people decided that =verbatim= doesn't actually mean =verbatim=!  This fixes that.  I found this solution at [[https://emacs.stackexchange.com/questions/13820/inline-verbatim-and-code-with-quotes-in-org-mode][stackexchange]].
+#+BEGIN_SRC emacs-lisp
+  (require 'org)
+  (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,")
+  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+  (org-element--set-regexps)
 #+END_SRC
 
 ** Dired configuration
