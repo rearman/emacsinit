@@ -255,10 +255,11 @@ I want these things every time, or at least setting them this way worked when a 
 I originally had some autosave items in here, but the defaults appeared to be doing basically what I wanted anyway.
 
 **** Backups
-Don't clobber symlinks, and put everything into the temp directory (determined by os).
+Make backups for vc-controlled files, don't clobber symlinks, and put everything into the temp directory (determined by os).
 
 #+BEGIN_SRC emacs-lisp
-(setq backup-by-copying t
+(setq vc-make-backup-files t
+      backup-by-copying t
       backup-directory-alist `((".*" . ,temporary-file-directory)))
 #+END_SRC
 
@@ -340,11 +341,21 @@ I originally had custom defuns and bindings to do this, but then I found out it 
 #+END_SRC
 
 **** Maus
-Bring up a menu with right-click in a buffer
+Don't follow links when I mouse-1 click. Mostly helpful for selecting and editing links in org-files.
 #+BEGIN_SRC emacs-lisp
-(context-menu-mode t)
+(setq mouse-1-click-follows-link nil)
 #+END_SRC
 
+Swap Mouse 2/3 function.  I really want Acme-like mouse chording, but this is kind of close.
+#+BEGIN_SRC emacs-lisp
+(defun acme-mouse-kill (ev)
+  (interactive "e")
+  (when (use-region-p)
+    (call-interactively 'kill-region)))
+
+(global-set-key (kbd "<mouse-2>") 'acme-mouse-kill)
+(global-set-key (kbd "<mouse-3>") 'mouse-yank-at-click)
+#+END_SRC
 *** Buffer looks
 Highlight current line in all buffers, even if inactive.
 #+BEGIN_SRC emacs-lisp
@@ -569,10 +580,10 @@ Stolen from https://github.com/larstvei/dot-emacs."
 *** Emphasis Regexp
 For some reason, the org people decided that =verbatim= doesn't actually mean =verbatim=!  This attempts to fix that.  I found this solution at [[https://emacs.stackexchange.com/questions/13820/inline-verbatim-and-code-with-quotes-in-org-mode][stackexchange]].
 #+BEGIN_SRC emacs-lisp
-(require 'org)
-(setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,")
-(org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
-(org-element--set-regexps)
+(eval-after-load "org" '(lambda ()
+			  (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,")
+			  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+			  (org-element--set-regexps)))
 #+END_SRC
 
 ** Dired configuration
@@ -654,6 +665,34 @@ Bind =find-file-at-point= and =bookmark-jump-other-window=.
 (global-set-key (kbd "C-x rB") 'bookmark-jump-other-window)
 #+END_SRC
 
+**** Undo/redo
+I like putting redo on =C-\=. Easier for me to remember than the =C-M-_= default.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-\\") 'undo-redo)
+#+END_SRC
+
+**** Renaming Files
+I took this from [[https://whattheemacsd.com][whattheemacsd.com]].  It is occasionally handy.
+#+BEGIN_SRC emacs-lisp
+(defun rename-current-buffer-file ()
+  "Renames the current buffer and the file it is visiting."
+  (interactive)
+  (let ((name (buffer-name))
+	(filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+	(error "Buffer '%s' is not visiting a file!" name)
+      (let ((new-name (read-file-name "New name: " filename)))
+	(if (get-buffer new-name)
+	    (error "A buffer named '%s' already exists!" new-name)
+	  (rename-file filename new-name 1)
+	  (rename-buffer new-name)
+	  (set-visited-file-name new-name)
+	  (set-buffer-modified-p nil)
+	  (message "File '%s' successfully renamed to '%s'"
+		   name (file-name-nondirectory new-name)))))))
+
+(global-set-key (kbd "C-x C-r") 'rename-current-buffer-file)
+#+END_SRC
 **** Buffer Handling
 Usually I want the buffer menu in the same window I am already on.  Occasionally I want it in a different window.  Bind accordingly.
 #+BEGIN_SRC emacs-lisp
@@ -701,37 +740,19 @@ The default behavior of =open-line= is ridiculous.  It acheives the same functio
   (call-interactively (next-line))
   (indent-for-tab-command))
 
-(defun open-line-below-no-move (n)
-  "Creates a new empty line below the current line, without moving point."
-  (interactive "*p")
-  (let ((pos (point-marker)))
-    (end-of-line)
-    (open-line n)
-    (goto-char pos)))
-
 (defun open-line-above (n)
   "Creates a new empty line above the current line."
   (interactive "*p")
   (beginning-of-line)
   (open-line n)
   (indent-for-tab-command))
-
-(defun open-line-above-no-move (n)
-  "Creates a new empty line above the current line, without moving point."
-  (interactive "*p")
-  (let ((pos (point-marker)))
-    (beginning-of-line)
-    (open-line n)
-    (goto-char pos)))
 #+END_SRC
 
-I Bind the previous functions to =M/C-o= for creating and going to the new line, and =M/C-S-O= for staying at point.
+I Bind the previous functions to =C-o= and =M-C-o=.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-o") 'open-line-below)
-(global-set-key (kbd "M-o") 'open-line-above)
-(global-set-key (kbd "C-S-O") 'open-line-below-no-move)
-(global-set-key (kbd "M-S-O") 'open-line-above-no-move)
+(global-set-key (kbd "M-C-o") 'open-line-above)
 #+END_SRC
 
 **** Commenting
@@ -788,10 +809,10 @@ There is no pre-made function to kill backward to the beginning of line from poi
 (global-set-key (kbd "C-u") 'backward-kill-line)
 #+END_SRC
 
-Since =C-u= is =universal-argument=, I put that functionality on =C-'=.
+Since =C-u= is =universal-argument=, I put that functionality on =M-'=.
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-'") 'universal-argument)
+(global-set-key (kbd "M-'") 'universal-argument)
 #+END_SRC
 
 **** Moving
@@ -831,11 +852,11 @@ as a visual-line respecter."
 	 (beginning-of-visual-line))))
 #+END_SRC
 
-Remap =move-beginning-of-line=, then remap =beginning-of-visual-line= when going into =visual-line-mode=
+Remap =move-beginning-of-line=, then remap =beginning-of-visual-line= when going into =visual-line-mode=.  A simple remap would not work for =visual-line-mode=, so I explicitly set =C-a=.
 #+BEGIN_SRC emacs-lisp
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
 (add-hook 'visual-line-mode-hook (lambda ()
-				   (global-set-key [remap beginning-of-visual-line] 'smart-beginning-of-visual-line)))
+				   (global-set-key (kbd "C-a") 'smart-beginning-of-visual-line)))
 #+END_SRC
 
 I don't want line numbers in the margin unless I am actively trying to go to a line.  I override =goto-line= with this function, which shows line numbers, asks me where I want to go, and then hides line numbers.
@@ -850,6 +871,16 @@ I don't want line numbers in the margin unless I am actively trying to go to a l
 (global-set-key [remap goto-line] 'my-goto-line)
 #+END_SRC
 
+I ripped this defun and binding from [[https://github.com/lem-project/lem][lem]].  Can't live without it now.
+#+BEGIN_SRC emacs-lisp
+(defun other-window-or-split-window (&optional n)
+  (interactive)
+  (if (= (count-windows) 1)
+      (split-window-sensibly)
+    (other-window 1)))
+
+(global-set-key (kbd "M-o") 'other-window-or-split-window)
+#+END_SRC
 **** Search and Replace
 I made these bindings to put my more-used commands on better keys, and swap them with the less-used ones.
 #+BEGIN_SRC emacs-lisp
