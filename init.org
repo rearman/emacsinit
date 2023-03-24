@@ -873,10 +873,10 @@ I don't want line numbers in the margin unless I am actively trying to go to a l
 
 I ripped this defun and binding from [[https://github.com/lem-project/lem][lem]].  Can't live without it now.
 #+BEGIN_SRC emacs-lisp
-(defun other-window-or-split-window (&optional n)
+(defun other-window-or-split-window (&optional window)
   (interactive)
   (if (= (count-windows) 1)
-      (split-window-sensibly)
+      (funcall split-window-preferred-function window)
     (other-window 1)))
 
 (global-set-key (kbd "M-o") 'other-window-or-split-window)
