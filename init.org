@@ -444,6 +444,7 @@ Please use Tabs in C files, I'm BEGGING.  Absolutely ridiculous that there's no 
 	  (lambda ()
 	    (setq indent-tabs-mode t)
 	    (setq show-trailing-whitespace t)
+	    (setq c-backspace-function 'backward-delete-char) ;; don't expand my tabs, just delete them.
 	    (c-set-style "linux-tabs-only")))
 #+END_SRC
 
