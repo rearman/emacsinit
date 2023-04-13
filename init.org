@@ -61,10 +61,10 @@ Set the GC threshold to max during startup, then set it back to a value that is 
 
 #+BEGIN_SRC emacs-lisp :tangle ./early-init.el
 (setq gc-cons-threshold most-positive-fixnum
-	  gc-cons-percentage 0.6)
+      gc-cons-percentage 0.6)
 
 (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 1024 1024 25)
-										 gc-cons-percentage 0.1)))
+					      gc-cons-percentage 0.1)))
 #+END_SRC
 
 ** Basic UI preferences
@@ -77,18 +77,18 @@ I want no menus, no tool-bars, no scroll-bars, no blinking cursor, and no messag
 (blink-cursor-mode -1)
 
 (setq inhibit-startup-screen t
-	  inhibit-startup-buffer-menu t
-	  initial-scratch-message (message ";;; Emacs loaded in %s.\n\n" (emacs-init-time))
-	  server-client-instructions nil
-	  frame-resize-pixelwise t)
+      inhibit-startup-buffer-menu t
+      initial-scratch-message (message ";;; Emacs loaded in %s.\n\n" (emacs-init-time))
+      server-client-instructions nil
+      frame-resize-pixelwise t)
 #+END_SRC
 
 I am fine with the default theme, as long as the background color is similar to engineering paper.  Also make every frame open full-screen, and re-emphasize the desire for no scroll-bars.
 
 #+BEGIN_SRC emacs-lisp :tangle ./early-init.el
 (setq default-frame-alist '((background-color . "#cae0a6")
-							(fullscreen . maximized)
-							(vertical-scroll-bars . nil)))
+			    (fullscreen . maximized)
+			    (vertical-scroll-bars . nil)))
 #+END_SRC
 
 ** Misc/odd issues
@@ -225,15 +225,15 @@ I need to open binary files with their own editor.  Disgusting.
   (openwith-mode t))
 
 (setq openwith-associations (list
-							 (list (openwith-make-extension-regexp
-									'("xls" "xlsx" "doc" "docx"
-									  "ppt" "odt" "ods" "odg" "odp"))
-								   "LibreOffice"
-								   '(file))
-							 (list (openwith-make-extension-regexp
-									'("adpro"))
-								   "ProductivitySuite"
-								   '(file))))
+			     (list (openwith-make-extension-regexp
+				    '("xls" "xlsx" "doc" "docx"
+				      "ppt" "odt" "ods" "odg" "odp"))
+				   "LibreOffice"
+				   '(file))
+			     (list (openwith-make-extension-regexp
+				    '("adpro"))
+				   "ProductivitySuite"
+				   '(file))))
 #+END_SRC
 
 ** Non-Package customization
@@ -246,10 +246,9 @@ I want these things every time, or at least setting them this way worked when a 
 
 #+BEGIN_SRC emacs-lisp
 (setq-default indicate-empty-lines t
-			  fill-column 80
-			  tab-width 4
-			  cursor-type 'bar
-			  cursor-in-non-selected-windows 'hollow)
+	      fill-column 80
+	      cursor-type 'bar
+	      cursor-in-non-selected-windows 'hollow)
 #+END_SRC
 
 *** Backup/Autosave
@@ -260,8 +259,8 @@ Make backups for vc-controlled files, don't clobber symlinks, and put everything
 
 #+BEGIN_SRC emacs-lisp
 (setq vc-make-backup-files t
-	  backup-by-copying t
-	  backup-directory-alist `((".*" . ,temporary-file-directory)))
+      backup-by-copying t
+      backup-directory-alist `((".*" . ,temporary-file-directory)))
 #+END_SRC
 
 **** Old versions
@@ -269,8 +268,8 @@ Keep 10 versions, 5 'old' and 5 'new'.  Delete anything older.
 
 #+BEGIN_SRC emacs-lisp
 (setq delete-old-versions t
-	  kept-new-versions 5
-	  kept-old-versions 5)
+      kept-new-versions 5
+      kept-old-versions 5)
 #+END_SRC
 
 *** File handling
@@ -284,7 +283,7 @@ These are directly from [[https://depp.brause.cc/dotemacs/][depp.brause.cc/dotem
 
 #+BEGIN_SRC emacs-lisp
 (setq attempt-stack-overflow-recovery nil
-	  attempt-orderly-shutdown-on-fatal-signal nil)
+      attempt-orderly-shutdown-on-fatal-signal nil)
 #+END_SRC
 
 I want to strip all trailing whitespace on save, and I want to make all shell scripts executable at the same time.
@@ -298,11 +297,11 @@ I don't want emacs to beep or blink at me, I want y/n instead of the default yes
 
 #+BEGIN_SRC emacs-lisp
 (setq ring-bell-function 'ignore
-	  use-short-answers t
-	  use-file-dialog nil
-	  echo-keystrokes 0.1
-	  read-buffer-completion-ignore-case t
-	  history-delete-duplicates t)
+      use-short-answers t
+      use-file-dialog nil
+      echo-keystrokes 0.1
+      read-buffer-completion-ignore-case t
+      history-delete-duplicates t)
 #+END_SRC
 
 *** Buffer interaction
@@ -325,7 +324,7 @@ Don't disable any functions.
 Save pastes from elsewhere into the kill-ring, and don't ask me about killing processes when I kill a buffer.
 #+BEGIN_SRC emacs-lisp
 (setq save-interprogram-paste-before-kill t
-	  confirm-kill-processes nil)
+      confirm-kill-processes nil)
 #+END_SRC
 
 **** Scrolling
@@ -352,7 +351,7 @@ Swap Mouse 2/3 function.  I really want Acme-like mouse chording, but this is ki
 (defun acme-mouse-kill (ev)
   (interactive "e")
   (when (use-region-p)
-	(call-interactively 'kill-region)))
+    (call-interactively 'kill-region)))
 
 ;; (global-set-key (kbd "<mouse-2>") 'acme-mouse-kill)
 ;; (global-set-key (kbd "<mouse-3>") 'mouse-yank-at-click)
@@ -367,11 +366,11 @@ Highlight current line in all buffers, even if inactive.
 I want nice symbols to look at
 #+BEGIN_SRC emacs-lisp
 (setq prettify-symbols-alist '(("lambda" . 955)
-							   ("delta" . 120517)
-							   ("epsilon" . 120518)
-							   ("->" . 8594)
-							   ("<=" . 8804)
-							   (">=" . 8805)))
+			       ("delta" . 120517)
+			       ("epsilon" . 120518)
+			       ("->" . 8594)
+			       ("<=" . 8804)
+			       (">=" . 8805)))
 (global-prettify-symbols-mode t)
 #+END_SRC
 
@@ -382,15 +381,15 @@ Show matching parens immediately, and "highlight" the whole expression.
 
 #+BEGIN_SRC emacs-lisp
 (setq show-paren-delay 0
-	  show-paren-style 'expression)
+      show-paren-style 'expression)
 #+END_SRC
 
 Make the paren "highlight" the same color as the background, and add underline.  This adds some amount of "highlighting", since the background color overrides the color set by =hl-line-mode=.  Setting the background to nil required me to evaluate the expression again after loading.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'show-paren-match nil
-					:background "#cae0a6"
-					:underline t)
+		    :background "#cae0a6"
+		    :underline t)
 #+END_SRC
 
 *** Modeline
@@ -408,14 +407,14 @@ Show me column number and filesize
 I don't like the box around the modeline.  In Emacs 29, the face attribute for mode-line will change to mode-line-active
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'mode-line nil
-					:background "grey75"
-					:foreground "black"
-					:box nil)
+		    :background "grey75"
+		    :foreground "black"
+		    :box nil)
 
 (set-face-attribute 'mode-line-inactive nil
-					:background "grey90"
-					:foreground "dim grey"
-					:box nil)
+		    :background "grey90"
+		    :foreground "dim grey"
+		    :box nil)
 #+END_SRC
 
 *** C-Style
@@ -424,28 +423,28 @@ Please use Tabs in C files, I'm BEGGING.  Absolutely ridiculous that there's no 
 (defun c-lineup-arglist-tabs-only (ignored)
   "Line up argument lists by tabs, not spaces. Stolen from https://kernel.org/doc/html/v4.10/process/coding-style.html"
   (let* ((anchor (c-langelem-pos c-syntactic-element))
-		 (column (c-langelem-2nd-pos c-syntactic-element))
-		 (offset (- (1+ column) anchor))
-		 (steps (floor offset c-basic-offset)))
-	(* (max steps 1)
-	   c-basic-offset)))
+	 (column (c-langelem-2nd-pos c-syntactic-element))
+	 (offset (- (1+ column) anchor))
+	 (steps (floor offset c-basic-offset)))
+    (* (max steps 1)
+       c-basic-offset)))
 
 (add-hook 'c-mode-common-hook
-		  (lambda ()
-			;; Add kernel style
-			(c-add-style
-			 "linux-tabs-only"
-			 '("linux"
-			   (c-offsets-alist
-				(arglist-cont-nonempty
-				 c-lineup-gcc-asm-reg
-				 c-lineup-arglist-tabs-only))))))
+	  (lambda ()
+	    ;; Add kernel style
+	    (c-add-style
+	     "linux-tabs-only"
+	     '("linux"
+	       (c-offsets-alist
+		(arglist-cont-nonempty
+		 c-lineup-gcc-asm-reg
+		 c-lineup-arglist-tabs-only))))))
 
 (add-hook 'c-mode-hook
-		  (lambda ()
-			(setq indent-tabs-mode t)
-			(setq show-trailing-whitespace t)
-			(c-set-style "linux-tabs-only")))
+	  (lambda ()
+	    (setq indent-tabs-mode t)
+	    (setq show-trailing-whitespace t)
+	    (c-set-style "linux-tabs-only")))
 #+END_SRC
 
 *** Windows-Specific
@@ -453,10 +452,10 @@ Use =recycle bin=, DON'T use AltGr, and tell emacs where diff is.
 #+BEGIN_SRC emacs-lisp
 (when (equal system-type 'windows-nt)
   (setq delete-by-moving-to-trash t
-		ediff-diff-program "\"c:/Program Files/Git/usr/bin/diff.exe\""
-		ediff-diff3-program "\"c:/Program Files/Git/usr/bin/diff3.exe\""
-		diff-command "\"c:/Program Files/Git/usr/bin/diff.exe\""
-		w32-recognize-altgr 'nil))
+	ediff-diff-program "\"c:/Program Files/Git/usr/bin/diff.exe\""
+	ediff-diff3-program "\"c:/Program Files/Git/usr/bin/diff3.exe\""
+	diff-command "\"c:/Program Files/Git/usr/bin/diff.exe\""
+	w32-recognize-altgr 'nil))
 #+END_SRC
 ** org configuration
 I had this in a use-package declaration, but I find this a little nicer.
@@ -465,13 +464,13 @@ I had this in a use-package declaration, but I find this a little nicer.
 Just some basic stuff.  I don't think I've seen too many configs that don't have at least most of these.
 #+BEGIN_SRC emacs-lisp
 (setq org-M-RET-may-split-line nil
-	  org-return-follows-link t
-	  org-agenda-restore-windows-after-quit t
-	  org-use-fast-todo-selection 'expert
-	  org-enforce-todo-dependencies t
-	  org-enforce-todo-checkbox-dependencies t
-	  org-agenda-start-on-weekday nil
-	  org-catch-invisible-edits 'error)
+      org-return-follows-link t
+      org-agenda-restore-windows-after-quit t
+      org-use-fast-todo-selection 'expert
+      org-enforce-todo-dependencies t
+      org-enforce-todo-checkbox-dependencies t
+      org-agenda-start-on-weekday nil
+      org-catch-invisible-edits 'error)
 #+END_SRC
 
 *** Bindings
@@ -483,34 +482,34 @@ The usual bindings, aside from my special case of using =C-'= in place of =C-u=.
 (global-set-key (kbd "C-c a") 'org-agenda)
 (global-set-key (kbd "C-c c") 'org-capture)
 (add-hook 'org-mode-hook (lambda ()
-						   (define-key org-mode-map (kbd "C-'") nil)))
+			   (define-key org-mode-map (kbd "C-'") nil)))
 #+END_SRC
 
 *** Directories
 Tell org where everything is, also let me refile anywhere.
 #+BEGIN_SRC emacs-lisp
 (setq org-directory "~/org"
-	  org-agenda-files '("~/org/"
-						 "~/org/kasten/")
-	  org-refile-targets '((nil :maxlevel . 9)
-						   org-agenda-files :maxlevel . 9)
-	  org-default-notes-file (concat org-directory "/notes.org"))
+      org-agenda-files '("~/org/"
+			 "~/org/kasten/")
+      org-refile-targets '((nil :maxlevel . 9)
+			   org-agenda-files :maxlevel . 9)
+      org-default-notes-file (concat org-directory "/notes.org"))
 #+END_SRC
 
 *** Keywords and Filtering
 Set up some more keywords, and add a filter for unscheduled todo items.
 #+BEGIN_SRC emacs-lisp
 (setq org-todo-keywords '((sequence "TODO(t@)" "WAITING(w@)" "IN-PROGRESS(i@)" "APPT(a@)" "|"
-									"DELEGATED(l@)" "DONE(d@)" "CANCELLED(c@)"))
-	  org-agenda-custom-commands '(("n" "Agenda and all TODOs"
-									((agenda "") (alltodo "")))
-								   ("u" "Unscheduled TODOs"
-									alltodo "" ((org-agenda-skip-function
-												 (lambda nil
-												   (org-agenda-skip-entry-if 'scheduled
-																			 'deadline
-																			 'regexp "\n]+>")))
-												(org-agenda-overriding-header "Unscheduled TODO entries: ")))))
+				    "DELEGATED(l@)" "DONE(d@)" "CANCELLED(c@)"))
+      org-agenda-custom-commands '(("n" "Agenda and all TODOs"
+				    ((agenda "") (alltodo "")))
+				   ("u" "Unscheduled TODOs"
+				    alltodo "" ((org-agenda-skip-function
+						 (lambda nil
+						   (org-agenda-skip-entry-if 'scheduled
+									     'deadline
+									     'regexp "\n]+>")))
+						(org-agenda-overriding-header "Unscheduled TODO entries: ")))))
 #+END_SRC
 
 *** Zettelkasten
@@ -527,9 +526,9 @@ Creates a new file <datestamp>.org in ~/org/kasten."
 Capture Templates per my proclivities.
 #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
-							  ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
-							  ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
-							  ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
+			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
+			      ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
+			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
 #+END_SRC
 
 *** Auto-archive
@@ -548,8 +547,8 @@ Intended for use as an after-save-hook."
   (interactive)
   (org-map-entries
    (lambda ()
-	 (org-archive-subtree)
-	 (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
    "TODO=\"DONE\"|TODO=\"CANCELLED\"|TODO=\"DELEGATED\""
    'file)
   (save-buffer))
@@ -562,7 +561,7 @@ Intended for use as an after-save-hook."
 Some basic settings for dealing with source code in an org file.  Don't make a new window for source-code edits, and keep indentation consistent.
 #+BEGIN_SRC emacs-lisp
 (setq org-src-window-setup 'current-window
-	  org-src-preserve-indentation t)
+      org-src-preserve-indentation t)
 #+END_SRC
 
 Make a function to tangle this file, and run it on save.
@@ -571,9 +570,9 @@ Make a function to tangle this file, and run it on save.
   "Tangle and compile init.org.
 Stolen from https://github.com/larstvei/dot-emacs."
   (when (equal (buffer-file-name)
-			   (expand-file-name (concat user-emacs-directory "init.org")))
-	(let ((prog-mode-hook nil))
-	  (org-babel-tangle))))
+	       (expand-file-name (concat user-emacs-directory "init.org")))
+    (let ((prog-mode-hook nil))
+      (org-babel-tangle))))
 
 (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC
@@ -582,9 +581,9 @@ Stolen from https://github.com/larstvei/dot-emacs."
 For some reason, the org people decided that =verbatim= doesn't actually mean =verbatim=!  This attempts to fix that.  I found this solution at [[https://emacs.stackexchange.com/questions/13820/inline-verbatim-and-code-with-quotes-in-org-mode][stackexchange]].
 #+BEGIN_SRC emacs-lisp
 (eval-after-load "org" '(lambda ()
-						  (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,")
-						  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
-						  (org-element--set-regexps)))
+			  (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n,")
+			  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+			  (org-element--set-regexps)))
 #+END_SRC
 
 ** Dired configuration
@@ -593,10 +592,10 @@ Make dired use the same switches I prefer for =ls=, give me a simpler listing, a
 (setq dired-listing-switches "-alv --group-directories-first")
 
 (add-hook 'dired-mode-hook
-		  (lambda ()
-			(dired-hide-details-mode t)
-			(define-key dired-mode-map
-			  (kbd "RET") 'dired-find-alternate-file)))
+	  (lambda ()
+	    (dired-hide-details-mode t)
+	    (define-key dired-mode-map
+	      (kbd "RET") 'dired-find-alternate-file)))
 #+END_SRC
 
 ** Eshell configuration
@@ -611,8 +610,8 @@ Here are the various customizations I have for eshell.
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'eshell-mode-hook (lambda ()
-							  (setq-local corfu-auto nil)
-							  (corfu-mode)))
+			      (setq-local corfu-auto nil)
+			      (corfu-mode)))
 #+END_SRC
 
 *** Send on Close-Paren
@@ -625,9 +624,9 @@ Makes a closing paren execute the sexp."
   (interactive)
   (insert-char ?\))
   (cond ((= 0 (car (syntax-ppss)))
-		 (eshell-send-input))
-		((< (car (syntax-ppss)) 0)
-		 (message "Check flush-cache"))))
+	 (eshell-send-input))
+	((< (car (syntax-ppss)) 0)
+	 (message "Check flush-cache"))))
 #+END_SRC
 
 *** Quit or delete-char
@@ -639,8 +638,8 @@ I want =C-d= to end the shell if it is on an empty line, otherwise act normally.
 Stolen from https://depp.brause.cc/dotemacs"
   (interactive "p")
   (if (and (eolp) (looking-back eshell-prompt-regexp 0 t))
-	  (eshell-life-is-too-much) ; https://emacshorrors.com/post/life-is-too-much
-	(delete-char arg)))
+      (eshell-life-is-too-much) ; https://emacshorrors.com/post/life-is-too-much
+    (delete-char arg)))
 #+END_SRC
 
 *** Bind the defuns
@@ -648,9 +647,9 @@ I have only been able to get these to work when they are within an add-hook lamb
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'eshell-mode-hook
-		  (lambda ()
-			(define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)
-			(define-key eshell-mode-map (kbd "C-d") 'eshell-quit-or-delete-char)))
+	  (lambda ()
+	    (define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)
+	    (define-key eshell-mode-map (kbd "C-d") 'eshell-quit-or-delete-char)))
 #+END_SRC
 
 ** Defuns and Bindings
@@ -679,18 +678,18 @@ I took this from [[https://whattheemacsd.com][whattheemacsd.com]].  It is occasi
   "Renames the current buffer and the file it is visiting."
   (interactive)
   (let ((name (buffer-name))
-		(filename (buffer-file-name)))
-	(if (not (and filename (file-exists-p filename)))
-		(error "Buffer '%s' is not visiting a file!" name)
-	  (let ((new-name (read-file-name "New name: " filename)))
-		(if (get-buffer new-name)
-			(error "A buffer named '%s' already exists!" new-name)
-		  (rename-file filename new-name 1)
-		  (rename-buffer new-name)
-		  (set-visited-file-name new-name)
-		  (set-buffer-modified-p nil)
-		  (message "File '%s' successfully renamed to '%s'"
-				   name (file-name-nondirectory new-name)))))))
+	(filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+	(error "Buffer '%s' is not visiting a file!" name)
+      (let ((new-name (read-file-name "New name: " filename)))
+	(if (get-buffer new-name)
+	    (error "A buffer named '%s' already exists!" new-name)
+	  (rename-file filename new-name 1)
+	  (rename-buffer new-name)
+	  (set-visited-file-name new-name)
+	  (set-buffer-modified-p nil)
+	  (message "File '%s' successfully renamed to '%s'"
+		   name (file-name-nondirectory new-name)))))))
 
 (global-set-key (kbd "C-x C-r") 'rename-current-buffer-file)
 #+END_SRC
@@ -764,9 +763,9 @@ I stole this directly from [[https://depp.brause.cc/dotemacs][depp.brause.cc/dot
 Stolen from https://depp.brause.cc/dotemacs"
   (interactive)
   (if (use-region-p)
-	  (comment-or-uncomment-region (region-beginning) (region-end))
-	(comment-or-uncomment-region (line-beginning-position)
-								 (line-end-position))))
+      (comment-or-uncomment-region (region-beginning) (region-end))
+    (comment-or-uncomment-region (line-beginning-position)
+				 (line-end-position))))
 
 (global-set-key (kbd "M-;") 'my-comment-dwim)
 #+END_SRC
@@ -793,8 +792,8 @@ I didn't want to re-bind =C-w= away from =kill-region=, so I made it do both.
   "Kill region if active, otherwise kill back one word."
   (interactive)
   (if (use-region-p)
-	  (call-interactively 'kill-region)
-	(call-interactively 'backward-kill-word)))
+      (call-interactively 'kill-region)
+    (call-interactively 'backward-kill-word)))
 
 (global-set-key (kbd "C-w") 'kill-bword-or-region)
 #+END_SRC
@@ -831,9 +830,9 @@ If point was already at that position, move point to beginning of
 line.  Stolen from BrettWitty's dotemacs github repo."
   (interactive "^")
   (let ((oldpos (point)))
-	(back-to-indentation)
-	(and (= oldpos (point))
-		 (beginning-of-line))))
+    (back-to-indentation)
+    (and (= oldpos (point))
+	 (beginning-of-line))))
 #+END_SRC
 
 I had issues with =smart-beginning-of-line= in =visual-line-mode=, so =smart-beginning-of-visual-line= was created.  It implements part of =back-to-indentation=, but with changes to use =beginning-of-visual-line= instead of =beginning-of-line=.
@@ -846,18 +845,18 @@ work in visual-line-mode.  Re-implementing `back-to-indentation'
 as a visual-line respecter."
   (interactive "^")
   (let ((oldpos (point)))
-	(beginning-of-visual-line 1)
-	(skip-syntax-forward " " (line-end-position))
-	(backward-prefix-chars)
-	(and (= oldpos (point))
-		 (beginning-of-visual-line))))
+    (beginning-of-visual-line 1)
+    (skip-syntax-forward " " (line-end-position))
+    (backward-prefix-chars)
+    (and (= oldpos (point))
+	 (beginning-of-visual-line))))
 #+END_SRC
 
 Remap =move-beginning-of-line=, then remap =beginning-of-visual-line= when going into =visual-line-mode=.  A simple remap would not work for =visual-line-mode=, so I explicitly set =C-a=.
 #+BEGIN_SRC emacs-lisp
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
 (add-hook 'visual-line-mode-hook (lambda ()
-								   (global-set-key (kbd "C-a") 'smart-beginning-of-visual-line)))
+				   (global-set-key (kbd "C-a") 'smart-beginning-of-visual-line)))
 #+END_SRC
 
 I don't want line numbers in the margin unless I am actively trying to go to a line.  I override =goto-line= with this function, which shows line numbers, asks me where I want to go, and then hides line numbers.
@@ -877,8 +876,8 @@ I ripped this defun and binding from [[https://github.com/lem-project/lem][lem]]
 (defun other-window-or-split-window (&optional window)
   (interactive)
   (if (= (count-windows) 1)
-	  (funcall split-window-preferred-function window)
-	(other-window 1)))
+      (funcall split-window-preferred-function window)
+    (other-window 1)))
 
 (global-set-key (kbd "M-o") 'other-window-or-split-window)
 #+END_SRC
@@ -904,20 +903,20 @@ These defuns are here so that I can use doas/sudo over tramp to edit /local/ fil
 #+BEGIN_SRC emacs-lisp
 (unless (equal system-type 'windows-nt)
   (if(equal system-type 'berkeley-unix)
-	  (defun doas ()
-		"Use TRAMP to reopen the current buffer as root using doas."
-		(interactive)
-		(when buffer-file-name
-		  (find-alternate-file
-		   (concat "/doas:root@localhost:"
-				   buffer-file-name))))
-	(defun sudo ()
-	  "Use TRAMP to reopen the current buffer as root using sudo."
-	  (interactive)
-	  (when buffer-file-name
-		(find-alternate-file
-		 (concat "/doas:root@localhost:"
-				 buffer-file-name))))))
+      (defun doas ()
+	"Use TRAMP to reopen the current buffer as root using doas."
+	(interactive)
+	(when buffer-file-name
+	  (find-alternate-file
+	   (concat "/doas:root@localhost:"
+		   buffer-file-name))))
+    (defun sudo ()
+      "Use TRAMP to reopen the current buffer as root using sudo."
+      (interactive)
+      (when buffer-file-name
+	(find-alternate-file
+	 (concat "/doas:root@localhost:"
+		 buffer-file-name))))))
 #+END_SRC
 
 *** Windows
@@ -925,13 +924,13 @@ If you've ever had the /pleasure/ of using Aveva (*Formerly WonderWare*) version
 #+BEGIN_SRC emacs-lisp
 (when (equal system-type 'windows-nt)
   (defun unfuck-aveva-license ()
-	"Remove the offending xml files.
+    "Remove the offending xml files.
 Use this when aveva can't find ass with both hands."
-	(interactive)
-	(let ((xml1 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalAcquireInfo.xml")
-		  (xml2 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalBackEndAcquireInfo.xml"))
-	  (when (file-exists-p xml1) (delete-file xml1))
-	  (when (file-exists-p xml2) (delete-file xml2)))))
+    (interactive)
+    (let ((xml1 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalAcquireInfo.xml")
+	  (xml2 "c:/ProgramData/AVEVA/Licensing/License API2/Data/LocalBackEndAcquireInfo.xml"))
+      (when (file-exists-p xml1) (delete-file xml1))
+      (when (file-exists-p xml2) (delete-file xml2)))))
 #+END_SRC
 
 *** Math
@@ -1004,8 +1003,8 @@ For use in `amps-to-volts' and related.  The handling of only one
 resistance given is done here, instead of doing it in every
 function that uses this."
   (if (eq nil r2)
-	  r1
-	(inv (+ (inv (float r1)) (inv (float r2))))))
+      r1
+    (inv (+ (inv (float r1)) (inv (float r2))))))
 
 (defun amps-to-volts (amps r1 &optional r2)
   "Calculate the voltage, given amperage and impedance.
@@ -1051,35 +1050,35 @@ current signal.  With a current signal, use r1 and maybe r2 to
 calculate `amps-to-counts'.  Otherwise ignore r1/r2 and calculate
 `volts-to-counts'."
   (cond ((or (equal 'v type)
-			 (equal 'V type))
-		 (list (volts-to-counts upper vmax resolution)
-			   (volts-to-counts lower vmax resolution)))
-		((or (equal 'i type)
-			 (equal 'I type))
-		 (list (amps-to-counts upper vmax resolution r1 r2)
-			   (amps-to-counts lower vmax resolution r1 r2)))))
+	     (equal 'V type))
+	 (list (volts-to-counts upper vmax resolution)
+	       (volts-to-counts lower vmax resolution)))
+	((or (equal 'i type)
+	     (equal 'I type))
+	 (list (amps-to-counts upper vmax resolution r1 r2)
+	       (amps-to-counts lower vmax resolution r1 r2)))))
 
 (defun scaleval (pmax pmin emax emin &optional ai)
   "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
 With optional argument `ai', also calculate a final scaled value from an input."
   (let* ((div (/ (- pmax pmin) (- (float emax) (float emin))))
-		 (ofst (- emin (/ pmin div))))
-	(if (eq nil ai)
-		(list div ofst)
-	  (list div ofst (+ ofst (/ ai div))))))
+	 (ofst (- emin (/ pmin div))))
+    (if (eq nil ai)
+	(list div ofst)
+      (list div ofst (+ ofst (/ ai div))))))
 
 (defun pid-tune (Ku Tu &optional loop-type)
   "Use the Ziegler-Nichols method to tune a P, PI or PID loop.
 Takes Ku, Tu and optional loop-type (P, PI, or PID [default])
 as arguments, and returns appropriate kp, ki, and kd."
   (cond ((or (equal 'p loop-type)
-			 (equal 'P loop-type))
-		 (list (* 0.5 Ku)))
-		((or (equal 'pi loop-type)
-			 (equal 'PI loop-type))
-		 (list (* 0.45 Ku) (/ (* 0.54 Ku) Tu)))
-		(t
-		 (list (* 0.6 Ku) (/ (* 1.2 Ku) Tu) (/ (* 3.0 Ku Tu) 40)))))
+	     (equal 'P loop-type))
+	 (list (* 0.5 Ku)))
+	((or (equal 'pi loop-type)
+	     (equal 'PI loop-type))
+	 (list (* 0.45 Ku) (/ (* 0.54 Ku) Tu)))
+	(t
+	 (list (* 0.6 Ku) (/ (* 1.2 Ku) Tu) (/ (* 3.0 Ku Tu) 40)))))
 #+END_SRC
 
 *** Refrigeration
@@ -1101,17 +1100,17 @@ Inputs are temp (F) and humidity (%).  Returns a list of
 Saturated Water Pressure, Humidity Ratio, and Grains of water per
 lb of air."
   (let* ((sat-water-press (+ .0182795
-							 (* temp .001029904)
-							 (* (square temp) 0.00002579408)
-							 (* (cube temp) (* 2.400493 (^ 10 -7)))
-							 (* (^ temp 4) (* 8.100939 (^ 10 -10)))
-							 (* (^ temp 5) (* 3.256805 (^ 10 -11)))
-							 (* (^ temp 6) (* -1.001922 (^ 10 -13)))
-							 (* (^ temp 7) (* 2.44161 (^ 10 -16)))))
-		 (hum-press (* (/ humidity 100.0) sat-water-press))
-		 (hum-ratio (/ (* hum-press 0.62198) (- 14.7 hum-press)))
-		 (gns-water-lb-air (* hum-ratio 7000)))
-	(list sat-water-press hum-ratio gns-water-lb-air)))
+			     (* temp .001029904)
+			     (* (square temp) 0.00002579408)
+			     (* (cube temp) (* 2.400493 (^ 10 -7)))
+			     (* (^ temp 4) (* 8.100939 (^ 10 -10)))
+			     (* (^ temp 5) (* 3.256805 (^ 10 -11)))
+			     (* (^ temp 6) (* -1.001922 (^ 10 -13)))
+			     (* (^ temp 7) (* 2.44161 (^ 10 -16)))))
+	 (hum-press (* (/ humidity 100.0) sat-water-press))
+	 (hum-ratio (/ (* hum-press 0.62198) (- 14.7 hum-press)))
+	 (gns-water-lb-air (* hum-ratio 7000)))
+    (list sat-water-press hum-ratio gns-water-lb-air)))
 #+END_SRC
 
 ** Customize system
