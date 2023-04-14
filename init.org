@@ -83,10 +83,10 @@ I want no menus, no tool-bars, no scroll-bars, no blinking cursor, and no messag
       frame-resize-pixelwise t)
 #+END_SRC
 
-I am fine with the default theme, as long as the background color is similar to engineering paper.  Also make every frame open full-screen, and re-emphasize the desire for no scroll-bars.
+I am no longer using the default theme, so that config is no longer here, but [[*eink-emacs][here]].  Make every frame open full-screen, and re-emphasize the desire for no scroll-bars.
 
 #+BEGIN_SRC emacs-lisp :tangle ./early-init.el
-(setq default-frame-alist '((background-color . "#cae0a6")
+(setq default-frame-alist '(; (background-color . "#cae0a6")
 			    (fullscreen . maximized)
 			    (vertical-scroll-bars . nil)))
 #+END_SRC
@@ -151,6 +151,13 @@ I don't need these on a windows PC.
   (use-package ledger-mode))
 #+END_SRC
 
+*** eink-emacs
+I want a minimal (mostly b+w theme)
+#+BEGIN_SRC emacs-lisp
+(use-package eink-theme
+  :init
+  (load-theme 'eink t))
+#+END_SRC
 *** visual-fill-column
 A godsend.  Finally, I can have visual-line-mode without having to read lines that are 1980 pixels wide!  Also set word wrap, and make the split for help do what I want on big screens.
 
@@ -340,22 +347,6 @@ I originally had custom defuns and bindings to do this, but then I found out it 
 (setq windmove-wrap-around t)
 #+END_SRC
 
-**** Maus
-Don't follow links when I mouse-1 click. Mostly helpful for selecting and editing links in org-files.
-#+BEGIN_SRC emacs-lisp
-(setq mouse-1-click-follows-link nil)
-#+END_SRC
-
-Swap Mouse 2/3 function.  I really want Acme-like mouse chording, but this is kind of close.
-#+BEGIN_SRC emacs-lisp
-(defun acme-mouse-kill (ev)
-  (interactive "e")
-  (when (use-region-p)
-    (call-interactively 'kill-region)))
-
-;; (global-set-key (kbd "<mouse-2>") 'acme-mouse-kill)
-;; (global-set-key (kbd "<mouse-3>") 'mouse-yank-at-click)
-#+END_SRC
 *** Buffer looks
 Highlight current line in all buffers, even if inactive.
 #+BEGIN_SRC emacs-lisp
@@ -388,7 +379,7 @@ Make the paren "highlight" the same color as the background, and add underline. 
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'show-paren-match nil
-		    :background "#cae0a6"
+		    :background nil
 		    :underline t)
 #+END_SRC
 
@@ -405,16 +396,18 @@ Show me column number and filesize
 #+END_SRC
 
 I don't like the box around the modeline.  In Emacs 29, the face attribute for mode-line will change to mode-line-active
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute 'mode-line nil
-		    :background "grey75"
-		    :foreground "black"
-		    :box nil)
 
-(set-face-attribute 'mode-line-inactive nil
-		    :background "grey90"
-		    :foreground "dim grey"
-		    :box nil)
+[[*eink-emacs][Eink theme]] takes care of all this now.
+#+BEGIN_SRC emacs-lisp
+;; (set-face-attribute 'mode-line nil
+;;		    :background "grey75"
+;;		    :foreground "black"
+;;		    :box nil)
+
+;; (set-face-attribute 'mode-line-inactive nil
+;;		    :background "grey90"
+;;		    :foreground "dim grey"
+;;		    :box nil)
 #+END_SRC
 
 *** C-Style
@@ -624,10 +617,21 @@ I wanted something like what the Genera environment has, where putting in a fina
 Makes a closing paren execute the sexp."
   (interactive)
   (insert-char ?\))
-  (cond ((= 0 (car (syntax-ppss)))
-	 (eshell-send-input))
-	((< (car (syntax-ppss)) 0)
-	 (message "Check flush-cache"))))
+  (when (= 0 (car (syntax-ppss)))
+	 (eshell-send-input)))
+#+END_SRC
+
+*** Close Sexp
+I wanted another Genera feature, where typing a closing square bracket will expand to as many parens as needed to finish the expression and eval it.
+
+#+BEGIN_SRC emacs-lisp
+(defun eshell-close-sexp ()
+  "Makes eshell act somewhat like genera.
+Makes a right bracket close and execute the sexp."
+  (interactive)
+  (when (> (car (syntax-ppss)) 0)
+    (eshell-send-on-close-paren)
+    (eshell-close-sexp)))
 #+END_SRC
 
 *** Quit or delete-char
@@ -650,6 +654,7 @@ I have only been able to get these to work when they are within an add-hook lamb
 (add-hook 'eshell-mode-hook
 	  (lambda ()
 	    (define-key eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)
+	    (define-key eshell-mode-map (kbd "]") 'eshell-close-sexp)
 	    (define-key eshell-mode-map (kbd "C-d") 'eshell-quit-or-delete-char)))
 #+END_SRC
 
