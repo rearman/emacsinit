@@ -1124,6 +1124,9 @@ I do not use the customize system.  I don't want to see it if I don't have to.
 
 #+BEGIN_SRC emacs-lisp
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (not (file-exists-p custom-file))
+  (make-empty-file custom-file))
+
 (load custom-file)
 #+END_SRC
 
