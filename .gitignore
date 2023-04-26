@@ -8,6 +8,8 @@ elpa/
 eshell/
 history
 image-dired/
+.org-id-locations
+org-roam.db
 places
 projects
 recentf

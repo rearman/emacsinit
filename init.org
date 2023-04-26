@@ -152,7 +152,7 @@ I don't need these on a windows PC.
 #+END_SRC
 
 *** eink-emacs
-I want a minimal (mostly b+w theme)
+I want a minimal (mostly b+w) theme.
 #+BEGIN_SRC emacs-lisp
 (use-package eink-theme
   :init
@@ -167,8 +167,18 @@ A godsend.  Finally, I can have visual-line-mode without having to read lines th
   (word-wrap t)
   (visual-fill-column-enable-sensible-window-split t)
   :config
-  (global-visual-fill-column-mode)
   (global-visual-line-mode t))
+#+END_SRC
+
+Also make a defun/binding to toggle it as needed.
+#+BEGIN_SRC emacs-lisp
+(defun toggle-visual-fill-column-mode ()
+"Toggles `visual-fill-column-mode."
+  (interactive)
+  (visual-fill-column-mode 'toggle))
+
+(global-set-key (kbd "C-c v") 'toggle-visual-line-mode)
+
 #+END_SRC
 
 *** corfu
@@ -241,6 +251,41 @@ I need to open binary files with their own editor.  Disgusting.
 				    '("adpro"))
 				   "ProductivitySuite"
 				   '(file))))
+#+END_SRC
+
+** Org-roam
+I want to try out org-roam.  For now, I am just copying the default stuff fom [[https://github.com/org-roam/orgg-roam][org-roam's github]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam
+  :custom
+  (org-roam-directory (file-truename "~/org/"))
+  (org-roam-completion-everywhere t)
+  (org-roam-graph-executable "gnuplot")
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+	 ("C-c n f" . org-roam-node-find)
+	 ("C-c n g" . org-roam-graph)
+	 ("C-c n i" . org-roam-node-insert)
+	 ("C-c n c" . org-roam-capture)
+	 :map org-mode-map
+	 ("C-M-i" . completion-at-point)
+	 :map org-roam-dailies-map
+	 ("Y" . org-roam-dailies-capture-yesterday)
+	 ("T" . org-roam-dailies-capture-tomorrow))
+  :bind-keymap
+  ("C-c n d" . org-roam-dailies-map)
+  :config
+  (require 'org-roam-dailies)
+  (org-roam-db-autosync-mode))
+#+END_SRC
+
+** Org-transclusion
+Awesome package - adds transclusions, don't know how similar to Xanadu it is, but sounds basically the same
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-transclusion
+  :bind (("<f12>" . org-transclusion-add)
+	 ("C-c n t" . org-transclusion-mode)))
 #+END_SRC
 
 ** Non-Package customization
@@ -487,7 +532,8 @@ Tell org where everything is, also let me refile anywhere.
 			 "~/org/kasten/")
       org-refile-targets '((nil :maxlevel . 9)
 			   org-agenda-files :maxlevel . 9)
-      org-default-notes-file (concat org-directory "/notes.org"))
+      org-default-notes-file (concat org-directory "/notes.org")
+      org-service-file (concat org-directory "/service.org"))
 #+END_SRC
 
 *** Keywords and Filtering
@@ -499,7 +545,7 @@ Set up some more keywords, and add a filter for unscheduled todo items.
 				    ((agenda "") (alltodo "")))
 				   ("u" "Unscheduled TODOs"
 				    alltodo "" ((org-agenda-skip-function
-						 (lambda nil
+						 (lambda ()
 						   (org-agenda-skip-entry-if 'scheduled
 									     'deadline
 									     'regexp "\n]+>")))
@@ -520,8 +566,8 @@ Creates a new file <datestamp>.org in ~/org/kasten."
 Capture Templates per my proclivities.
 #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
-			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* TODO %? \n %u")
-			      ("s" "Service" entry (file+olp org-default-notes-file "Service") "* TODO %? \n %u")
+			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* [/] TODO %? \n %u")
+			      ("s" "Service" entry (file org-service-file) "* [/] TODO %? \n %u")
 			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
 #+END_SRC
 
