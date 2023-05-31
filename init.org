@@ -86,8 +86,7 @@ I want no menus, no tool-bars, no scroll-bars, no blinking cursor, and no messag
 I am no longer using the default theme, so that config is no longer here, but [[*eink-emacs][here]].  Make every frame open full-screen, and re-emphasize the desire for no scroll-bars.
 
 #+BEGIN_SRC emacs-lisp :tangle ./early-init.el
-(setq default-frame-alist '(; (background-color . "#cae0a6")
-			    (fullscreen . maximized)
+(setq default-frame-alist '((fullscreen . maximized)
 			    (vertical-scroll-bars . nil)))
 #+END_SRC
 
@@ -177,7 +176,7 @@ Also make a defun/binding to toggle it as needed.
   (interactive)
   (visual-fill-column-mode 'toggle))
 
-(global-set-key (kbd "C-c v") 'toggle-visual-line-mode)
+(global-set-key (kbd "C-c v") 'toggle-visual-fill-column-mode)
 
 #+END_SRC
 
@@ -254,33 +253,77 @@ I need to open binary files with their own editor.  Disgusting.
 #+END_SRC
 
 ** Org-roam
-I want to try out org-roam.  For now, I am just copying the default stuff fom [[https://github.com/org-roam/orgg-roam][org-roam's github]].
+I have used logseq for a little bit, and want to see if I can replicate /most/ of that with org-roam.
 
 #+BEGIN_SRC emacs-lisp
-(use-package org-roam
-  :custom
-  (org-roam-directory (file-truename "~/org/"))
-  (org-roam-completion-everywhere t)
-  (org-roam-graph-executable "gnuplot")
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-	 ("C-c n f" . org-roam-node-find)
-	 ("C-c n g" . org-roam-graph)
-	 ("C-c n i" . org-roam-node-insert)
-	 ("C-c n c" . org-roam-capture)
-	 :map org-mode-map
-	 ("C-M-i" . completion-at-point)
-	 :map org-roam-dailies-map
-	 ("Y" . org-roam-dailies-capture-yesterday)
-	 ("T" . org-roam-dailies-capture-tomorrow))
-  :bind-keymap
-  ("C-c n d" . org-roam-dailies-map)
-  :config
-  (require 'org-roam-dailies)
-  (org-roam-db-autosync-mode))
+  (use-package org-roam
+    :custom
+    (org-roam-directory (file-truename "~/org/"))
+    (org-roam-completion-everywhere t)
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+	   ("C-c n f" . org-roam-node-find)
+	   ("C-c n g" . org-roam-graph)
+	   ("C-c n I" . org-roam-node-insert)
+	   ("C-c n c" . org-roam-capture)
+	   :map org-mode-map
+	   ("C-M-i" . completion-at-point)
+	   :map org-roam-dailies-map
+	   ("Y" . org-roam-dailies-capture-yesterday)
+	   ("T" . org-roam-dailies-capture-tomorrow))
+    :bind-keymap
+    ("C-c n d" . org-roam-dailies-map)
+    :config
+    (require 'org-roam-dailies)
+    (org-roam-db-autosync-mode)
+    (setq org-roam-dailies-directory "."
+	  org-roam-mode-sections
+	  (list #'org-roam-backlinks-section
+		#'org-roam-reflinks-section
+		#'org-roam-unlinked-references-section))
+    (add-to-list 'org-roam-capture-templates
+	     '("i" "immediate" plain "%?" :target
+	       (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}
+  ")
+	       :immediate-finish t
+	       :unnarrowed t)))
 #+END_SRC
 
+*** Org-roam-capture-immediate-template
+Don't bring up new files when I insert a link.  Taken from [[https://github.com/org-roam/org-roam/issues/813][org-roam issue #813]]
+
+#+BEGIN_SRC emacs-lisp
+(defvar org-roam-capture-immediate-template
+  '("i" "immediate" plain "%?" :target
+    (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}
+  ")
+    :immediate-finish t
+    :unnarrowed t)
+  "Capture template to use for immediate captures in Org-roam.")
+
+(defun org-roam-insert-immediate (arg &rest args)
+  "Insert an org-roam link without bringing it up to edit."
+  (interactive "P")
+  (let ((org-roam-capture-templates (list org-roam-capture-immediate-template))
+	(args (push arg args)))
+    (apply #'org-roam-node-insert args)))
+
+(global-set-key (kbd "C-c n i") 'org-roam-insert-immediate)
+#+END_SRC
+
+** org-roam-ui
+Let's try this out
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam-ui
+  :after org-roam
+  :config
+  (setq org-roam-ui-sync-theme t
+	org-roam-ui-follow t
+	org-roam-ui-update-on-save t
+	org-roam-ui-open-on-start t))
+#+END_SRC
 ** Org-transclusion
-Awesome package - adds transclusions, don't know how similar to Xanadu it is, but sounds basically the same
+Awesome package - adds transclusions, don't know how similar to Xanadu it is, but sounds basically the same.
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-transclusion
@@ -420,7 +463,7 @@ Show matching parens immediately, and "highlight" the whole expression.
       show-paren-style 'expression)
 #+END_SRC
 
-Make the paren "highlight" the same color as the background, and add underline.  This adds some amount of "highlighting", since the background color overrides the color set by =hl-line-mode=.  Setting the background to nil required me to evaluate the expression again after loading.
+Make the paren "highlight" the same color as the background, and add underline.  This adds some amount of "highlighting", since the background color overrides the color set by =hl-line-mode=.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'show-paren-match nil
@@ -438,21 +481,6 @@ Show me column number and filesize
 #+BEGIN_SRC emacs-lisp
 (column-number-mode t)
 (size-indication-mode t)
-#+END_SRC
-
-I don't like the box around the modeline.  In Emacs 29, the face attribute for mode-line will change to mode-line-active
-
-[[*eink-emacs][Eink theme]] takes care of all this now.
-#+BEGIN_SRC emacs-lisp
-;; (set-face-attribute 'mode-line nil
-;;		    :background "grey75"
-;;		    :foreground "black"
-;;		    :box nil)
-
-;; (set-face-attribute 'mode-line-inactive nil
-;;		    :background "grey90"
-;;		    :foreground "dim grey"
-;;		    :box nil)
 #+END_SRC
 
 *** C-Style
@@ -514,33 +542,28 @@ Just some basic stuff.  I don't think I've seen too many configs that don't have
 
 *** Bindings
 
-The usual bindings, aside from my special case of using =C-'= in place of =C-u=.  I have unbound =C-'= in org-mode.
+The usual bindings.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c a") 'org-agenda)
 (global-set-key (kbd "C-c c") 'org-capture)
-(add-hook 'org-mode-hook (lambda ()
-			   (define-key org-mode-map (kbd "C-'") nil)))
 #+END_SRC
 
 *** Directories
 Tell org where everything is, also let me refile anywhere.
 #+BEGIN_SRC emacs-lisp
 (setq org-directory "~/org"
-      org-agenda-files '("~/org/"
-			 "~/org/kasten/")
+      org-agenda-files '("~/org/")
       org-refile-targets '((nil :maxlevel . 9)
-			   org-agenda-files :maxlevel . 9)
-      org-default-notes-file (concat org-directory "/notes.org")
-      org-service-file (concat org-directory "/service.org"))
+			   org-agenda-files :maxlevel . 9))
 #+END_SRC
 
 *** Keywords and Filtering
 Set up some more keywords, and add a filter for unscheduled todo items.
 #+BEGIN_SRC emacs-lisp
-(setq org-todo-keywords '((sequence "TODO(t@)" "WAITING(w@)" "IN-PROGRESS(i@)" "APPT(a@)" "|"
-				    "DELEGATED(l@)" "DONE(d@)" "CANCELLED(c@)"))
+(setq org-todo-keywords '((sequence "TODO(t!)" "WAITING(w!)" "IN-PROGRESS(i!)" "APPT(a!)" "|"
+				    "DELEGATED(l!)" "DONE(d!)" "CANCELLED(c!)"))
       org-agenda-custom-commands '(("n" "Agenda and all TODOs"
 				    ((agenda "") (alltodo "")))
 				   ("u" "Unscheduled TODOs"
@@ -552,23 +575,12 @@ Set up some more keywords, and add a filter for unscheduled todo items.
 						(org-agenda-overriding-header "Unscheduled TODO entries: ")))))
 #+END_SRC
 
-*** Zettelkasten
-I did some playing around with the idea of zettelkasten, but I don't know how much I really care about that.  It may be gone soon.
-#+BEGIN_SRC emacs-lisp
-(defun erfassen-zettel ()
-  "Add a new zettel to the kasten.
-Creates a new file <datestamp>.org in ~/org/kasten."
-  (interactive)
-  (expand-file-name (format "%s.org" (format-time-string "%Y-%m-%d-%H%M")) "~/org/kasten/"))
-#+END_SRC
-
 *** Templates
 Capture Templates per my proclivities.
 #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
 			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* [/] TODO %? \n %u")
-			      ("s" "Service" entry (file org-service-file) "* [/] TODO %? \n %u")
-			      ("z" "Zettel" entry (file erfassen-zettel) "* %? ::")))
+			      ("s" "Service" entry (file org-service-file) "* [/] TODO %? \n %u")))
 #+END_SRC
 
 *** Auto-archive
@@ -626,6 +638,16 @@ For some reason, the org people decided that =verbatim= doesn't actually mean =v
 			  (org-element--set-regexps)))
 #+END_SRC
 
+** File Opening
+Don't open links in another window, just use the current one
+
+#+BEGIN_SRC emacs-lisp
+(setq org-link-frame-setup '((vm . vm-visit-folder-other-frame)
+			     (vm-imap . vm-visit-imap-folder-other-frame)
+			     (gnus . org-gnus-no-new-news)
+			     (file . find-file)
+			     (wl . wl-other-frame)))
+#+END_SRC
 ** Dired configuration
 Make dired use the same switches I prefer for =ls=, give me a simpler listing, and default to using its current buffer for visiting a file rather than creating a new one.
 #+BEGIN_SRC emacs-lisp
@@ -800,11 +822,11 @@ The default behavior of =open-line= is ridiculous.  It acheives the same functio
   (indent-for-tab-command))
 #+END_SRC
 
-I Bind the previous functions to =C-o= and =M-C-o=.
+I Bind the previous functions to =C-o= and =M-o=.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-o") 'open-line-below)
-(global-set-key (kbd "M-C-o") 'open-line-above)
+(global-set-key (kbd "M-o") 'open-line-above)
 #+END_SRC
 
 **** Commenting
@@ -931,7 +953,7 @@ I ripped this defun and binding from [[https://github.com/lem-project/lem][lem]]
       (funcall split-window-preferred-function window)
     (other-window 1)))
 
-(global-set-key (kbd "M-o") 'other-window-or-split-window)
+(global-set-key (kbd "M-C-o") 'other-window-or-split-window)
 #+END_SRC
 **** Search and Replace
 I made these bindings to put my more-used commands on better keys, and swap them with the less-used ones.
@@ -1011,39 +1033,39 @@ Define square, cube, and inv for brevity of common usages.
 *** Unit Conversions
 The rest of the world decided to self-castrate because some French guys told them things Definitely Made More Sense if everything was divisible by 10.  I'm convinced the average Frenchman simply couldn't grasp fractions, and that's why he came up with this crap.  What's 1/3 of a meter?  What's 1/3 of a yard?  And 1/3 of a foot?  How likely are you to need to divide a measurement by 3 when you're building something?  Maybe the [[https://dozenal.org/][Dozenal]] people were right all along.  Anyway, I'm now forced to convert into proper units daily because of this grave error.
 #+BEGIN_SRC emacs-lisp
-(defun mm-to-in (mm)
+(defun mm->in (mm)
   "Convert milimeters to inches."
   (/ mm 25.4))
 
-(defun in-to-mm (in)
+(defun in->mm (in)
   "Convert inches to milimeters."
   (* in 25.4))
 
-(defun k-to-c (tempk)
+(defun k->c (tempk)
   "Convert degrees Kelvin to degrees Celsius."
   (- tempk 273.15))
 
-(defun c-to-k (tempc)
+(defun c->k (tempc)
   "Convert degrees Celsius to degrees Kelvin."
   (+ tempc 273.15))
 
-(defun c-to-f (tempc)
+(defun c->f (tempc)
   "Convert degrees Celsius to degrees Fahrenheit."
   (+ (* tempc 1.8) 32.0))
 
-(defun f-to-c (tempf)
+(defun f->c (tempf)
   "Convert degrees Fahrenheit to degrees Celsius."
   (/ (- tempf 32.0) 1.8))
 
-(defun k-to-f (tempk)
+(defun k->f (tempk)
   "Convert degrees Kelvin to degrees Fahrenheit.
-Applies `c-to-f' to `k-to-c'."
-  (c-to-f (k-to-c tempk)))
+Applies `c->f' to `k->c'."
+  (c->f (k->c tempk)))
 
-(defun f-to-k (tempf)
+(defun f->k (tempf)
   "Convert degrees Fahrenheit to degrees Kelvin.
-Applies `c-to-k' to `f-to-c'."
-  (c-to-k (f-to-c tempf)))
+Applies `c->k' to `f->c'."
+  (c->k (f->c tempf)))
 #+END_SRC
 
 *** Electrical
@@ -1051,20 +1073,20 @@ These defuns are all about electronics.  Effective impedance, amps to volts and 
 #+BEGIN_SRC emacs-lisp
 (defun eff-imp (r1 &optional r2)
   "Calculate the effective input impedance, given two resistances.
-For use in `amps-to-volts' and related.  The handling of only one
+For use in `amps->volts' and related.  The handling of only one
 resistance given is done here, instead of doing it in every
 function that uses this."
   (if (eq nil r2)
       r1
     (inv (+ (inv (float r1)) (inv (float r2))))))
 
-(defun amps-to-volts (amps r1 &optional r2)
+(defun amps->volts (amps r1 &optional r2)
   "Calculate the voltage, given amperage and impedance.
 Multiplies the amperage by the effective impedance calculated
 with `eff-imp'."
   (* amps (eff-imp r1 r2)))
 
-(defun volts-to-amps (volts r1 &optional r2)
+(defun volts->amps (volts r1 &optional r2)
   "Calculate the amperage, given voltage and impedance.
 Divides the voltage by the effective impedance calculated with
 `eff-imp'."
@@ -1078,37 +1100,37 @@ The nitty-gritty.  These defuns build on the previous ones to help me do various
   "Calculate the max count for a PLC analog, given card's bit-resolution."
   (- (^ 2 resolution) 1))
 
-(defun volts-to-counts (vin vmax resolution)
+(defun volts->counts (vin vmax resolution)
   "Convert a voltage signal to a PLC count.
 Calculates a ratio of vin/vmax, then scales by `max-counts'."
   (* (/ (float vin) vmax) (max-counts resolution)))
 
-(defun counts-to-volts (cin vmax resolution)
+(defun counts->volts (cin vmax resolution)
   "Convert a PLC count to a voltage.
 Calculates a ratio of cin/`max-counts', then multiplies by vmax."
   (* (/ (float cin) (max-counts resolution)) vmax))
 
-(defun amps-to-counts (amps vmax resolution r1 &optional r2)
+(defun amps->counts (amps vmax resolution r1 &optional r2)
   "Convert a current signal to PLC Counts.
-Converts the amperage to a voltage using `amps-to-volts' (with r1
-and optional r2), then applies `volts-to-counts' to the resulting
+Converts the amperage to a voltage using `amps->volts' (with r1
+and optional r2), then applies `volts->counts' to the resulting
 voltage, vmax, and resolution."
-  (volts-to-counts (amps-to-volts amps r1 r2) vmax resolution))
+  (volts->counts (amps->volts amps r1 r2) vmax resolution))
 
 (defun count-range (type upper lower vmax resolution &optional r1 r2)
   "Given an upper and lower signal, return the list of upper and lower PLC counts.
 Type takes either a v or an i, corresponding to a voltage or
 current signal.  With a current signal, use r1 and maybe r2 to
-calculate `amps-to-counts'.  Otherwise ignore r1/r2 and calculate
-`volts-to-counts'."
+calculate `amps->counts'.  Otherwise ignore r1/r2 and calculate
+`volts->counts'."
   (cond ((or (equal 'v type)
 	     (equal 'V type))
-	 (list (volts-to-counts upper vmax resolution)
-	       (volts-to-counts lower vmax resolution)))
+	 (list (volts->counts upper vmax resolution)
+	       (volts->counts lower vmax resolution)))
 	((or (equal 'i type)
 	     (equal 'I type))
-	 (list (amps-to-counts upper vmax resolution r1 r2)
-	       (amps-to-counts lower vmax resolution r1 r2)))))
+	 (list (amps->counts upper vmax resolution r1 r2)
+	       (amps->counts lower vmax resolution r1 r2)))))
 
 (defun scaleval (pmax pmin emax emin &optional ai)
   "Calculate the slope and offset given PLC Max/Min and Eng. Max/Min.
