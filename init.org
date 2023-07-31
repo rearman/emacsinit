@@ -126,25 +126,19 @@ Non-gnu is in the defaults now, so I only need to add melpa.
 #+END_SRC
 
 *** use-package
-**** Default to ensure
-A large majority of the configuration with use-package is on 3rd-party packages.  It makes more sense to do =:ensure nil= on base packages than to do =:ensure t= on all the 3rd-party ones.
-
-#+BEGIN_SRC emacs-lisp
-(setq use-package-always-ensure t)
-#+END_SRC
-
 *** Packages I don't want on my work computers
 I don't need these on a windows PC.
 #+BEGIN_SRC emacs-lisp
 (unless (equal system-type 'windows-nt)
-  (use-package slime)
-  (use-package ledger-mode))
+  (use-package slime :ensure t)
+  (use-package ledger-mode :ensure t))
 #+END_SRC
 
 *** eink-emacs
 I want a minimal (mostly b+w) theme.
 #+BEGIN_SRC emacs-lisp
 (use-package eink-theme
+  :ensure t
   :init
   (load-theme 'eink t))
 #+END_SRC
@@ -153,6 +147,7 @@ A godsend.  Finally, I can have visual-line-mode without having to read lines th
 
 #+BEGIN_SRC emacs-lisp
 (use-package visual-fill-column
+  :ensure t
   :custom
   (word-wrap t)
   (visual-fill-column-enable-sensible-window-split t)
@@ -179,6 +174,7 @@ The basics for corfu.  Auto popup after one letter, enable globally.
 
 #+BEGIN_SRC emacs-lisp
 (use-package corfu
+  :ensure t
   :custom
   (corfu-auto t)
   (corfu-auto-delay 0)
@@ -208,7 +204,7 @@ This comes with base corfu, but is configured separately.
 Seldom used, but nothing else does it.
 
 #+BEGIN_SRC emacs-lisp
-(use-package expand-region)
+(use-package expand-region :ensure t)
 (keymap-global-set "C-=" 'er/expand-region)
 #+END_SRC
 
@@ -217,6 +213,7 @@ I use magit occasionally.  I put this sparse configuration here mostly for a spe
 
 #+BEGIN_SRC emacs-lisp
 (use-package magit
+  :ensure t
   :config
   (message "Magit Loaded")
   :bind
@@ -228,6 +225,7 @@ I need to open binary files with their own editor.  Disgusting.
 
 #+BEGIN_SRC emacs-lisp
 (use-package openwith
+  :ensure t
   :config
   (openwith-mode t))
 
@@ -247,36 +245,37 @@ I need to open binary files with their own editor.  Disgusting.
 I have used logseq for a little bit, and want to see if I can replicate /most/ of that with org-roam.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org-roam
-    :custom
-    (org-roam-directory (file-truename "~/org/"))
-    (org-roam-completion-everywhere t)
-    :bind (("C-c n l" . org-roam-buffer-toggle)
-	   ("C-c n f" . org-roam-node-find)
-	   ("C-c n g" . org-roam-graph)
-	   ("C-c n I" . org-roam-node-insert)
-	   ("C-c n c" . org-roam-capture)
-	   :map org-mode-map
-	   ("C-M-i" . completion-at-point)
-	   :map org-roam-dailies-map
-	   ("Y" . org-roam-dailies-capture-yesterday)
-	   ("T" . org-roam-dailies-capture-tomorrow))
-    :bind-keymap
-    ("C-c n d" . org-roam-dailies-map)
-    :config
-    (require 'org-roam-dailies)
-    (org-roam-db-autosync-mode)
-    (setq org-roam-dailies-directory "."
-	  org-roam-mode-sections
-	  (list #'org-roam-backlinks-section
-		#'org-roam-reflinks-section
-		#'org-roam-unlinked-references-section))
-    (add-to-list 'org-roam-capture-templates
-	     '("i" "immediate" plain "%?" :target
-	       (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/org/"))
+  (org-roam-completion-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+	 ("C-c n f" . org-roam-node-find)
+	 ("C-c n g" . org-roam-graph)
+	 ("C-c n I" . org-roam-node-insert)
+	 ("C-c n c" . org-roam-capture)
+	 :map org-mode-map
+	 ("C-M-i" . completion-at-point)
+	 :map org-roam-dailies-map
+	 ("Y" . org-roam-dailies-capture-yesterday)
+	 ("T" . org-roam-dailies-capture-tomorrow))
+  :bind-keymap
+  ("C-c n d" . org-roam-dailies-map)
+  :config
+  (require 'org-roam-dailies)
+  (org-roam-db-autosync-mode)
+  (setq org-roam-dailies-directory "."
+	org-roam-mode-sections
+	(list #'org-roam-backlinks-section
+	      #'org-roam-reflinks-section
+	      #'org-roam-unlinked-references-section))
+  (add-to-list 'org-roam-capture-templates
+	       '("i" "immediate" plain "%?" :target
+		 (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}
   ")
-	       :immediate-finish t
-	       :unnarrowed t)))
+		 :immediate-finish t
+		 :unnarrowed t)))
 #+END_SRC
 
 *** Org-roam-capture-immediate-template
@@ -306,6 +305,7 @@ Let's try this out
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam-ui
+  :ensure t
   :after org-roam
   :config
   (setq org-roam-ui-sync-theme t
@@ -318,6 +318,7 @@ Awesome package - adds transclusions, don't know how similar to Xanadu it is, bu
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-transclusion
+  :ensure t
   :bind (("<f12>" . org-transclusion-add)
 	 ("C-c n t" . org-transclusion-mode)))
 #+END_SRC
