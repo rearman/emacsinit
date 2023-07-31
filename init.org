@@ -167,7 +167,7 @@ Also make a defun/binding to toggle it as needed.
   (interactive)
   (visual-fill-column-mode 'toggle))
 
-(keymap-global-set (kbd "C-c v") 'toggle-visual-fill-column-mode)
+(keymap-global-set "C-c v" 'toggle-visual-fill-column-mode)
 
 #+END_SRC
 
@@ -209,7 +209,7 @@ Seldom used, but nothing else does it.
 
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region)
-(keymap-global-set (kbd "C-=") 'er/expand-region)
+(keymap-global-set "C-=" 'er/expand-region)
 #+END_SRC
 
 *** magit
@@ -298,7 +298,7 @@ Don't bring up new files when I insert a link.  Taken from [[https://github.com/
 	(args (push arg args)))
     (apply #'org-roam-node-insert args)))
 
-(keymap-global-set (kbd "C-c n i") 'org-roam-insert-immediate)
+(keymap-global-set "C-c n i" 'org-roam-insert-immediate)
 #+END_SRC
 
 ** org-roam-ui
@@ -458,7 +458,7 @@ Make the paren "highlight" the same color as the background, and add underline. 
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'show-paren-match nil
-		    :background unspecified
+		    :background nil
 		    :underline t)
 #+END_SRC
 
@@ -536,9 +536,9 @@ Just some basic stuff.  I don't think I've seen too many configs that don't have
 The usual bindings.
 
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "C-c l") 'org-store-link)
-(keymap-global-set (kbd "C-c a") 'org-agenda)
-(keymap-global-set (kbd "C-c c") 'org-capture)
+(keymap-global-set "C-c l" 'org-store-link)
+(keymap-global-set "C-c a" 'org-agenda)
+(keymap-global-set "C-c c" 'org-capture)
 #+END_SRC
 
 *** Directories
@@ -648,7 +648,7 @@ Make dired use the same switches I prefer for =ls=, give me a simpler listing, a
 	  (lambda ()
 	    (dired-hide-details-mode t)
 	    (keymap-set dired-mode-map
-	      (kbd "RET") 'dired-find-alternate-file)))
+	      "RET" 'dired-find-alternate-file)))
 #+END_SRC
 
 ** Eshell configuration
@@ -656,7 +656,7 @@ Here are the various customizations I have for eshell.
 
 *** Binding to start eshell
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "C-c s") 'eshell)
+(keymap-global-set "C-c s" 'eshell)
 #+END_SRC
 
 *** Make it play nice with corfu
@@ -712,9 +712,9 @@ I have only been able to get these to work when they are within an add-hook lamb
 #+BEGIN_SRC emacs-lisp
 (add-hook 'eshell-mode-hook
 	  (lambda ()
-	    (keymap-set eshell-mode-map (kbd ")") 'eshell-send-on-close-paren)
-	    (keymap-set eshell-mode-map (kbd "]") 'eshell-close-sexp)
-	    (keymap-set eshell-mode-map (kbd "C-d") 'eshell-quit-or-delete-char)))
+	    (keymap-set eshell-mode-map ")" 'eshell-send-on-close-paren)
+	    (keymap-set eshell-mode-map "]" 'eshell-close-sexp)
+	    (keymap-set eshell-mode-map "C-d" 'eshell-quit-or-delete-char)))
 #+END_SRC
 
 ** Defuns and Bindings
@@ -726,14 +726,14 @@ Most of these are to re-create something from vim/readline/sam/acme.  Some are j
 **** Visiting Files
 Bind =find-file-at-point= and =bookmark-jump-other-window=.
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "C-x M-f") 'find-file-at-point)
-(keymap-global-set (kbd "C-x rB") 'bookmark-jump-other-window)
+(keymap-global-set "C-x M-f" 'find-file-at-point)
+(keymap-global-set "C-x r B" 'bookmark-jump-other-window)
 #+END_SRC
 
 **** Undo/redo
 I like putting redo on =C-\=. Easier for me to remember than the =C-M-_= default.
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "C-\\") 'undo-redo)
+(keymap-global-set "C-\\" 'undo-redo)
 #+END_SRC
 
 **** Renaming Files
@@ -756,13 +756,13 @@ I took this from [[https://whattheemacsd.com][whattheemacsd.com]].  It is occasi
 	  (message "File '%s' successfully renamed to '%s'"
 		   name (file-name-nondirectory new-name)))))))
 
-(keymap-global-set (kbd "C-x C-r") 'rename-current-buffer-file)
+(keymap-global-set "C-x C-r" 'rename-current-buffer-file)
 #+END_SRC
 **** Buffer Handling
 Usually I want the buffer menu in the same window I am already on.  Occasionally I want it in a different window.  Bind accordingly.
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "C-x C-b") 'buffer-menu)
-(keymap-global-set (kbd "C-x M-b") 'buffer-menu-other-window)
+(keymap-global-set "C-x C-b" 'buffer-menu)
+(keymap-global-set "C-x M-b" 'buffer-menu-other-window)
 #+END_SRC
 
 I often want to bring up the scratch buffer in my current window, and sometimes I want only one window that is the scratch buffer.
@@ -773,8 +773,8 @@ I often want to bring up the scratch buffer in my current window, and sometimes 
   (scratch-buffer)
   (delete-other-windows))
 
-(keymap-global-set (kbd "<f5>") 'scratch-buffer)
-(keymap-global-set (kbd "S-<f5>") 'scratch-only)
+(keymap-global-set "<f5>" 'scratch-buffer)
+(keymap-global-set "S-<f5>" 'scratch-only)
 #+END_SRC
 
 **** Line joining
@@ -785,7 +785,7 @@ The =M-^= binding is handy, but usually I want the ed/sam/vi join function, whic
   (interactive)
   (join-line 0))
 
-(keymap-global-set (kbd "M-j") 'backward-join-line)
+(keymap-global-set "M-j" 'backward-join-line)
 #+END_SRC
 
 **** Line opening
@@ -811,8 +811,8 @@ The default behavior of =open-line= is ridiculous.  It acheives the same functio
 I Bind the previous functions to =C-o= and =M-o=.
 
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "C-o") 'open-line-below)
-(keymap-global-set (kbd "M-o") 'open-line-above)
+(keymap-global-set "C-o" 'open-line-below)
+(keymap-global-set "M-o" 'open-line-above)
 #+END_SRC
 
 **** Commenting
@@ -827,20 +827,20 @@ Stolen from https://depp.brause.cc/dotemacs"
     (comment-or-uncomment-region (line-beginning-position)
 				 (line-end-position))))
 
-(keymap-global-set (kbd "M-;") 'my-comment-dwim)
+(keymap-global-set "M-;" 'my-comment-dwim)
 #+END_SRC
 
 **** Killing
 Bind =kill-whole-line= to =C-S-K= for something somewhat pnemonic.
 
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "C-S-K") 'kill-whole-line)
+(keymap-global-set "C-S-K" 'kill-whole-line)
 #+END_SRC
 
 Bind =C-z= to zap-up-to-char, sice zap-to-char is on =M-z=.
 
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "C-z") 'zap-up-to-char)
+(keymap-global-set "C-z" 'zap-up-to-char)
 #+END_SRC
 
 =C-w= is very much engrained for killing back one word, as is =C-u= for killing back to the beginning of the line.  [[http://unix-kb.cat-v.org/][These have been standard bindings since TENEX...]]
@@ -855,7 +855,7 @@ I didn't want to re-bind =C-w= away from =kill-region=, so I made it do both.
       (call-interactively 'kill-region)
     (call-interactively 'backward-kill-word)))
 
-(keymap-global-set (kbd "C-w") 'kill-bword-or-region)
+(keymap-global-set "C-w" 'kill-bword-or-region)
 #+END_SRC
 
 There is no pre-made function to kill backward to the beginning of line from point, so I made one that passes the correct argument to =kill-line=, and bound it to =C-u=.
@@ -866,20 +866,20 @@ There is no pre-made function to kill backward to the beginning of line from poi
   (interactive)
   (kill-line 0))
 
-(keymap-global-set (kbd "C-u") 'backward-kill-line)
+(keymap-global-set "C-u" 'backward-kill-line)
 #+END_SRC
 
 Since =C-u= is =universal-argument=, I put that functionality on =M-'=.
 
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "M-'") 'universal-argument)
+(keymap-global-set "M-'" 'universal-argument)
 #+END_SRC
 
 **** Moving
 I want =Home= and =End= to take me to the top and bottom of the file.
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "<home>") 'beginning-of-buffer)
-(keymap-global-set (kbd "<end>") 'end-of-buffer)
+(keymap-global-set "<home>" 'beginning-of-buffer)
+(keymap-global-set "<end>" 'end-of-buffer)
 #+END_SRC
 
 I have the infamous =smart-beginning-of-line= command here.
@@ -914,9 +914,9 @@ as a visual-line respecter."
 
 Remap =move-beginning-of-line=, then remap =beginning-of-visual-line= when going into =visual-line-mode=.  A simple remap would not work for =visual-line-mode=, so I explicitly set =C-a=.
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set [remap move-beginning-of-line] 'smart-beginning-of-line)
+(global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
 (add-hook 'visual-line-mode-hook (lambda ()
-				   (keymap-global-set (kbd "C-a") 'smart-beginning-of-visual-line)))
+				   (keymap-global-set "C-a" 'smart-beginning-of-visual-line)))
 #+END_SRC
 
 I don't want line numbers in the margin unless I am actively trying to go to a line.  I override =goto-line= with this function, which shows line numbers, asks me where I want to go, and then hides line numbers.
@@ -928,7 +928,7 @@ I don't want line numbers in the margin unless I am actively trying to go to a l
   (call-interactively 'goto-line)
   (display-line-numbers-mode -1))
 
-(keymap-global-set [remap goto-line] 'my-goto-line)
+(global-set-key [remap goto-line] 'my-goto-line)
 #+END_SRC
 
 I ripped this defun and binding from [[https://github.com/lem-project/lem][lem]].  Can't live without it now.
@@ -939,23 +939,23 @@ I ripped this defun and binding from [[https://github.com/lem-project/lem][lem]]
       (funcall split-window-preferred-function window)
     (other-window 1)))
 
-(keymap-global-set (kbd "M-C-o") 'other-window-or-split-window)
+(keymap-global-set "C-M-o" 'other-window-or-split-window)
 #+END_SRC
 **** Search and Replace
 I made these bindings to put my more-used commands on better keys, and swap them with the less-used ones.
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "M-s .") 'isearch-forward-thing-at-point)
-(keymap-global-set (kbd "M-s M-.") 'isearch-forward-symbol-at-point)
-(keymap-global-set (kbd "M-%") 'replace-regexp)
-(keymap-global-set (kbd "C-%") 'replace-string)
-(keymap-global-set (kbd "C-S-R") 'isearch-backward-regexp)
-(keymap-global-set (kbd "C-S-S") 'isearch-forward-regexp)
+(keymap-global-set "M-s ." 'isearch-forward-thing-at-point)
+(keymap-global-set "M-s M-." 'isearch-forward-symbol-at-point)
+(keymap-global-set "M-%" 'replace-regexp)
+(keymap-global-set "C-%" 'replace-string)
+(keymap-global-set "C-S-R" 'isearch-backward-regexp)
+(keymap-global-set "C-S-S" 'isearch-forward-regexp)
 #+END_SRC
 
-**** Elisp/Eval bindings
+*** Elisp/Eval bindings
 Some old Emacs-like editor (Edwin?) used this binding, so I put it in here.  Less used than the =M-C-x= =eval-defun= binding, but occasionally nice to have.
 #+BEGIN_SRC emacs-lisp
-(keymap-global-set (kbd "M-C-z") 'eval-region)
+(keymap-global-set "C-M-z" 'eval-region)
 #+END_SRC
 
 *** *NIX
@@ -1172,6 +1172,8 @@ lb of air."
 	 (gns-water-lb-air (* hum-ratio 7000)))
     (list sat-water-press hum-ratio gns-water-lb-air)))
 #+END_SRC
+
+
 
 ** Customize system
 I do not use the customize system.  I don't want to see it if I don't have to.
