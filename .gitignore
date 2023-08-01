@@ -9,6 +9,7 @@ eshell/
 history
 image-dired/
 .org-id-locations
+org-persist/
 org-roam.db
 places
 projects

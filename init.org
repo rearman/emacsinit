@@ -125,7 +125,6 @@ Non-gnu is in the defaults now, so I only need to add melpa.
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 #+END_SRC
 
-*** use-package
 *** Packages I don't want on my work computers
 I don't need these on a windows PC.
 #+BEGIN_SRC emacs-lisp
@@ -241,78 +240,6 @@ I need to open binary files with their own editor.  Disgusting.
 				   '(file))))
 #+END_SRC
 
-** Org-roam
-I have used logseq for a little bit, and want to see if I can replicate /most/ of that with org-roam.
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-roam
-  :ensure t
-  :custom
-  (org-roam-directory (file-truename "~/org/"))
-  (org-roam-completion-everywhere t)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-	 ("C-c n f" . org-roam-node-find)
-	 ("C-c n g" . org-roam-graph)
-	 ("C-c n I" . org-roam-node-insert)
-	 ("C-c n c" . org-roam-capture)
-	 :map org-mode-map
-	 ("C-M-i" . completion-at-point)
-	 :map org-roam-dailies-map
-	 ("Y" . org-roam-dailies-capture-yesterday)
-	 ("T" . org-roam-dailies-capture-tomorrow))
-  :bind-keymap
-  ("C-c n d" . org-roam-dailies-map)
-  :config
-  (require 'org-roam-dailies)
-  (org-roam-db-autosync-mode)
-  (setq org-roam-dailies-directory "."
-	org-roam-mode-sections
-	(list #'org-roam-backlinks-section
-	      #'org-roam-reflinks-section
-	      #'org-roam-unlinked-references-section))
-  (add-to-list 'org-roam-capture-templates
-	       '("i" "immediate" plain "%?" :target
-		 (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}
-  ")
-		 :immediate-finish t
-		 :unnarrowed t)))
-#+END_SRC
-
-*** Org-roam-capture-immediate-template
-Don't bring up new files when I insert a link.  Taken from [[https://github.com/org-roam/org-roam/issues/813][org-roam issue #813]]
-
-#+BEGIN_SRC emacs-lisp
-(defvar org-roam-capture-immediate-template
-  '("i" "immediate" plain "%?" :target
-    (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}
-  ")
-    :immediate-finish t
-    :unnarrowed t)
-  "Capture template to use for immediate captures in Org-roam.")
-
-(defun org-roam-insert-immediate (arg &rest args)
-  "Insert an org-roam link without bringing it up to edit."
-  (interactive "P")
-  (let ((org-roam-capture-templates (list org-roam-capture-immediate-template))
-	(args (push arg args)))
-    (apply #'org-roam-node-insert args)))
-
-(keymap-global-set "C-c n i" 'org-roam-insert-immediate)
-#+END_SRC
-
-** org-roam-ui
-Let's try this out
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-roam-ui
-  :ensure t
-  :after org-roam
-  :config
-  (setq org-roam-ui-sync-theme t
-	org-roam-ui-follow t
-	org-roam-ui-update-on-save t
-	org-roam-ui-open-on-start t))
-#+END_SRC
 ** Org-transclusion
 Awesome package - adds transclusions, don't know how similar to Xanadu it is, but sounds basically the same.
 
@@ -423,7 +350,7 @@ Save pastes from elsewhere into the kill-ring, and don't ask me about killing pr
 I originally had custom defuns and bindings to do this, but then I found out it was built in...
 
 #+BEGIN_SRC emacs-lisp
-(windmove-default-keybindings 'control) ; deprecate my C-L/R bindings
+(windmove-default-keybindings 'control)
 (setq windmove-wrap-around t)
 #+END_SRC
 
@@ -571,8 +498,7 @@ Set up some more keywords, and add a filter for unscheduled todo items.
 Capture Templates per my proclivities.
 #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates '(("n" "Note" entry (file+olp org-default-notes-file "Notes") "* %u %?")
-			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* [/] TODO %? \n %u")
-			      ("s" "Service" entry (file org-service-file) "* [/] TODO %? \n %u")))
+			      ("t" "TODO" entry (file+olp org-default-notes-file "Tasks") "* [/] TODO %? \n %u")))
 #+END_SRC
 
 *** Auto-archive
@@ -681,19 +607,6 @@ Makes a closing paren execute the sexp."
 	 (eshell-send-input)))
 #+END_SRC
 
-*** Close Sexp
-I wanted another Genera feature, where typing a closing square bracket will expand to as many parens as needed to finish the expression and eval it.
-
-#+BEGIN_SRC emacs-lisp
-(defun eshell-close-sexp ()
-  "Makes eshell act somewhat like genera.
-Makes a right bracket close and execute the sexp."
-  (interactive)
-  (when (> (car (syntax-ppss)) 0)
-    (eshell-send-on-close-paren)
-    (eshell-close-sexp)))
-#+END_SRC
-
 *** Quit or delete-char
 I want =C-d= to end the shell if it is on an empty line, otherwise act normally.
 
@@ -714,7 +627,6 @@ I have only been able to get these to work when they are within an add-hook lamb
 (add-hook 'eshell-mode-hook
 	  (lambda ()
 	    (keymap-set eshell-mode-map ")" 'eshell-send-on-close-paren)
-	    (keymap-set eshell-mode-map "]" 'eshell-close-sexp)
 	    (keymap-set eshell-mode-map "C-d" 'eshell-quit-or-delete-char)))
 #+END_SRC
 
@@ -766,7 +678,7 @@ Usually I want the buffer menu in the same window I am already on.  Occasionally
 (keymap-global-set "C-x M-b" 'buffer-menu-other-window)
 #+END_SRC
 
-I often want to bring up the scratch buffer in my current window, and sometimes I want only one window that is the scratch buffer.
+I often want to bring up the scratch buffer in my current window, and sometimes I want only one window that is the scratch buffer.  Emacs 29 added the =scratch-buffer= function, so one less defun needed here.
 #+BEGIN_SRC emacs-lisp
 (defun scratch-only ()
   "Bring up the scratch buffer as the only visible buffer."
@@ -916,8 +828,9 @@ as a visual-line respecter."
 Remap =move-beginning-of-line=, then remap =beginning-of-visual-line= when going into =visual-line-mode=.  A simple remap would not work for =visual-line-mode=, so I explicitly set =C-a=.
 #+BEGIN_SRC emacs-lisp
 (global-set-key [remap move-beginning-of-line] 'smart-beginning-of-line)
-(add-hook 'visual-line-mode-hook (lambda ()
-				   (keymap-global-set "C-a" 'smart-beginning-of-visual-line)))
+(add-hook 'visual-line-mode-hook
+	  (lambda ()
+	    (keymap-global-set "C-a" 'smart-beginning-of-visual-line)))
 #+END_SRC
 
 I don't want line numbers in the margin unless I am actively trying to go to a line.  I override =goto-line= with this function, which shows line numbers, asks me where I want to go, and then hides line numbers.
@@ -954,7 +867,7 @@ I made these bindings to put my more-used commands on better keys, and swap them
 #+END_SRC
 
 *** Elisp/Eval bindings
-Some old Emacs-like editor (Edwin?) used this binding, so I put it in here.  Less used than the =M-C-x= =eval-defun= binding, but occasionally nice to have.
+Some old Emacs-like editor (Edwin?) used this binding, so I put it in here.  Less used than the =C-M-x= =eval-defun= binding, but occasionally nice to have.
 #+BEGIN_SRC emacs-lisp
 (keymap-global-set "C-M-z" 'eval-region)
 #+END_SRC
