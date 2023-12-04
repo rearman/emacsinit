@@ -11,7 +11,7 @@ Lots of inspiration taken from:
 - [[https://github.com/sachac/.emacs.d][github.com/sachac/.emacs.d]]
 
 ** A note on version checking
-I keep my emacs installs at the latest release, so I don't worry about checking for versions in my init unless I update on linux/BSD before the windows binaries are released.  That being said, I am currently on version 28.1.  Niceties from version 29 are being waited for with baited breath.
+I keep my emacs installs at the latest release, so I don't worry about checking for versions in my init unless I happen to update on linux/BSD before the windows binaries are released.  That being said, I am currently on version 29.1.
 ** Latinization
 I believe that all scientific knowledge, and by extension computational knowledge, should be shared in Latin.  That is to say I intend to facilitate Latin's return as the default language for global knowledge sharing.  To be consistent, I will soon be translating as much of this file as possible into Latin.  Monitus es.
 * Meta Configuration
