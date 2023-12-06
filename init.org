@@ -240,7 +240,7 @@ I need to open binary files with their own editor.  Disgusting.
 				   '(file))))
 #+END_SRC
 
-*** Org-transclusion
+*** org-transclusion
 Awesome package - adds transclusions, don't know how similar to Xanadu it is, but sounds basically the same.
 
 #+BEGIN_SRC emacs-lisp
@@ -248,6 +248,12 @@ Awesome package - adds transclusions, don't know how similar to Xanadu it is, bu
   :ensure t
   :bind (("<f12>" . org-transclusion-add)
 	 ("C-c n t" . org-transclusion-mode)))
+#+END_SRC
+
+*** acme-mouse
+Not a package in the strict sense, just a .el file - pulled from [[https://github.com/akrito/acme-mouse/]] and modified to meet changes to the old =cl= package.
+#+BEGIN_SRC emacs-lisp
+(load (concat user-emacs-directory "acme-mouse.el"))
 #+END_SRC
 
 ** Non-Package customization
@@ -392,7 +398,7 @@ Make the paren "highlight" the same color as the background, and add underline. 
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'show-paren-match nil
-		    :background nil
+		    :background 'unspecified
 		    :underline t)
 #+END_SRC
 
@@ -562,8 +568,8 @@ Tag filtering
 Capture Templates per my proclivities.
 #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates '(("n" "Note" entry (file org-default-notes-file) "* %u %?")
-			      ("t" "TODO" entry (file org-default-notes-file) "* TODO %? \n%U\n")
-			      ("a" "Appointment" entry (file+olp+datetree org-journal-file) "* APPT %? \nSCHEDULED: %t" :time-prompt t)
+			      ("t" "TODO" entry (file org-default-notes-file) "* TODO %?\n%U\n")
+			      ("a" "Appointment" entry (file+olp+datetree org-journal-file) "* APPT %?\nSCHEDULED: %t" :time-prompt t)
 			      ("j" "Journal" entry (file+olp+datetree org-journal-file) "* %?\n%U\n")))
 #+END_SRC
 
@@ -604,13 +610,23 @@ Person properties block
   "#+FILETAGS: Company Position\n")
 #+END_SRC
 
+Workorder properties block
+#+BEGIN_SRC emacs-lisp
+(define-skeleton skel-workorder-properties
+  "Insert the org title and filetags for a workorder"
+  ""
+  "#+TITLE: Workorder ###\n"
+  "#+FILETAGS: workorder cust-facil topics\n")
+#+END_SRC
+
 Bind the snippets (in the =abbrev-file-name= file)
 #+BEGIN_SRC emacs-lisp  :tangle ./abbrev_defs
 ;;-*-coding: utf-8;-*-
 (define-abbrev-table 'org-mode-abbrev-table
-  '(("selisp" "" skel-org-block-elisp :count 1)
-    ("sfac" "" skel-facility-properties :count 2)
-    ("sper" "" skel-person-properties :count 1)))
+  '(("selisp" "" skel-org-block-elisp)
+    ("sfac" "" skel-facility-properties)
+    ("sper" "" skel-person-properties)
+    ("swo" "" skel-workorder-properties)))
 #+END_SRC
 
 *** Auto-archive
