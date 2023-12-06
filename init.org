@@ -598,7 +598,7 @@ Facility properties block
   "Insert the org title and filetags for a new facility."
   ""
   "#+TITLE: \n"
-  "#+FILETAGS: Customer PM SM AKA\n")
+  "#+FILETAGS: customer city state pm sm aka\n")
 #+END_SRC
 
 Person properties block
@@ -607,7 +607,7 @@ Person properties block
   "Insert the org title and filetags for a person."
   ""
   "#+TITLE: \n"
-  "#+FILETAGS: Company Position\n")
+  "#+FILETAGS: company position\n")
 #+END_SRC
 
 Workorder properties block
@@ -616,7 +616,7 @@ Workorder properties block
   "Insert the org title and filetags for a workorder"
   ""
   "#+TITLE: Workorder ###\n"
-  "#+FILETAGS: workorder cust-facil topics\n")
+  "#+FILETAGS: workorder customer city state topics\n")
 #+END_SRC
 
 Bind the snippets (in the =abbrev-file-name= file)
