@@ -275,12 +275,12 @@ I want these things every time, or at least setting them this way worked when a 
 I originally had some autosave items in here, but the defaults appeared to be doing basically what I wanted anyway.
 
 **** Backups
-Make backups for vc-controlled files, don't clobber symlinks, and put everything into the temp directory (determined by os).
+Make backups for vc-controlled files, don't clobber symlinks, and put everything into =~/emacs-backups/=.
 
 #+BEGIN_SRC emacs-lisp
 (setq vc-make-backup-files t
       backup-by-copying t
-      backup-directory-alist `((".*" . ,temporary-file-directory)))
+      backup-directory-alist `((".*" . "~/emacs-backups/")))
 #+END_SRC
 
 **** Old versions
@@ -475,7 +475,8 @@ Just some basic/misc stuff.  I don't think I've seen too many configs that don't
       org-catch-invisible-edits 'error
       org-deadline-warning-days 30
       org-table-export-default-format "orgtbl-to-csv"
-      org-agenda-window-setup 'current-window)
+      org-agenda-window-setup 'current-window
+      org-link-file-path-type 'absolute)
 #+END_SRC
 
 *** Bindings
@@ -530,7 +531,7 @@ Set up some more todo keywords
 				    "APPT(a!)"
 				    "|"
 				    "DELEGATED(l@)"
-				    "DONE(d!)"
+				    "DONE(d!/@)"
 				    "CANCELLED(c@)")))
 #+END_SRC
 
