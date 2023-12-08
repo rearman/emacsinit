@@ -620,14 +620,24 @@ Workorder properties block
   "#+FILETAGS: workorder customer city state topics\n")
 #+END_SRC
 
+Meeting properties block
+#+BEGIN_SRC emacs-lisp
+(define-skeleton skel-meeting-properties
+  "Insert the org title and filetags for a meeting"
+  ""
+  "#+TITLE: TOPIC Meeting\n"
+  "#+FILETAGS: meeting customer city state attendees topics\n")
+#+END_SRC
+
 Bind the snippets (in the =abbrev-file-name= file)
-#+BEGIN_SRC emacs-lisp  :tangle ./abbrev_defs
+,#+BEGIN_SRC emacs-lisp  :tangle ./abbrev_defs
 ;;-*-coding: utf-8;-*-
 (define-abbrev-table 'org-mode-abbrev-table
   '(("selisp" "" skel-org-block-elisp)
     ("sfac" "" skel-facility-properties)
     ("sper" "" skel-person-properties)
-    ("swo" "" skel-workorder-properties)))
+    ("swo" "" skel-workorder-properties)
+    ("smet" "" skel-meeting-properties)))
 #+END_SRC
 
 *** Auto-archive
