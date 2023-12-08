@@ -598,7 +598,8 @@ Facility properties block
 (define-skeleton skel-facility-properties
   "Insert the org title and filetags for a new facility."
   ""
-  "#+TITLE: \n"
+  "#+TITLE: "
+  _ - \n
   "#+FILETAGS: customer city state pm sm aka\n")
 #+END_SRC
 
@@ -607,7 +608,8 @@ Person properties block
 (define-skeleton skel-person-properties
   "Insert the org title and filetags for a person."
   ""
-  "#+TITLE: \n"
+  "#+TITLE: "
+  _ - \n
   "#+FILETAGS: company position\n")
 #+END_SRC
 
@@ -616,7 +618,8 @@ Workorder properties block
 (define-skeleton skel-workorder-properties
   "Insert the org title and filetags for a workorder"
   ""
-  "#+TITLE: Workorder ###\n"
+  "#+TITLE: Workorder "
+  _ - \n
   "#+FILETAGS: workorder customer city state topics\n")
 #+END_SRC
 
@@ -625,7 +628,9 @@ Meeting properties block
 (define-skeleton skel-meeting-properties
   "Insert the org title and filetags for a meeting"
   ""
-  "#+TITLE: TOPIC Meeting\n"
+  "#+TITLE: "
+  _ -
+  " Meeting\n"
   "#+FILETAGS: meeting customer city state attendees topics\n")
 #+END_SRC
 
