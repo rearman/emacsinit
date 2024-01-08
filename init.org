@@ -1187,19 +1187,6 @@ With optional argument `ai', also calculate a final scaled value from an input."
     (if (eq nil ai)
 	(list div ofst)
       (list div ofst (+ ofst (/ ai div))))))
-
-(defun pid-tune (Ku Tu &optional loop-type)
-  "Use the Ziegler-Nichols method to tune a P, PI or PID loop.
-Takes Ku, Tu and optional loop-type (P, PI, or PID [default])
-as arguments, and returns appropriate kp, ki, and kd."
-  (cond ((or (equal 'p loop-type)
-	     (equal 'P loop-type))
-	 (list (* 0.5 Ku)))
-	((or (equal 'pi loop-type)
-	     (equal 'PI loop-type))
-	 (list (* 0.45 Ku) (/ (* 0.54 Ku) Tu)))
-	(t
-	 (list (* 0.6 Ku) (/ (* 1.2 Ku) Tu) (/ (* 3.0 Ku Tu) 40)))))
 #+END_SRC
 
 *** Refrigeration
