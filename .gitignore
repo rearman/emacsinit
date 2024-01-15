@@ -1,6 +1,6 @@
 *.elc
 auto-save-list/
-abbrev-defs
+abbrev_defs
 bookmarks
 custom.el
 early-init.el
