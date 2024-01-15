@@ -259,6 +259,14 @@ Not a package in the strict sense, just a .el file - pulled from [[https://githu
 (load (concat user-emacs-directory "acme-mouse.el"))
 #+END_SRC
 
+*** AUCTeX
+Starting to do some work with LaTeX, surprised this is not in base, but org is.
+#+BEGIN_SRC emacs-lisp
+(use-package auctex
+  :ensure t
+  :defer t)
+#+END_SRC
+
 ** Non-Package customization
 This section has '/base/' emacs customization.  All the general stuff.
 
