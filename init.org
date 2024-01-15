@@ -528,7 +528,7 @@ Exclude =DONE= state tasks from refile targets
 *** Keywords and Filtering
 Set up some more todo keywords
 #+BEGIN_SRC emacs-lisp
-(setq org-todo-keywords '((sequence "TODO(t!)"
+(setq org-todo-keywords '((sequence "TODO(t)"
 				    "WAITING(w@/!)"
 				    "IN-PROGRESS(i!)"
 				    "APPT(a!)"
@@ -544,6 +544,8 @@ Set up the agenda view. Access it with =C-c a SPC=.
 				    ((agenda "" nil)
 				     (todo "APPT"
 					   ((org-agenda-overriding-header "Appointments")))
+				     (tags "need"
+					   ((org-agenda-overriding-header "Needed Items")))
 				     (tags "REFILE"
 					   ((org-agenda-overriding-header "Tasks to Refile")))
 				     (tags-todo "TODO=\"IN-PROGRESS\"-REFILE"
@@ -556,16 +558,11 @@ Set up the agenda view. Access it with =C-c a SPC=.
 
 Tag filtering
 #+BEGIN_SRC emacs-lisp
-(setq org-tag-alist '(((:startgroup)
+(setq org-tag-alist '((:startgroup . nil)
 		       ("@errand" . ?e)
 		       ("@office" . ?o)
-		       (:endgroup)
-		       ("WAITING" . ?w)
-		       ("IN-PROGRESS" . ?i)
-		       ("APPT" . ?a)
-		       ("HOLD" . ?h)
-		       ("NOTE" . ?n)
-		       ("CANCELLED" . ?c))))
+		       ("need" . ?n)
+		       (:endgroup . nil)))
 #+END_SRC
 
 *** Templates
