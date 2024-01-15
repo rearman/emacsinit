@@ -130,7 +130,10 @@ I don't need these on a windows PC.
 #+BEGIN_SRC emacs-lisp
 (unless (equal system-type 'windows-nt)
   (use-package slime :ensure t)
-  (use-package ledger-mode :ensure t))
+  (use-package ledger-mode
+    :ensure t
+    :bind
+  ((:map ledger-mode-map ("C-c s" . ledger-sort-buffer)))))
 #+END_SRC
 
 *** eink-emacs
