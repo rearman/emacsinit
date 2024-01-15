@@ -635,7 +635,7 @@ Meeting properties block
 #+END_SRC
 
 Bind the snippets (in the =abbrev-file-name= file)
-,#+BEGIN_SRC emacs-lisp  :tangle ./abbrev_defs
+#+BEGIN_SRC emacs-lisp  :tangle ./abbrev_defs
 ;;-*-coding: utf-8;-*-
 (define-abbrev-table 'org-mode-abbrev-table
   '(("selisp" "" skel-org-block-elisp)
