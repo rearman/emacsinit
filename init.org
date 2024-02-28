@@ -478,6 +478,7 @@ Just some basic/misc stuff.  I don't think I've seen too many configs that don't
       org-agenda-restore-windows-after-quit t
       org-use-fast-todo-selection 'expert
       org-fast-tag-selection-single-key 'expert
+      org-agenda-dim-blocked-tasks 'invisible
       org-enforce-todo-dependencies t
       org-enforce-todo-checkbox-dependencies t
       org-agenda-start-on-weekday nil
@@ -608,7 +609,7 @@ Facility properties block
   ""
   "#+TITLE: "
   _ - \n
-  "#+FILETAGS: customer city state pm sm aka\n")
+  "#+FILETAGS: customer city state pm sm ee ce aka c# \n")
 #+END_SRC
 
 Person properties block
