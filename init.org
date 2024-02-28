@@ -609,7 +609,11 @@ Facility properties block
   ""
   "#+TITLE: "
   _ - \n
-  "#+FILETAGS: customer city state pm sm ee ce aka c# \n")
+  "#+FILETAGS: customer city state pm sm ee ce aka c#\n\n"
+  "* System Notes\n"
+  "* PLC [/]\n"
+  "* Wonderware [/]\n"
+  "* Commissioning [/]\n")
 #+END_SRC
 
 Person properties block
