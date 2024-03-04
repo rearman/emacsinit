@@ -489,7 +489,8 @@ Just some basic/misc stuff.  I don't think I've seen too many configs that don't
       org-table-export-default-format "orgtbl-to-csv"
       org-agenda-window-setup 'current-window
       org-link-file-path-type 'absolute
-      org-startup-folded t)
+      org-startup-folded t
+      org-startup-indented t)
 #+END_SRC
 
 *** Bindings
