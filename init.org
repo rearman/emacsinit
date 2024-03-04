@@ -488,7 +488,8 @@ Just some basic/misc stuff.  I don't think I've seen too many configs that don't
       org-deadline-warning-days 30
       org-table-export-default-format "orgtbl-to-csv"
       org-agenda-window-setup 'current-window
-      org-link-file-path-type 'absolute)
+      org-link-file-path-type 'absolute
+      org-startup-folded t)
 #+END_SRC
 
 *** Bindings
@@ -523,15 +524,6 @@ Let me refile anywhere, use outline paths, confirm when creating parent nodes.
 			   (org-agenda-files :maxlevel . 9))
       org-refile-use-outline-path 'file
       org-refile-allow-creating-parent-nodes '(confirm))
-#+END_SRC
-
-Exclude =DONE= state tasks from refile targets
-#+BEGIN_SRC emacs-lisp
-(defun re/verify-refile-target ()
-  "Exclude todo keywords with a done state from refile targets"
-  (not (member (nth 2 (org-heading-components)) org-done-keywords)))
-
-(setq org-refile-target-verify-function 're/verify-refile-target)
 #+END_SRC
 
 *** Keywords and Filtering
